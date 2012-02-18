@@ -14,7 +14,7 @@ import org.unallied.mmocraft.gui.GUIUtility;
  * A styleable control that all control objects should be derived from.
  * This class provides the means for setting the background, width, and height.
  * It also provides a means for activating the event by mouse click.
- * @author Ryokko
+ * @author Faythless
  *
  */
 public abstract class Control extends GUIElement {

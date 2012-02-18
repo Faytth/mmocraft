@@ -12,7 +12,7 @@ import org.newdawn.slick.font.effects.ColorEffect;
  * Stores all fonts in a map for easy access.  If the font requested is not
  * in the map, it will attempt to query the server to obtain the image.
  * This implements the Singleton pattern.
- * @author Ryokko
+ * @author Faythless
  *
  */
 public class FontHandler {

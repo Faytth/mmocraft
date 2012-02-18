@@ -2,7 +2,7 @@ package org.unallied.mmocraft;
 
 /**
  * Contains statistics for the game world, such as total width and height.
- * @author Ryokko
+ * @author Faythless
  *
  */
 public class World {

@@ -114,4 +114,12 @@ public class TextCtrl extends Control {
         }
         
     }
+
+    /**
+     * Returns the current label (user input)
+     * @return
+     */
+    public String getLabel() {
+        return label;
+    }
 }

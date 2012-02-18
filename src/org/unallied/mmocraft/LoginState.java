@@ -11,6 +11,7 @@ import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.frame.LoginFrame;
+import org.unallied.mmocraft.packets.handlers.LoginHandler;
 
 public class LoginState extends GUIElement implements GameState {
 
@@ -18,6 +19,7 @@ public class LoginState extends GUIElement implements GameState {
     
     // Contains all GUI elements (e.g. buttons / text) for this game state
     private List<GUIElement> elements = new ArrayList<GUIElement>();
+    private LoginFrame loginFrame = null;
     
     public LoginState(int stateID) {
         super(null, null, null, 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
@@ -174,13 +176,16 @@ public class LoginState extends GUIElement implements GameState {
         
         // init is called twice
         if( this.elements.size() == 0 ) {
-            LoginFrame lf = new LoginFrame(this, new EventIntf(){
+            loginFrame = new LoginFrame(this, new EventIntf(){
 
                 @Override
                 public void callback(Event event) {
                     switch( event.getId() ) {
                     case LOGIN_CLICKED:
-                        System.out.println("Login");
+                        // If we logged in, go to ingame state
+                        if( new LoginHandler(loginFrame.getUsername(), loginFrame.getPassword()).login() ) {
+                            Game.getInstance().enterState(org.unallied.mmocraft.GameState.INGAME);
+                        }
                         break;
                     case REGISTER_CLICKED:
                         System.out.println("Register");
@@ -191,7 +196,7 @@ public class LoginState extends GUIElement implements GameState {
             }, container, Game.SCREEN_WIDTH/3
                     , Game.SCREEN_HEIGHT/3 + 60, -1, -1);
             // Controls
-            this.elements.add(lf);
+            this.elements.add(loginFrame);
         }
         container.getInput().enableKeyRepeat();
     }

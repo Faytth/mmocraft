@@ -10,7 +10,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 /**
  * A generic class for all GUI elements, such as frames and controls.
- * @author Ryokko
+ * @author Faythless
  *
  */
 public abstract class GUIElement implements InputListener {
@@ -21,7 +21,7 @@ public abstract class GUIElement implements InputListener {
     
     /**
      * An event class used in event callbacks
-     * @author Ryokko
+     * @author Faythless
      *
      */
     public class Event {

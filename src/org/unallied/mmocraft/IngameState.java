@@ -187,6 +187,7 @@ public class IngameState extends GUIElement implements GameState {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) {
          // Get maximum width / height of the game
+        
 /*                long gameWidth  = gl.getWorld().getWidth();
            long gameHeight = gl.getWorld().getHeight();
            

@@ -2,7 +2,7 @@ package org.unallied.mmocraft.gui;
 
 /**
  * A utility class for GUI elements
- * @author Ryokko
+ * @author Faythless
  *
  */
 public class GUIUtility {
@@ -19,7 +19,7 @@ public class GUIUtility {
     /**
      * This is a singleton holder.  It is loaded on the first execution of
      * GUIUtility.getInstance() or the first access to the holder, not before
-     * @author Ryokko
+     * @author Faythless
      *
      */
     private static class GUIUtilityHolder {

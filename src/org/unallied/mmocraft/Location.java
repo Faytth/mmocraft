@@ -6,7 +6,7 @@ package org.unallied.mmocraft;
  * some block at (x,y).  You then have a player who is almost at the
  * middle of that block, but a little to the right.  You would have a
  * slightly positive xOffset.  1 xOffset is the equivalent of 1 pixel.
- * @author Ryokko
+ * @author Faythless
  *
  */
 public class Location {

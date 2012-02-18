@@ -10,7 +10,7 @@ import org.newdawn.slick.SlickException;
  * Stores all images in a map for easy access.  If the image requested is not
  * in the map, it will attempt to query the server to obtain the image.
  * This implements the Singleton pattern.
- * @author Ryokko
+ * @author Faythless
  *
  */
 public class ImageHandler {
@@ -30,7 +30,7 @@ public class ImageHandler {
     /**
      * This is a singleton holder.  It is loaded on the first execution of
      * ImageHandler.getInstance() or the first access to the holder, not before
-     * @author Ryokko
+     * @author Faythless
      *
      */
     private static class ImageHandlerHolder {

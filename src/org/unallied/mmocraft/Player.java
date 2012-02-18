@@ -2,7 +2,7 @@ package org.unallied.mmocraft;
 
 /**
  * Contains information about a given playable character.
- * @author Ryokko
+ * @author Faythless
  *
  */
 public class Player {

@@ -134,4 +134,20 @@ public class LoginFrame extends GUIElement {
         // TODO Auto-generated method stub
         
     }
+
+    /**
+     * Returns the username from the username text control
+     * @return username
+     */
+    public String getUsername() {
+        return userTextCtrl.getLabel();
+    }
+    
+    /**
+     * Returns the password from the password text control
+     * @return username
+     */
+    public String getPassword() {
+        return passTextCtrl.getLabel();
+    }
 }

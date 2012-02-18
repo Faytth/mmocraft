@@ -2,7 +2,7 @@ package org.unallied.mmocraft;
 
 /**
  * Contains game logic, such as the current game state
- * @author Ryokko
+ * @author Faythless
  *
  */
 public class GameLogic {
