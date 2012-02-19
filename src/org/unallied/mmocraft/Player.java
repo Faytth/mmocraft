@@ -1,21 +1,28 @@
 package org.unallied.mmocraft;
 
 /**
- * Contains information about a given playable character.
+ * Contains all information for a given player.
  * @author Faythless
  *
  */
-public class Player {
+public class Player extends Living {
 
-    // The exact location of this player in the world.
-    private Location currentLocation = null;
+    private int playerId; // The unique ID of this player
     
     /**
-     * Returns the absolute location of the player in the world.
-     * @return the absolute location of the player.
+     * Returns this player's unique identifier
+     * @return playerId
      */
-    public Location getLocation() {
-        return currentLocation;
+    public int getId() {
+        return playerId;
     }
 
+    /**
+     * Saves everything about the Player to the database
+     * @param b
+     */
+    public void save(boolean b) {
+        // TODO Auto-generated method stub
+        
+    }
 }
