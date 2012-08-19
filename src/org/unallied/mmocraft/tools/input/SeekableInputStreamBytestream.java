@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.unallied.mmocraft.tools.input.ByteInputStream;
 
-public interface SeekableInputStreamBytestream extends ByteInputStream {
+public abstract class SeekableInputStreamBytestream extends ByteInputStream {
     /**
      * Seeks the stream by the specified offset.
      *
@@ -12,7 +12,7 @@ public interface SeekableInputStreamBytestream extends ByteInputStream {
      *            Number of bytes to seek.
      * @throws IOException
      */
-    void seek(long offset) throws IOException;
+    public abstract void seek(long offset) throws IOException;
 
     /**
      * Gets the current position of the stream.
@@ -20,5 +20,5 @@ public interface SeekableInputStreamBytestream extends ByteInputStream {
      * @return The stream position as a long integer.
      * @throws IOException
      */
-    long getPosition() throws IOException;
+    public abstract long getPosition() throws IOException;
 }

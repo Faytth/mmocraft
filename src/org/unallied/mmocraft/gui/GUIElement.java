@@ -1,5 +1,8 @@
 package org.unallied.mmocraft.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -14,6 +17,8 @@ import org.newdawn.slick.state.StateBasedGame;
  *
  */
 public abstract class GUIElement implements InputListener {
+    
+    protected List<GUIElement> elements = new ArrayList<GUIElement>();
     
     public interface EventIntf {
         public void callback(Event event);
@@ -55,12 +60,14 @@ public abstract class GUIElement implements InputListener {
     protected Image image; // The image to render for this element
     protected final GUIElement parent; // The parent element.  This is used in callbacks
     
+    protected GameContainer container = null; // Stores a reference to the game container
+    protected boolean isHandler = false; // Stores whether this control handles events
     private EventIntf intf; // Used for event callbacks
     
     /**
      * Creates a GUIElement
-     * @param parent The parent element.  This is used in callbacks
-     * @param id The id of this GUIElement
+     * @param parent The parent element.  This is used in callbacks.  Can be null.
+     * @param intf The event interface (callback) for this element.  Can be null.
      * @param container The input container which we will listen on
      * @param x The x offset of this GUI element
      * @param y The y offset of this GUI element
@@ -71,7 +78,9 @@ public abstract class GUIElement implements InputListener {
             , float y, int width, int height) {
         this.parent = parent;
         this.intf = intf;
+        this.container = container;
         if( container != null ) {
+            isHandler = true;
             container.getInput().addListener(this);
         }
         this.x = x;
@@ -84,6 +93,17 @@ public abstract class GUIElement implements InputListener {
             image = null; // UH OH!
         } catch (NullPointerException e) {
             
+        }
+    }
+    
+    /**
+     * This should be called when this element is being destroyed.  By calling
+     * this, the GUI element is able to properly remove itself from the container
+     * as a listener.
+     */
+    public void destroy() {
+        if (isHandler) {
+            container.getInput().removeListener(this);
         }
     }
     
@@ -134,10 +154,18 @@ public abstract class GUIElement implements InputListener {
         
         if( image != null ) {
             image.draw(getAbsoluteWidth(), getAbsoluteHeight());
-        } else { // Fill with default image (white rectangle)
-            g.fillRect(getAbsoluteWidth(), getAbsoluteHeight(), width, height);
         }
-        renderToolTip(container, game, g);
+        
+        if (elements != null) {
+            // Iterate over all GUI controls and inform them of input
+            for( GUIElement element : elements ) {
+                element.render(container, game, g);
+            }
+            
+            for( GUIElement element : elements ) {
+                element.renderToolTip(container, game, g);
+            }
+        }
     }
     
     /**
@@ -241,8 +269,6 @@ public abstract class GUIElement implements InputListener {
     }
 
     public void keyPressed(int key, char c) {
-        // TODO Auto-generated method stub
-        
     }
 
     public void keyReleased(int key, char c) {
@@ -298,5 +324,13 @@ public abstract class GUIElement implements InputListener {
     public void controllerUpReleased(int controller) {
         // TODO Auto-generated method stub
         
+    }
+    
+    /**
+     * Returns the parent to this element.
+     * @return parent
+     */
+    public GUIElement getParent() {
+        return parent;
     }
 }

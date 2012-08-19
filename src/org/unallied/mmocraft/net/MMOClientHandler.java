@@ -1,10 +1,12 @@
 package org.unallied.mmocraft.net;
 
+import java.io.IOException;
+
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 
-import org.unallied.mmocraft.Game;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.MMOClient;
 
 import org.unallied.mmocraft.net.PacketHandler;
@@ -24,9 +26,18 @@ public class MMOClientHandler extends IoHandlerAdapter {
     
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        // TODO:  Make this attempt to resolve the error instead of killing the client
-        session.close(true);
-        PrintError.print(PrintError.EXCEPTION_CAUGHT, cause);
+        
+        // If server forcibly closed the connection
+        if (cause instanceof IOException) {
+            MMOClient client = (MMOClient) session.getAttribute(MMOClient.CLIENT_KEY);
+            client.disconnect();
+            session.close(true);
+        } else {
+            MMOClient client = (MMOClient) session.getAttribute(MMOClient.CLIENT_KEY);
+            client.disconnect();
+            session.close(true);
+            PrintError.print(PrintError.EXCEPTION_CAUGHT, cause);
+        }
     }
 
     @Override
@@ -52,6 +63,9 @@ public class MMOClientHandler extends IoHandlerAdapter {
                 } finally {
                     session.removeAttribute(MMOClient.CLIENT_KEY);
                     client.empty();
+                    
+                    // Return to login menu
+                    Game.getInstance().enterState(org.unallied.mmocraft.client.GameState.LOGIN);
                 }
             }
         }

@@ -2,7 +2,7 @@ package org.unallied.mmocraft.tools.input;
 
 import java.io.IOException;
 
-public class ByteArrayByteStream implements SeekableInputStreamBytestream {
+public class ByteArrayByteStream extends SeekableInputStreamBytestream {
     private int pos = 0;
     private long bytesRead = 0;
     private byte[] data;
@@ -35,7 +35,7 @@ public class ByteArrayByteStream implements SeekableInputStreamBytestream {
      * Returns the number of remaining bytes that are available to read
      * @return the number of bytes available
      */
-    public long available() {
+    public int available() {
         return data.length - pos;
     }
 
@@ -51,5 +51,10 @@ public class ByteArrayByteStream implements SeekableInputStreamBytestream {
      */
     public long getPosition() throws IOException {
         return pos;
+    }
+
+    @Override
+    public int read() throws IOException {
+        return readByte();
     }
 }

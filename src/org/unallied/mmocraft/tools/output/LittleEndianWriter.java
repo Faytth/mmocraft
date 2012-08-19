@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.tools.output;
 
 import org.unallied.mmocraft.net.SendOpcode;
+import org.unallied.mmocraft.net.RecvOpcode;
 
 public interface LittleEndianWriter {
     
@@ -21,6 +22,12 @@ public interface LittleEndianWriter {
      * @param o
      */
     public void write(SendOpcode o);
+    
+    /**
+     * Write an opcode to the sequence
+     * @param o
+     */
+    void write(RecvOpcode o);
     
     /**
      * Writes a short to the sequence
@@ -66,4 +73,10 @@ public interface LittleEndianWriter {
      * @return the current contents of this output stream, as a byte array.
      */
     public byte[] toByteArray();
+
+    /**
+     * Writes a float to the sequence
+     * @param f The float value to write
+     */
+    void writeFloat(float f);
 }

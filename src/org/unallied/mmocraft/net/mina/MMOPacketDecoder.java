@@ -36,10 +36,10 @@ public class MMOPacketDecoder extends CumulativeProtocolDecoder {
         if (in.remaining() >= 4 && decoderState.packetLength == -1) {
             // We have to convert from big-ENDian to lil-ENDian.  That's why we don't use getInt()
             decoderState.packetLength = 0;
-            decoderState.packetLength += in.get();
-            decoderState.packetLength += in.get() << 8;
-            decoderState.packetLength += in.get() << 16;
-            decoderState.packetLength += in.get() << 24;
+            decoderState.packetLength += (int) (in.get())       & 0x000000FF;
+            decoderState.packetLength += (int) (in.get() << 8)  & 0x0000FF00;
+            decoderState.packetLength += (int) (in.get() << 16) & 0x00FF0000;
+            decoderState.packetLength += (int) (in.get() << 24) & 0xFF000000;
             
         } else if (in.remaining() < 4 && decoderState.packetLength == -1) {
             return false; // Nothing to do.  We don't have the full header

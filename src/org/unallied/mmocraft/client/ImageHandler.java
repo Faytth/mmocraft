@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.client;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class ImageHandler {
      *
      */
     private static class ImageHandlerHolder {
-        public static final ImageHandler instance = new ImageHandler();
+        private static final ImageHandler instance = new ImageHandler();
     }
     
     /**
@@ -50,6 +50,22 @@ public class ImageHandler {
             images.put( ImageID.BUTTON_LOGIN_NORMAL.toString(), new Image("resources/images/button_login_normal.png"));
             images.put( ImageID.BUTTON_LOGIN_HIGHLIGHTED.toString(), new Image("resources/images/button_login_highlighted.png"));
             images.put( ImageID.BUTTON_LOGIN_SELECTED.toString(), new Image("resources/images/button_login_selected.png"));
+            images.put( ImageID.BUTTON_REGISTER_NORMAL.toString(), new Image("resources/images/button_register_normal.png"));
+            images.put( ImageID.BUTTON_REGISTER_HIGHLIGHTED.toString(), new Image("resources/images/button_register_highlighted.png"));
+            images.put( ImageID.BUTTON_REGISTER_SELECTED.toString(), new Image("resources/images/button_register_selected.png"));
+
+            // Backgrounds
+            images.put( ImageID.BACKGROUND_SKY.toString(), new Image("resources/images/backgrounds/sky.png") );
+            
+            // Blocks
+            images.put( ImageID.BLOCK_AIR.toString(),       new Image("resources/images/blocks/air.png"));
+            images.put( ImageID.BLOCK_DIRT.toString(),      new Image("resources/images/blocks/dirt.png"));
+            images.put( ImageID.BLOCK_STONE.toString(),     new Image("resources/images/blocks/stone.png"));
+            images.put( ImageID.BLOCK_IRON.toString(),      new Image("resources/images/blocks/iron.png"));
+            images.put( ImageID.BLOCK_CLAY.toString(),      new Image("resources/images/blocks/clay.png"));
+            images.put( ImageID.BLOCK_GRAVEL.toString(),    new Image("resources/images/blocks/gravel.png"));
+            images.put( ImageID.BLOCK_SANDSTONE.toString(), new Image("resources/images/blocks/sandstone.png"));
+            images.put( ImageID.BLOCK_SAND.toString(),      new Image("resources/images/blocks/sand.png"));
             
         } catch (SlickException e) {
             // There was an error loading the default images

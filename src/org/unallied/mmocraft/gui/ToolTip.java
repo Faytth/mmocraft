@@ -9,8 +9,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
-import org.unallied.mmocraft.FontHandler;
-import org.unallied.mmocraft.FontID;
+import org.unallied.mmocraft.client.FontHandler;
+import org.unallied.mmocraft.client.FontID;
 
 public class ToolTip {
 
@@ -25,6 +25,9 @@ public class ToolTip {
     
     public ToolTip(String tip) {
         this.tip = tip;
+        toolWidth = FontHandler.getInstance().getMaxWidth(FontID.TOOLTIP_DEFAULT.toString(), this.tip) + tipOffsetX*2;
+        toolHeight = FontHandler.getInstance().getMaxHeight(FontID.TOOLTIP_DEFAULT.toString(), this.tip) + tipOffsetY*2;
+        
         renderImage();
     }
     

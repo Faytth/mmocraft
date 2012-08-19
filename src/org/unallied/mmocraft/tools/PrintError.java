@@ -9,6 +9,7 @@ public class PrintError {
     
     // Below are the filenames for different error logs
     public static final String EXCEPTION_CAUGHT = "exceptionCaught.rtf";
+    public static final String ERROR_MESSAGE = "errorMessages.rtf";
     
     public static void print(final String filename, final Throwable t) {
         FileOutputStream out = null;

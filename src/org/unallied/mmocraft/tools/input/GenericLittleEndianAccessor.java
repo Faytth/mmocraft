@@ -1,5 +1,8 @@
 package org.unallied.mmocraft.tools.input;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 public class GenericLittleEndianAccessor implements LittleEndianAccessor {
     private ByteInputStream bs;
 
@@ -35,14 +38,14 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
     @Override
     public long readLong() {
         long result = 0;
-        result += bs.readByte();
-        result += bs.readByte() << 8;
-        result += bs.readByte() << 16;
-        result += bs.readByte() << 24;
-        result += bs.readByte() << 32;
-        result += bs.readByte() << 40;
-        result += bs.readByte() << 48;
-        result += bs.readByte() << 56;
+        result += (long) (bs.readByte());
+        result += (long) (bs.readByte()) << 8;
+        result += (long) (bs.readByte()) << 16;
+        result += (long) (bs.readByte()) << 24;
+        result += (long) (bs.readByte()) << 32;
+        result += (long) (bs.readByte()) << 40;
+        result += (long) (bs.readByte()) << 48;
+        result += (long) (bs.readByte()) << 56;
         
         return result;
     }
@@ -113,6 +116,21 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
     @Override
     public long available() {
         return bs.available();
+    }
+
+    @Override
+    public Object readObject() {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(bs);
+            return ois.readObject();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

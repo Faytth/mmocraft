@@ -10,8 +10,31 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>net.sourceforge.metrics.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>net.sourceforge.metrics.nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>org.unallied.mmocraft.inherited_constants</name>
+			<type>2</type>
+			<location>C:/Users/Alexandria/git/mmoserver/src/org/unallied/mmocraft/constants</location>
+		</link>
+		<link>
+			<name>org.unallied.mmocraft.linked_constants</name>
+			<type>2</type>
+			<location>C:/Users/Alexandria/git/mmoserver/src/org/unallied/mmocraft/constants</location>
+		</link>
+		<link>
+			<name>src.org.unallied.mmocraft.constants</name>
+			<type>2</type>
+			<location>C:/Users/Alexandria/git/mmoserver/src/org/unallied/mmocraft/constants</location>
+		</link>
+	</linkedResources>
 </projectDescription>

@@ -28,10 +28,4 @@ public class World {
     public long getHeight() {
         return height;
     }
-
-    public Terrain getTerrain() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

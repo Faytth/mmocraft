@@ -1,11 +1,6 @@
 package org.unallied.mmocraft.net;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.IoConnector;
@@ -13,7 +8,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
-import org.unallied.mmocraft.Game;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.net.mina.MMOCodecFactory;
@@ -22,8 +17,6 @@ import org.unallied.mmocraft.net.mina.MMOCodecFactory;
  * Contains the socket to the server
  */
 public class PacketSocket {
-    private static final int MAX_ATTEMPTS = 4;
-    private static final int RETRY_DELAY = 250;
     private IoConnector connector;
     
     
@@ -49,18 +42,33 @@ public class PacketSocket {
     /**
      * Attempts to connect to the server
      */
-    public void connect() {        
-        connector = new NioSocketConnector();
-        connector.getFilterChain().addLast("codec", 
-                (IoFilter) new ProtocolCodecFilter(new MMOCodecFactory()));
-        connector.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 
-                ClientConstants.PACKET_TIMEOUT);
-        connector.setHandler(new MMOClientHandler(PacketProcessor.getInstance()));
-        connector.setDefaultRemoteAddress(
-                new InetSocketAddress(ClientConstants.HOST, 
-                        ClientConstants.SERVER_PORT));
-        
-        connector.connect();
+    public void connect() {
+        final int RETRY_TIME = 100; //
+        final int MAX_RETRY_ATTEMPTS = 50; // number of times to keep retrying connection
+        try {
+            connector = new NioSocketConnector();
+            connector.getFilterChain().addLast("codec", 
+                    (IoFilter) new ProtocolCodecFilter(new MMOCodecFactory()));
+            connector.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 
+                    ClientConstants.PACKET_TIMEOUT);
+            connector.setHandler(new MMOClientHandler(PacketProcessor.getInstance()));
+            connector.setDefaultRemoteAddress(
+                    new InetSocketAddress(ClientConstants.HOST, 
+                            ClientConstants.SERVER_PORT));
+            connector.connect();
+            
+            // We need to wait for it to become active
+            for (int i=0; i < MAX_RETRY_ATTEMPTS && !connector.isActive(); ++i) {
+                Thread.sleep(RETRY_TIME);
+            }
+            
+        } catch (Throwable t) {
+            System.out.println("Badness");
+            // We failed to connect, or something went wrong.
+            if (connector != null) {
+                connector.dispose();
+            }
+        }
     }
     
     public static PacketSocket getInstance() {
@@ -73,10 +81,14 @@ public class PacketSocket {
      */
     public IoSession getSession() {
         // If there's an error, try to fix it first
-        if( connector == null || !connector.isActive() ) {
+        if( connector == null ) {
             connect();
-            return null;
-        } else {
+        } else if (!connector.isActive()) {
+            connector.dispose();
+            connect();
+        } 
+        
+        if( connector != null && connector.isActive() ) {
             MMOClient client = Game.getInstance().getClient();
             if (client != null) {
                 return client.getSession();

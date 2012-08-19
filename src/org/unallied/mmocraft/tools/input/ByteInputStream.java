@@ -1,7 +1,9 @@
 package org.unallied.mmocraft.tools.input;
 
-public interface ByteInputStream {
-    int readByte();
-    long getBytesRead();
-    long available();
+import java.io.InputStream;
+
+public abstract class ByteInputStream extends InputStream {
+    public abstract int readByte();
+    public abstract long getBytesRead();
+    public abstract int available();
 }

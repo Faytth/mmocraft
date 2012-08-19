@@ -1,8 +1,18 @@
 package org.unallied.mmocraft.client;
 
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketCreator;
+import org.unallied.mmocraft.net.PacketSocket;
+import org.unallied.mmocraft.net.sessions.LoginSession;
+import org.unallied.mmocraft.net.sessions.NPCSession;
+import org.unallied.mmocraft.net.sessions.ObjectSession;
+import org.unallied.mmocraft.net.sessions.PlayerPoolSession;
+import org.unallied.mmocraft.net.sessions.TerrainSession;
 
 import org.apache.mina.core.session.IoSession;
 
@@ -19,8 +29,22 @@ public class MMOClient {
     private int accountId;            // Player's account id
     private boolean loggedIn = false; // Whether this account is logged in
     private String accountName; // The username of the logged in account
-    private String accountPass; // The password of the logged in account
     private long lastPing = 0;  // The time that the last ping was received from the server
+    
+    // Stores important information about a client's login information
+    public LoginSession loginSession = new LoginSession();
+
+    // Stores important information about all of the terrain, such as world chunks
+    public TerrainSession terrainSession = new TerrainSession();
+
+    // Stores all of the inanimate game objects
+    public ObjectSession objectSession = new ObjectSession();
+
+    // Stores all other players
+    public PlayerPoolSession playerPoolSession = new PlayerPoolSession();
+
+    // Stores all non-playable characters
+    public NPCSession npcSession = new NPCSession();
     
     public MMOClient() {
     }
@@ -102,7 +126,6 @@ public class MMOClient {
         try {
             if (player != null && isLoggedIn()) {
                 removePlayer();
-                player.save(true);
             }
         } finally {
             player = null;
@@ -135,6 +158,67 @@ public class MMOClient {
     }
     
     public void announce(Packet packet) {
-        session.write(packet);
+        try {
+            // Reconnect if needed
+            if (session == null || !session.isConnected()) {
+                session = PacketSocket.getInstance().getSession();
+            }
+            session.write(packet);
+        } catch (Throwable t) {
+            // Error sending packet.  This can be caused by a connection failure.
+            session = PacketSocket.getInstance().getSession();
+        }
+    }
+
+    /**
+     * Renders all of the game world.  This includes terrain, objects, players,
+     * and NPCs.
+     * @param container
+     * @param game
+     * @param g
+     */
+    public void render(GameContainer container, StateBasedGame game, Graphics g) {
+        
+        try {
+            // Get player's Location.  Used to determine rendering location
+            BoundLocation location = player.getLocation();
+            BoundLocation camera   = new BoundLocation(location);
+            
+            // Adjust camera location
+            camera.moveLeft(container.getWidth() / 2);
+            camera.moveUp(container.getHeight() / 2);
+            
+            // Render the background
+            ImageHandler.getInstance().draw(ImageID.BACKGROUND_SKY.toString(), 0, 0);
+            
+            // Render the "back" blocks of the world
+            
+            // Render the "blocks" of the world
+            terrainSession.render(container, game, g, camera);
+
+            // Render the inanimate objects
+            objectSession.render(container, game, g, camera);
+            
+            // Render the other players
+            playerPoolSession.render(container, game, g, camera);
+            
+            // Render the NPCs
+            npcSession.render(container, game, g, camera);
+            
+            // Render yourself
+            player.render(container, game, g, camera);
+        } catch (Throwable t) {
+            // Do nothing.  It's a rendering bug.  So what?
+        }
+    }
+
+    /**
+     * Returns the terrain session associated with this client.
+     * The terrain session manages all of the loaded chunks and also handles
+     * rendering of those chunks.
+     * @return terrainSession
+     */
+    public TerrainSession getTerrainSession() {
+        return terrainSession;
     }
 }

@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.client;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,5 +67,40 @@ public class FontHandler {
     
     public static FontHandler getInstance() {
         return FontHandlerHolder.instance;
+    }
+
+    /**
+     * Returns the maximum width needed to draw this <code>message</code>.
+     * @param key The string identifier of the font to draw.
+     * @param message The message to get the width of.
+     * @return width
+     */
+    public int getMaxWidth(String key, String message) {
+        if (fonts.containsKey(key) && fonts.get(key) != null) {
+            String[] lines = message.split("\n");
+            int maxWidth = 0;
+            for (String line : lines) {
+                int lineWidth = fonts.get(key).getWidth(line);
+                if (lineWidth > maxWidth) {
+                    maxWidth = lineWidth;
+                }
+            }
+                
+            return maxWidth;
+        }
+        return 0;
+    }
+    
+    /**
+     * Returns the maximum height needed to draw this <code>message</code>.
+     * @param key The string identifier of the font to draw.
+     * @param message The message to get the height of.
+     * @return height
+     */
+    public int getMaxHeight(String key, String message) {
+        if (fonts.containsKey(key) && fonts.get(key) != null) {
+            return fonts.get(key).getHeight(message);
+        }
+        return 0;
     }
 }

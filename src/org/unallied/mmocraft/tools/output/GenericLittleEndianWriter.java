@@ -2,8 +2,11 @@ package org.unallied.mmocraft.tools.output;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 
+import org.unallied.mmocraft.net.RecvOpcode;
 import org.unallied.mmocraft.net.SendOpcode;
 
 /**
@@ -28,14 +31,37 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
     public void write(byte b) {
         baos.write(b);
     }
-
+    
     /**
      * Write an opcode to the sequence
-     * @param o
+     * @param o opcode to write
      */
     @Override
     public void write(SendOpcode o) {
         writeShort(o.getValue());
+    }
+    
+    /**
+     * Write an opcode to the sequence
+     * @param o opcode to write
+     */
+    @Override
+    public void write(RecvOpcode o) {
+        writeShort(o.getValue());
+    }
+    
+    /**
+     * Serializes a serializable object into packet format
+     * @param serializable
+     */
+    public void writeObject(Serializable serializable) {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(serializable);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     @Override
@@ -52,6 +78,11 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
         baos.write((byte)((i >>> 24) & 0xFF));
     }
 
+    @Override
+    public void writeFloat(float f) {
+        writeInt(Float.floatToRawIntBits(f));
+    }
+    
     @Override
     public void writeLong(long l) {
         baos.write((byte)((l >>> 0) & 0xFF));

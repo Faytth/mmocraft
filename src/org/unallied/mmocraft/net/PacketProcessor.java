@@ -3,7 +3,7 @@ package org.unallied.mmocraft.net;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.unallied.mmocraft.net.handlers.ChallengeHandler;
+import org.unallied.mmocraft.net.handlers.*;
 
 /**
  * This class is used to perform callbacks to specific packet handlers
@@ -59,5 +59,12 @@ public class PacketProcessor {
         handlers.clear();
         
         registerHandler(RecvOpcode.CHALLENGE, new ChallengeHandler());
+        registerHandler(RecvOpcode.VERIFY, new VerifyHandler());
+        registerHandler(RecvOpcode.LOGIN_ERROR, new LoginErrorHandler());
+        registerHandler(RecvOpcode.PLAYER, new PlayerHandler());
+        registerHandler(RecvOpcode.CHUNK, new ChunkHandler());
+        registerHandler(RecvOpcode.MOVEMENT, new MovementHandler());
+        registerHandler(RecvOpcode.PLAYER_DISCONNECT, new PlayerDisconnectHandler());
+        registerHandler(RecvOpcode.REGISTRATION_ACK, new RegistrationAckHandler());
     }
 }

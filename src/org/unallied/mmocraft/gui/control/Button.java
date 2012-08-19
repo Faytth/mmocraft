@@ -5,9 +5,10 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import org.unallied.mmocraft.ImageHandler;
+import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.GUIUtility;
 
 public class Button extends Control {
 
@@ -36,7 +37,6 @@ public class Button extends Control {
             , String background_selected, int style) {
         super(parent, intf, container, x, y, width, height
                 , background, background_highlighted, background_selected);
-        
         this.label = label;
         renderImage();
         //this.style = style;
@@ -53,7 +53,7 @@ public class Button extends Control {
     @Override
     public void mouseReleased(int button, int x, int y) {
         if( this.containsPoint(x, y) ) {
-            parent.callback(new Event(this, EventType.LOGIN_CLICKED));
+            callback(new Event(this, EventType.BUTTON));
         }
         if( activated ) {
             activated = false;
@@ -63,8 +63,8 @@ public class Button extends Control {
 
     @Override
     public void keyPressed(int key, char c) {
-        if( key == Input.KEY_RETURN ) {
-            parent.callback(new Event(this, EventType.LOGIN_CLICKED));
+        if( key == Input.KEY_RETURN && GUIUtility.getInstance().isActiveElement(this)) {
+            callback(new Event(this, EventType.BUTTON));
         }
     }
 

@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.client;
 
 /**
  * This is an enum, but with ints.  The reason for this is that the Slick
@@ -9,4 +9,5 @@ package org.unallied.mmocraft;
 public class GameState {
     public static final int LOGIN = 0;
     public static final int INGAME = 1;
+    public static final int REGISTER = 2;
 }

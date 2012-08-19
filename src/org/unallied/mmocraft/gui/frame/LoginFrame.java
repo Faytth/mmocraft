@@ -1,13 +1,8 @@
 package org.unallied.mmocraft.gui.frame;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.state.StateBasedGame;
-import org.unallied.mmocraft.ImageID;
+import org.unallied.mmocraft.client.ImageID;
+import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.ToolTip;
@@ -15,12 +10,12 @@ import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.StaticText;
 import org.unallied.mmocraft.gui.control.TextCtrl;
 
-public class LoginFrame extends GUIElement {
+public class LoginFrame extends Frame {
 
     private TextCtrl userTextCtrl;
     private TextCtrl passTextCtrl;
     private Button   loginButton;
-    private List<GUIElement> elements = new ArrayList<GUIElement>();
+    private Button   registerButton;
     
     /**
      * Initializes a LoginFrame with its elements (e.g. Username, Password fields)
@@ -30,41 +25,90 @@ public class LoginFrame extends GUIElement {
     public LoginFrame(final GUIElement parent, EventIntf intf, GameContainer container
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
-        
-        userTextCtrl = new TextCtrl(this, new EventIntf() {
-            @Override
-            public void callback(Event event) {
-                //parent.callback(event);
-            }
-        }, container, "", 100, 0, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), 0);
-        
+
         passTextCtrl = new TextCtrl(this, new EventIntf() {
             @Override
             public void callback(Event event) {
+                switch (event.getId()) {
+                case TEXT_ENTER:
+                    GUIElement element = event.getElement().getParent();
+                    element.callback(new Event(element, EventType.LOGIN_CLICKED));
+                    break;
+                }
                 //parent.callback(event);
             }
-        }, container, "", 100, 30, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
+        }, container, "", 120, 30, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
                 , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
                 , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.PASSWORD);
+        
+        // Must be defined after passTextCtrl for event order to work properly.
+        userTextCtrl = new TextCtrl(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case TEXT_ENTER:
+                    GUIUtility.getInstance().setActiveElement(passTextCtrl);
+                    break;
+                }
+            }
+        }, container, "", 120, 0, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
+                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
+                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), 0);
         
         loginButton = new Button(this, new EventIntf() {
             @Override
             public void callback(Event event) {
-                //parent.callback(event);
+                switch (event.getId()) {
+                case BUTTON:
+                    GUIElement element = event.getElement().getParent();
+                    element.callback(new Event(element, EventType.LOGIN_CLICKED));
+                    break;
+                }
             }
-        }, container, "", 100, 60, -1, -1, ImageID.BUTTON_LOGIN_NORMAL.toString()
+        }, container, "", 160, 60, -1, -1, ImageID.BUTTON_LOGIN_NORMAL.toString()
                 , ImageID.BUTTON_LOGIN_HIGHLIGHTED.toString()
                 , ImageID.BUTTON_LOGIN_SELECTED.toString(), 0);
         
-        loginButton.setToolTip(new ToolTip("This is a test"));
+        registerButton = new Button(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case BUTTON:
+                    GUIElement element = event.getElement().getParent();
+                    element.callback(new Event(element, EventType.REGISTER_CLICKED));
+                    break;
+                }
+            }
+        }, container, "", 0, 60, -1, -1, ImageID.BUTTON_REGISTER_NORMAL.toString(),
+        ImageID.BUTTON_REGISTER_HIGHLIGHTED.toString(),
+        ImageID.BUTTON_REGISTER_SELECTED.toString(), 0);
+        
+        registerButton.setToolTip(new ToolTip("If you don't have an\naccount, you can register\nfor one here."));
         
         elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1));
         elements.add(userTextCtrl);
         elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1));
         elements.add(passTextCtrl);
         elements.add(loginButton);
+        elements.add(registerButton);
+    }
+    
+    @Override
+    /**
+     * This should be called when this element is being destroyed.  By calling
+     * this, the GUI element is able to properly remove itself from the container
+     * as a listener.
+     */
+    public void destroy() {
+        
+        // Destroy our children
+        for(GUIElement element : elements) {
+            element.destroy();
+        }
+        
+        if (isHandler) {
+            container.getInput().removeListener(this);
+        }
     }
     
     @Override
@@ -77,50 +121,9 @@ public class LoginFrame extends GUIElement {
     }
 
     @Override
-    public void render(GameContainer container, StateBasedGame game, Graphics g) {
-        
-        // Iterate over all GUI controls and inform them of input
-        for( GUIElement element : elements ) {
-            element.render(container, game, g);
-        }
-    }
-
-    @Override
     public boolean isAcceptingInput() {
         // TODO Auto-generated method stub
         return true;
-    }
-
-    @Override
-    public void keyPressed(int key, char c) {
-        // Respond to tab events
-        if( key == Input.KEY_TAB ) {
-            /* 
-             * Cycle through all children searching for active element.
-             * If found, then we set the next in line to the active element
-             */
-            boolean lastElementIsActive = false;
-            GUIUtility util = GUIUtility.getInstance();
-            for(GUIElement element : elements) {
-                if( util.isActiveElement(element) ) {
-                    lastElementIsActive = true;
-                } else if( lastElementIsActive && element.isAcceptingTab()) {
-                    util.setActiveElement(element);
-                    // We're done
-                    lastElementIsActive = false;
-                    break;
-                }
-            }
-            // If we're not done yet, set the FIRST element to active
-            if( lastElementIsActive ) {
-                for(GUIElement element : elements) {
-                    if( element.isAcceptingTab() ) {
-                        util.setActiveElement(element);
-                        break; // Done
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -128,7 +131,7 @@ public class LoginFrame extends GUIElement {
         // TODO Auto-generated method stub
         return false;
     }
-
+    
     @Override
     public void renderImage() {
         // TODO Auto-generated method stub

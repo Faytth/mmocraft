@@ -5,13 +5,17 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import org.unallied.mmocraft.ImageHandler;
+import org.unallied.mmocraft.client.ImageHandler;
+import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 
 public class TextCtrl extends Control {
 
     // Style masks
+    /// The text will appear normal.
+    public static final int NORMAL   = 0;
+    /// The text will be replaced by asterisks.
     public static final int PASSWORD = 1 << 0; // The text will be echoed as asterisks.
     
     private String label;
@@ -51,7 +55,7 @@ public class TextCtrl extends Control {
 
     @Override
     public void keyPressed(int key, char c) {
-        
+        callback(new Event(this, EventType.TEXT));
         processKeyEvent(key, c);
     }
 
@@ -64,7 +68,15 @@ public class TextCtrl extends Control {
         if( GUIUtility.getInstance().isActiveElement(this) ) {
             if( key == Input.KEY_BACK && label.length() > 0 ) {
                 label = label.substring(0, label.length()-1);
-            } else if( c >= 0x20 && c <= 0x7F ){
+            } else if (key == Input.KEY_RETURN) {
+                /* 
+                 * TODO:  Add a boolean which says whether to process this as an event
+                 *        or as a \n.
+                 */
+                callback(new Event(this, EventType.TEXT_ENTER));
+            } else if( c >= 0x20 && c <= 0x7F ){ // if a printable character
+                
+                // TODO:  Add a max length
                 label += c;
             }
             renderImage();

@@ -12,6 +12,12 @@ public interface LittleEndianAccessor {
     String readAsciiString(int n);
     String readNullTerminatedAsciiString();
     String readPrefixedAsciiString();
+    Object readObject();
     long getBytesRead();
+    
+    /**
+     * Retrieves the number of bytes that are available to be read.
+     * @return numberOfBytesAvailable
+     */
     long available();
 }
