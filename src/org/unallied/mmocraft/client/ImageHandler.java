@@ -10,6 +10,8 @@ import org.newdawn.slick.SlickException;
  * Stores all images in a map for easy access.  If the image requested is not
  * in the map, it will attempt to query the server to obtain the image.
  * This implements the Singleton pattern.
+ * TODO:  Change the the Image Handler loads images.  It should use a resource
+ * manager.
  * @author Faythless
  *
  */
@@ -47,6 +49,9 @@ public class ImageHandler {
             images.put( ImageID.TEXTCTRL_LOGIN_NORMAL.toString(), new Image("resources/images/textctrl_login_normal.png"));
             images.put( ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_login_highlighted.png"));
             images.put( ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), new Image("resources/images/textctrl_login_selected.png"));
+            images.put( ImageID.BUTTON_BACK_NORMAL.toString(), new Image("resources/images/button_back_normal.png"));
+            images.put( ImageID.BUTTON_BACK_HIGHLIGHTED.toString(), new Image("resources/images/button_back_highlighted.png"));
+            images.put( ImageID.BUTTON_BACK_SELECTED.toString(), new Image("resources/images/button_back_selected.png"));
             images.put( ImageID.BUTTON_LOGIN_NORMAL.toString(), new Image("resources/images/button_login_normal.png"));
             images.put( ImageID.BUTTON_LOGIN_HIGHLIGHTED.toString(), new Image("resources/images/button_login_highlighted.png"));
             images.put( ImageID.BUTTON_LOGIN_SELECTED.toString(), new Image("resources/images/button_login_selected.png"));

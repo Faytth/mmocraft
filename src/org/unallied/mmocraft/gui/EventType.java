@@ -4,6 +4,12 @@ public enum EventType {
     // Custom events made by frames
     LOGIN_CLICKED, 
     REGISTER_CLICKED, 
+    /**
+     * User clicked a "back" button, such as in the registration page.
+     * This usually calls for a change of game state, such as returning
+     * to the login state.
+     */
+    BACK_CLICKED,
     
     
     // Button Ctrl events

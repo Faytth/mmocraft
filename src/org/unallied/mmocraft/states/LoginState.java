@@ -1,6 +1,8 @@
 package org.unallied.mmocraft.states;
 
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
@@ -8,6 +10,7 @@ import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
+import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.frame.LoginFrame;
@@ -162,8 +165,6 @@ public class LoginState extends AbstractState {
         Game.getInstance().getClient().getTerrainSession().clear();
         // Enable anti-aliasing
         container.getGraphics().setAntiAlias(true);
-        // Set background
-        this.image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
         // Set GUI elements
         if( this.elements.size() == 0 ) {
             loginFrame = new LoginFrame(this, new EventIntf(){
@@ -246,8 +247,27 @@ public class LoginState extends AbstractState {
     }
 
     @Override
-    public void renderImage() {
-        // TODO Auto-generated method stub
+    public void render(GameContainer container, StateBasedGame game
+            , Graphics g) {
         
+        Image image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
+        if( image != null) {
+            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
+        }
+        
+        if (elements != null) {
+            // Iterate over all GUI controls and inform them of input
+            for( GUIElement element : elements ) {
+                element.render(container, game, g);
+            }
+            
+            for( GUIElement element : elements ) {
+                element.renderToolTip(container, game, g);
+            }
+        }
+    }
+    
+    @Override
+    public void renderImage(Image image) {
     }
 }

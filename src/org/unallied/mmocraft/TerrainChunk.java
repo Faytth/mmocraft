@@ -85,7 +85,7 @@ public class TerrainChunk {
         synchronized (this) {
             if (blocks != null) {
 
-                Image buffer = ImagePool.getInstance().getImage(chunkId);
+                Image buffer = ImagePool.getInstance().getImage(this, w, h);
 
                 // See if we have to initialize our buffer
                 if (ImagePool.getInstance().needsRefresh() || needsRefresh) {

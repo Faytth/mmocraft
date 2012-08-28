@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.gui.frame;
 
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Image;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
@@ -133,7 +134,7 @@ public class LoginFrame extends Frame {
     }
     
     @Override
-    public void renderImage() {
+    public void renderImage(Image image) {
         // TODO Auto-generated method stub
         
     }

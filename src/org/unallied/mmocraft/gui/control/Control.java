@@ -4,9 +4,9 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.ImageHandler;
+import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 
@@ -59,12 +59,6 @@ public abstract class Control extends GUIElement {
         this.background = background;
         this.background_highlighted = background_highlighted;
         this.background_selected = background_selected;
-        try {
-            this.image = new Image(this.width, this.height);
-        } catch (SlickException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
     
     @Override
@@ -81,11 +75,16 @@ public abstract class Control extends GUIElement {
         
         if( activeState != newActiveState ) {
             activeState = newActiveState;
-            renderImage();
+            needsRefresh = true;
         }
         
         // Perform normal render stuff
-        if( image != null ) {
+        Image image = ImagePool.getInstance().getImage(this, width, height);
+        if( image != null) {
+            if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
+                renderImage(image);
+                needsRefresh = false;
+            }
             image.draw(getAbsoluteWidth(), getAbsoluteHeight());
         }
         renderToolTip(container, game, g);
@@ -103,7 +102,6 @@ public abstract class Control extends GUIElement {
         boolean newMouseDown = input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON);
         boolean newHighlighted;
         boolean newActiveState = false;
-        boolean needsUpdate;
         
         // Check if selected / deselected
         if( mouseDown && !newMouseDown && this.isAcceptingInput() ) {
@@ -119,13 +117,9 @@ public abstract class Control extends GUIElement {
         
         newHighlighted = containsPoint(mouseX, mouseY);
         
-        needsUpdate = ( highlighted != newHighlighted || newActiveState != activeState);
+        needsRefresh |= ( highlighted != newHighlighted || newActiveState != activeState);
         highlighted = newHighlighted;
         activeState = newActiveState;
-        
-        if( needsUpdate ) {
-            renderImage();
-        }
         
         mouseDown = newMouseDown;
     }

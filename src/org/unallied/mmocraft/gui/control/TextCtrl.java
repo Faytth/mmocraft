@@ -45,7 +45,7 @@ public class TextCtrl extends Control {
         
         this.label = "";
         this.style = style;
-        renderImage();
+        needsRefresh = true;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class TextCtrl extends Control {
                 // TODO:  Add a max length
                 label += c;
             }
-            renderImage();
+            needsRefresh = true;
         }
     }
 
@@ -90,36 +90,35 @@ public class TextCtrl extends Control {
     }
 
     @Override
-    public void renderImage() {
+    public void renderImage(Image image) {
         ImageHandler handler = ImageHandler.getInstance();
         Graphics g;
         
         try {
-            if( image == null ) {
-                image = new Image(width, height);
-            }
-            g = image.getGraphics();
-        
-            String str = label; // The string to draw on the screen
+            if( image != null ) {
+                g = image.getGraphics();
             
-            // Password mask check
-            if( (this.style & PASSWORD) > 0 ) {
-                str = str.replaceAll(".", "*");
+                String str = label; // The string to draw on the screen
+                
+                // Password mask check
+                if( (this.style & PASSWORD) > 0 ) {
+                    str = str.replaceAll(".", "*");
+                }
+                
+                // Draw background
+                if( GUIUtility.getInstance().isActiveElement(this) ) {
+                    g.drawImage(handler.getImage(background_selected), 0, 0);
+                    str += "|"; // The pipe is for showing the "active" cursor location
+                } else if( highlighted ) {
+                    g.drawImage(handler.getImage(background_highlighted), 0, 0);
+                } else {
+                    g.drawImage(handler.getImage(background), 0, 0);
+                }
+                
+                // Draw text
+                g.drawString(str, textOffsetX, textOffsetY);
+                g.flush();
             }
-            
-            // Draw background
-            if( GUIUtility.getInstance().isActiveElement(this) ) {
-                g.drawImage(handler.getImage(background_selected), 0, 0);
-                str += "|"; // The pipe is for showing the "active" cursor location
-            } else if( highlighted ) {
-                g.drawImage(handler.getImage(background_highlighted), 0, 0);
-            } else {
-                g.drawImage(handler.getImage(background), 0, 0);
-            }
-            
-            // Draw text
-            g.drawString(str, textOffsetX, textOffsetY);
-            g.flush();
         } catch (SlickException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

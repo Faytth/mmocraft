@@ -38,7 +38,7 @@ public class Button extends Control {
         super(parent, intf, container, x, y, width, height
                 , background, background_highlighted, background_selected);
         this.label = label;
-        renderImage();
+        needsRefresh = true;
         //this.style = style;
     }
 
@@ -46,7 +46,7 @@ public class Button extends Control {
     public void mousePressed(int button, int x, int y) {
         if( this.containsPoint(x, y) ) {
             activated = true;
-            renderImage();
+            needsRefresh = true;
         }
     }
 
@@ -57,7 +57,7 @@ public class Button extends Control {
         }
         if( activated ) {
             activated = false;
-            renderImage();
+            needsRefresh = true;
         }
     }
 
@@ -80,27 +80,26 @@ public class Button extends Control {
     }
 
     @Override
-    public void renderImage() {
+    public void renderImage(Image image) {
         ImageHandler handler = ImageHandler.getInstance();
         
         try {
-            if( image == null ) {
-                image = new Image(width, height);
+            if (image != null) {
+                Graphics g = image.getGraphics();
+                            
+                // Draw background
+                if( activated ) {
+                    g.drawImage(handler.getImage(background_selected), 0, 0);
+                } else if( highlighted ) {
+                    g.drawImage(handler.getImage(background_highlighted), 0, 0);
+                } else {
+                    g.drawImage(handler.getImage(background), 0, 0);
+                }
+                
+                // Draw text
+                g.drawString(label, textOffsetX, textOffsetY);
+                g.flush();
             }
-            Graphics g = image.getGraphics();
-                        
-            // Draw background
-            if( activated ) {
-                g.drawImage(handler.getImage(background_selected), 0, 0);
-            } else if( highlighted ) {
-                g.drawImage(handler.getImage(background_highlighted), 0, 0);
-            } else {
-                g.drawImage(handler.getImage(background), 0, 0);
-            }
-            
-            // Draw text
-            g.drawString(label, textOffsetX, textOffsetY);
-            g.flush();
         } catch( SlickException e ) {
             
         }

@@ -13,13 +13,13 @@ public class ClientConstants {
     
     /**
      *  The maximum number of images to cycle through for the image pool.
-     *  Each image is huge (about 8 MB), so keep this number reasonably small.
+     *  Each image is huge, so keep this number reasonably small.
      *  Note, however, that this number shouldn't be TOO small, or the CPU
      *  will need to do a lot more work.  If the number is smaller than the
-     *  number of chunks drawn at any given time, then there will be MASSIVE
-     *  slow down.
+     *  number of images drawn of the same size at any given time, then there 
+     *  will be MASSIVE slow down.
      */
-    public static final int IMAGE_POOL_SIZE = 12;
+    public static final int IMAGE_POOL_SIZE = 4;
     
     /**
      * The rate of acceleration in pixels / second^2 of gravity.  The value

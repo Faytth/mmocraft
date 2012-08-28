@@ -3,6 +3,7 @@ package org.unallied.mmocraft.gui.control;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.gui.GUIElement;
 
@@ -69,7 +70,7 @@ public class StaticText extends GUIElement {
     }
 
     @Override
-    public void renderImage() {
+    public void renderImage(Image image) {
         // TODO Auto-generated method stub
         
     }

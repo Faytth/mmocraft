@@ -1,6 +1,8 @@
 package org.unallied.mmocraft.states;
 
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
@@ -159,14 +161,16 @@ public class RegisterState extends AbstractState {
             throws SlickException {
         // Remove all cached chunks.
         Game.getInstance().getClient().getTerrainSession().clear();
-        // Set background
-        this.image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
         if( this.elements.size() == 0 ) {
             registerFrame = new RegisterFrame(this, new EventIntf(){
 
                 @Override
                 public void callback(Event event) {
                     switch( event.getId() ) {
+                    // If the user clicked the "Back" button and should return to the Login state
+                    case BACK_CLICKED:
+                        Game.getInstance().enterState(GameState.LOGIN);
+                        break;
                     case REGISTER_CLICKED:
                         // If the user didn't mess up on their password and such
                         if (registerFrame.isValid()) {
@@ -232,8 +236,29 @@ public class RegisterState extends AbstractState {
     }
 
     @Override
-    public void renderImage() {
-        // TODO Auto-generated method stub
+    public void render(GameContainer container, StateBasedGame game
+            , Graphics g) {
         
+        Image image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
+        if( image != null) {
+            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
+        }
+        
+        if (elements != null) {
+            // Iterate over all GUI controls and inform them of input
+            for( GUIElement element : elements ) {
+                element.render(container, game, g);
+            }
+            
+            for( GUIElement element : elements ) {
+                element.renderToolTip(container, game, g);
+            }
+        }
+    }
+        
+    @Override
+    public void renderImage(Image image) {
+        // Set background
+        image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
     }
 }

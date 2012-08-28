@@ -3,6 +3,7 @@ package org.unallied.mmocraft.gui.frame;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Image;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.constants.DatabaseConstants;
 import org.unallied.mmocraft.constants.StringConstants;
@@ -26,7 +27,7 @@ public class RegisterFrame extends Frame {
     private TextCtrl passTextCtrl;
     private TextCtrl pass2TextCtrl;
     private TextCtrl emailTextCtrl;
-    // private Button backButton;
+    private Button   backButton;
     private Button   registerButton;
     
     private GameContainer container;
@@ -81,6 +82,20 @@ public class RegisterFrame extends Frame {
                 , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
         emailTextCtrl.setToolTip(new ToolTip("Must be unique.\nE-mail addresses are used for password recovery."));
         
+        backButton = new Button(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case BUTTON:
+                    GUIElement parent = event.getElement().getParent();
+                    parent.callback(new Event(parent, EventType.BACK_CLICKED));
+                    break;
+                }
+            }
+        }, container, "", 0, 120, -1, -1, ImageID.BUTTON_BACK_NORMAL.toString(),
+        ImageID.BUTTON_BACK_HIGHLIGHTED.toString(),
+        ImageID.BUTTON_BACK_SELECTED.toString(), 0);
+        
         registerButton = new Button(this, new EventIntf() {
             @Override
             public void callback(Event event) {
@@ -91,7 +106,7 @@ public class RegisterFrame extends Frame {
                     break;
                 }
             }
-        }, container, "", 0, 120, -1, -1, ImageID.BUTTON_REGISTER_NORMAL.toString(),
+        }, container, "", 120, 120, -1, -1, ImageID.BUTTON_REGISTER_NORMAL.toString(),
         ImageID.BUTTON_REGISTER_HIGHLIGHTED.toString(),
         ImageID.BUTTON_REGISTER_SELECTED.toString(), 0);
 
@@ -105,6 +120,7 @@ public class RegisterFrame extends Frame {
         elements.add(pass2TextCtrl);
         elements.add(new StaticText(this, null, container, "E-mail Address:", 0, 90, -1, -1));
         elements.add(emailTextCtrl);
+        elements.add(backButton);
         elements.add(registerButton);
         elements.add(successStaticText);
     }
@@ -155,7 +171,7 @@ public class RegisterFrame extends Frame {
     }
 
     @Override
-    public void renderImage() {
+    public void renderImage(Image image) {
         // TODO Auto-generated method stub
         
     }

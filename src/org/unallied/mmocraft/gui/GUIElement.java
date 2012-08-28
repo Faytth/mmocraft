@@ -10,6 +10,7 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.InputListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.client.ImagePool;
 
 /**
  * A generic class for all GUI elements, such as frames and controls.
@@ -19,6 +20,11 @@ import org.newdawn.slick.state.StateBasedGame;
 public abstract class GUIElement implements InputListener {
     
     protected List<GUIElement> elements = new ArrayList<GUIElement>();
+    
+    /**
+     * When set to true, this forces a refresh of the image on the next render.
+     */
+    protected boolean needsRefresh = true;
     
     public interface EventIntf {
         public void callback(Event event);
@@ -57,7 +63,6 @@ public abstract class GUIElement implements InputListener {
     protected int height; // The height of the element
     protected int id; // The id of this GUIElement.  Not guaranteed to be unique
     protected ToolTip toolTip = null; // The tooltip to display for this element
-    protected Image image; // The image to render for this element
     protected final GUIElement parent; // The parent element.  This is used in callbacks
     
     protected GameContainer container = null; // Stores a reference to the game container
@@ -87,13 +92,6 @@ public abstract class GUIElement implements InputListener {
         this.y = y;
         this.width = width;
         this.height = height;
-        try {
-            this.image = new Image(this.width, this.height);
-        } catch (SlickException e) {
-            image = null; // UH OH!
-        } catch (NullPointerException e) {
-            
-        }
     }
     
     /**
@@ -152,7 +150,12 @@ public abstract class GUIElement implements InputListener {
     public void render(GameContainer container, StateBasedGame game
             , Graphics g) {
         
-        if( image != null ) {
+        Image image = ImagePool.getInstance().getImage(this, width, height);
+        if( image != null) {
+            if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
+                renderImage(image);
+                needsRefresh = false;
+            }
             image.draw(getAbsoluteWidth(), getAbsoluteHeight());
         }
         
@@ -193,8 +196,9 @@ public abstract class GUIElement implements InputListener {
     
     /**
      * Updates the image to reflect the current state of the element
+     * @param image The image to update
      */
-    public abstract void renderImage();
+    public abstract void renderImage(Image image);
     
     /**
      * True if this element contains the given point on the screen.  Else false
