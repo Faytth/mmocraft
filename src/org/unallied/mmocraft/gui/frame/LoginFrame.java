@@ -2,6 +2,7 @@ package org.unallied.mmocraft.gui.frame;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
+import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
@@ -86,9 +87,9 @@ public class LoginFrame extends Frame {
         
         registerButton.setToolTip(new ToolTip("If you don't have an\naccount, you can register\nfor one here."));
         
-        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1));
+        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE));
         elements.add(userTextCtrl);
-        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1));
+        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE));
         elements.add(passTextCtrl);
         elements.add(loginButton);
         elements.add(registerButton);

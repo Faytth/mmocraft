@@ -15,7 +15,7 @@ public class WorldConstants {
      *  The height (in blocks) of a block "chunk"
      */
     public static final int WORLD_CHUNK_HEIGHT = 64;
-        
+    
     /**
      *  The height (in blocks) of a block "region."  Regions contain names,
      *  weather effects, terrain style, unique enemies, and so on.

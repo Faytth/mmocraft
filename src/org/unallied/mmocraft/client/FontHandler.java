@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
+import org.newdawn.slick.font.effects.ShadowEffect;
 
 /**
  * Stores all fonts in a map for easy access.  If the font requested is not
@@ -32,11 +34,24 @@ public class FontHandler {
     @SuppressWarnings("unchecked")
     private void init() {
         try {
-            UnicodeFont uFont = new UnicodeFont("resources/fonts/oldsh.ttf", 13, false, false);
+            ShadowEffect shadow = new ShadowEffect();
+            shadow.setXDistance(1);
+            shadow.setYDistance(1);
+            
+            UnicodeFont uFont = new UnicodeFont("resources/fonts/verdana.ttf", 12, false, false);
             uFont.addAsciiGlyphs();
+            uFont.getEffects().add(shadow);
             uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
             uFont.loadGlyphs();
             fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
+            fonts.put( FontID.STATIC_TEXT_MEDIUM.toString(), uFont);
+            
+            uFont = new UnicodeFont("resources/fonts/verdana.ttf", 16, false, false);
+            uFont.addAsciiGlyphs();
+            uFont.getEffects().add(shadow);
+            uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
+            uFont.loadGlyphs();
+            fonts.put( FontID.STATIC_TEXT_LARGE.toString(), uFont );
             
         } catch (SlickException e) {
             // TODO Auto-generated catch block
@@ -102,5 +117,14 @@ public class FontHandler {
             return fonts.get(key).getHeight(message);
         }
         return 0;
+    }
+
+    /**
+     * Retrieves the font of the given key.  If no font is found, returns null.
+     * @param key The font's key
+     * @return font
+     */
+    public Font getFont(String key) {
+        return fonts.get(key);
     }
 }

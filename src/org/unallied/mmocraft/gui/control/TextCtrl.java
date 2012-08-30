@@ -1,10 +1,13 @@
 package org.unallied.mmocraft.gui.control;
 
+import net.phys2d.raw.strategies.QuadSpaceStrategy.Space;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
@@ -21,6 +24,11 @@ public class TextCtrl extends Control {
     private String label;
     private int textOffsetX = 4;
     private int textOffsetY = 2;
+    
+    /**
+     * The caret position.  0 is just before the first character.
+     */
+    private int position = 0;
     private int style = 0;
     
     /**
@@ -66,8 +74,29 @@ public class TextCtrl extends Control {
      */
     private void processKeyEvent(int key, char c) {
         if( GUIUtility.getInstance().isActiveElement(this) ) {
-            if( key == Input.KEY_BACK && label.length() > 0 ) {
-                label = label.substring(0, label.length()-1);
+            Input input = Game.getInstance().getContainer().getInput();
+            if( key == Input.KEY_BACK && position > 0 ) {
+                /* 
+                 * If the user is holding down ctrl, then we want to delete all
+                 * characters to the left until we hit a space
+                 */
+                if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
+                    
+                } else { // act as normal
+                    label = label.substring(0, label.length()-1);
+                }
+            } else if (key == Input.KEY_DELETE && position < label.length()) {
+                // Opposite of backspace.  Delete characters in FRONT
+                
+                /* 
+                 * If the user is holding down ctrl, then we want to delete all
+                 * characters to the left until we hit a space
+                 */
+                if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
+                    
+                } else { // act as normal
+                    label = label.substring(0, label.length()-1);
+                }
             } else if (key == Input.KEY_RETURN) {
                 /* 
                  * TODO:  Add a boolean which says whether to process this as an event
@@ -78,6 +107,7 @@ public class TextCtrl extends Control {
                 
                 // TODO:  Add a max length
                 label += c;
+                ++position; // increase the caret position by 1.
             }
             needsRefresh = true;
         }

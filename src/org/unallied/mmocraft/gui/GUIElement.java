@@ -150,13 +150,15 @@ public abstract class GUIElement implements InputListener {
     public void render(GameContainer container, StateBasedGame game
             , Graphics g) {
         
-        Image image = ImagePool.getInstance().getImage(this, width, height);
-        if( image != null) {
-            if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
-                renderImage(image);
-                needsRefresh = false;
+        if (width > 0 && height > 0) {
+            Image image = ImagePool.getInstance().getImage(this, width, height);
+            if( image != null) {
+                if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
+                    renderImage(image);
+                    needsRefresh = false;
+                }
+                image.draw(getAbsoluteWidth(), getAbsoluteHeight());
             }
-            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
         }
         
         if (elements != null) {

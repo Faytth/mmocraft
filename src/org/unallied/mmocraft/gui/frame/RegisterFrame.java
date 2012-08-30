@@ -4,6 +4,7 @@ package org.unallied.mmocraft.gui.frame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
+import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.constants.DatabaseConstants;
 import org.unallied.mmocraft.constants.StringConstants;
@@ -110,15 +111,15 @@ public class RegisterFrame extends Frame {
         ImageID.BUTTON_REGISTER_HIGHLIGHTED.toString(),
         ImageID.BUTTON_REGISTER_SELECTED.toString(), 0);
 
-        successStaticText = new StaticText(this, null, container, "", 0, 160, -1, -1, new Color(200, 0, 0));
+        successStaticText = new StaticText(this, null, container, "", 0, 160, -1, -1, FontID.STATIC_TEXT_MEDIUM, new Color(200, 0, 0));
         
-        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1));
+        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE));
         elements.add(userTextCtrl);
-        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1));
+        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE));
         elements.add(passTextCtrl);
-        elements.add(new StaticText(this, null, container, "Re-enter Pass:", 0, 60, -1, -1));
+        elements.add(new StaticText(this, null, container, "Re-enter Pass:", 0, 60, -1, -1, FontID.STATIC_TEXT_LARGE));
         elements.add(pass2TextCtrl);
-        elements.add(new StaticText(this, null, container, "E-mail Address:", 0, 90, -1, -1));
+        elements.add(new StaticText(this, null, container, "E-mail Address:", 0, 90, -1, -1, FontID.STATIC_TEXT_LARGE));
         elements.add(emailTextCtrl);
         elements.add(backButton);
         elements.add(registerButton);

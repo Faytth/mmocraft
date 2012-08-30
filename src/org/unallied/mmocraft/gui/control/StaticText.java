@@ -1,15 +1,23 @@
 package org.unallied.mmocraft.gui.control;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.client.FontHandler;
+import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.gui.GUIElement;
 
 public class StaticText extends GUIElement {
 
     private String label = null;
+    
+    /**
+     * The font to use when rendering the static text.
+     */
+    private Font font = null;
     
     /**
      * The color to use when drawing this text.
@@ -23,16 +31,30 @@ public class StaticText extends GUIElement {
      * @param width The width for this control
      * @param height The height for this control
      * @param label The message to display
+     * @param fontID The font ID of the font to use
      */
     public StaticText(final GUIElement parent, EventIntf intf,GameContainer container
-            , String label, float x, float y, int width, int height) {
+            , String label, float x, float y, int width, int height, FontID fontID) {
         super(parent, intf, container, x, y, width, height);
+        
+        this.font = FontHandler.getInstance().getFont(fontID.toString());
         
         this.label = label;
     }
     
-    public StaticText(final GUIElement parent, EventIntf intf,GameContainer container
-            , String label, float x, float y, int width, int height, Color color) {
+    /**
+     * Creates a static text control, which displays a text message.
+     * @param x The x offset for this control (from the parent GUI element)
+     * @param y The y offset for this control (from the parent GUI element)
+     * @param width The width for this control
+     * @param height The height for this control
+     * @param label The message to display
+     * @param fontID The font ID of the font to use
+     * @param color The color to make the text
+     */
+    public StaticText(final GUIElement parent, EventIntf intf,GameContainer container,
+            String label, float x, float y, int width, int height, FontID fontID, 
+            Color color) {
         super(parent, intf, container, x, y, width, height);
         
         this.label = label;
@@ -52,6 +74,9 @@ public class StaticText extends GUIElement {
         Color oldColor = g.getColor();
         if (color != null) {
             g.setColor(color);
+        }
+        if (font != null) {
+            g.setFont(font);
         }
         g.drawString( label, absX, absY);
         g.setColor(oldColor);

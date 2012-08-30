@@ -11,11 +11,11 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
+import org.unallied.mmocraft.client.ImagePool;
 
 public class ToolTip {
 
     private String tip; // The tip to display
-    private Image panelBackground = null; // The panel to use for drawing the background (no text)
     private int rectOffX = 15; // The x offset of the entire tip
     private int rectOffY = 15; // The y offset of the entire tip
     private int tipOffsetX = 4; // X offset of text from top-left corner of tip
@@ -28,7 +28,8 @@ public class ToolTip {
         toolWidth = FontHandler.getInstance().getMaxWidth(FontID.TOOLTIP_DEFAULT.toString(), this.tip) + tipOffsetX*2;
         toolHeight = FontHandler.getInstance().getMaxHeight(FontID.TOOLTIP_DEFAULT.toString(), this.tip) + tipOffsetY*2;
         
-        renderImage();
+        Image image = ImagePool.getInstance().getImage(this, toolWidth, toolHeight);
+        renderImage(image);
     }
     
     public void render(GameContainer container, StateBasedGame game
@@ -38,34 +39,30 @@ public class ToolTip {
         int mouseX = input.getMouseX();
         int mouseY = input.getMouseY();
 
-        panelBackground.draw(rectOffX + mouseX, rectOffY + mouseY);
-        FontHandler.getInstance().draw(FontID.TOOLTIP_DEFAULT.toString()
-                , tip
-                , rectOffX + mouseX + tipOffsetX, rectOffY + mouseY + tipOffsetY
-                , new Color(200, 248, 220), toolWidth-tipOffsetX*2, toolHeight-tipOffsetY*2, true);        
+        Image image = ImagePool.getInstance().getImage(this, toolWidth, toolHeight);
+        if (image != null) {
+            if (ImagePool.getInstance().needsRefresh()) {
+                renderImage(image);
+            }
+            image.draw(rectOffX + mouseX, rectOffY + mouseY);
+            FontHandler.getInstance().draw(FontID.TOOLTIP_DEFAULT.toString()
+                    , tip
+                    , rectOffX + mouseX + tipOffsetX, rectOffY + mouseY + tipOffsetY
+                    , new Color(200, 248, 220), toolWidth-tipOffsetX*2, toolHeight-tipOffsetY*2, true);        
+        }
     }
     
-    public void renderImage() {
+    public void renderImage(Image image) {
         try {
-            if( panelBackground != null ) {
-                panelBackground.destroy();
+            if (image != null) {
+                // Do background
+                Graphics g = image.getGraphics();
+                g.fill(new Rectangle(0, 0, toolWidth, toolHeight)
+                        , new GradientFill(0, 0, new Color(47, 102, 176)
+                        , toolWidth, toolHeight, new Color(99, 47, 176), true));
+                image.setAlpha(0.65f);
+                g.flush();
             }
-            
-            panelBackground = new Image(toolWidth, toolHeight);
-            
-            if( panelBackground == null ) {
-                panelBackground = new Image(toolWidth, toolHeight);
-            }
-            
-            // Do background
-            Graphics g = panelBackground.getGraphics();
-            
-            g.fill(new Rectangle(0, 0, toolWidth, toolHeight)
-                    , new GradientFill(0, 0, new Color(47, 102, 176)
-                    , toolWidth, toolHeight, new Color(99, 47, 176), true));
-            panelBackground.setAlpha(0.65f);
-            g.flush();
-            
         } catch (SlickException e) {
             
         }

@@ -19,7 +19,7 @@ public class ClientConstants {
      *  number of images drawn of the same size at any given time, then there 
      *  will be MASSIVE slow down.
      */
-    public static final int IMAGE_POOL_SIZE = 4;
+    public static final int IMAGE_POOL_SIZE = 10;
     
     /**
      * The rate of acceleration in pixels / second^2 of gravity.  The value

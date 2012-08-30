@@ -3,6 +3,8 @@ package org.unallied.mmocraft.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.unallied.mmocraft.constants.ClientConstants;
@@ -35,12 +37,7 @@ public class ImagePool {
          */
         public ImageNode(int w, int h) {
             try {
-                image = new Image(w,
-                        WorldConstants.WORLD_CHUNK_HEIGHT
-                        * WorldConstants.WORLD_BLOCK_HEIGHT);
-                
-                // Load ALL images right now
-                //image.getGraphics().flush();
+                image = new Image(w, h);
             } catch (SlickException e) {
                 image = null; // How did this happen?!
             }
@@ -145,6 +142,17 @@ public class ImagePool {
                 nodes[index].accessTime = System.currentTimeMillis();
                 nodes[index].object = object;
                 refreshNeeded = true;
+                
+                // Since a refresh is needed, we should go ahead and clear the image to prevent "badness"
+                try {
+                    nodes[index].image.setAlpha(1);
+                    Graphics graphics = nodes[index].image.getGraphics();
+                    graphics.clear();
+                } catch (SlickException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
                 return nodes[index].image;
             }
         }

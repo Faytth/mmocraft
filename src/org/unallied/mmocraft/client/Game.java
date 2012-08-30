@@ -36,6 +36,7 @@ public class Game extends StateBasedGame {
     	
         try {
             AppGameContainer app = new AppGameContainer( getInstance() );
+            app.setVerbose(true); // you might want to disable this for production release
             app.setDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, false);
             app.setShowFPS(true);
             app.setAlwaysRender(true);
