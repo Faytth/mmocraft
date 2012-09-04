@@ -68,6 +68,49 @@ public class TextCtrl extends Control {
     }
 
     /**
+     * Moves to the left as if Ctrl was being pressed down.  For example:
+     * this  is   a  |test
+     * In the above string, if | is the location of pos, then:
+     * this  is   |a  test
+     * the return value will be the new location of | in the above string.
+     * @param str The string to parse
+     * @param pos Position of the starting index
+     * @return index
+     */
+    private int moveLeft(String str, int pos) {
+    	int i = pos;
+        while (i > 0 && str.charAt(i-1) == ' ') {
+        	--i;
+        }
+        while (i > 0 && str.charAt(i-1) != ' ') {
+        	--i;
+        }
+        return i;
+    }
+    
+    /**
+     * Moves to the right as if Ctrl was being pressed down.  For example:
+     * this  is   |a  test
+     * In the above string, if | is the location of pos, then:
+     * this  is   a  |test
+     * @param str The string to parse
+     * @param pos Position of the starting index
+     * @return index
+     * 
+     */
+    private int moveRight(String str, int pos) {
+    	int i = pos;
+    	int len = str.length();
+        while (i < len && str.charAt(i) != ' ') {
+        	++i;
+        }
+    	while (i < len && str.charAt(i) == ' ') {
+        	++i;
+        }
+    	return i;
+    }
+    
+    /**
      * Processes a key event, possibly changing the text label
      * @param key
      * @param c
@@ -75,39 +118,63 @@ public class TextCtrl extends Control {
     private void processKeyEvent(int key, char c) {
         if( GUIUtility.getInstance().isActiveElement(this) ) {
             Input input = Game.getInstance().getContainer().getInput();
-            if( key == Input.KEY_BACK && position > 0 ) {
-                /* 
-                 * If the user is holding down ctrl, then we want to delete all
-                 * characters to the left until we hit a space
-                 */
-                if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
-                    
-                } else { // act as normal
-                    label = label.substring(0, label.length()-1);
-                }
-            } else if (key == Input.KEY_DELETE && position < label.length()) {
-                // Opposite of backspace.  Delete characters in FRONT
-                
-                /* 
-                 * If the user is holding down ctrl, then we want to delete all
-                 * characters to the left until we hit a space
-                 */
-                if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
-                    
-                } else { // act as normal
-                    label = label.substring(0, label.length()-1);
-                }
-            } else if (key == Input.KEY_RETURN) {
+            switch (key) {
+            case Input.KEY_BACK:
+            	if (position > 0 && label.length() > 0) {
+	                /* 
+	                 * If the user is holding down ctrl, then we want to delete all
+	                 * characters to the left until we hit a space
+	                 */
+	                if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
+	                	int i = moveLeft(label, position);
+	                	label = label.substring(0, i) + label.substring(position);
+	                    position = i;
+	                } else { // act as normal
+	                    label = label.substring(0, position-1) + label.substring(position);
+	                    --position;
+	                }
+            	}
+            	break;
+            case Input.KEY_DELETE:
+            	if (position < label.length()) {
+	                // Opposite of backspace.  Delete characters in FRONT
+	                
+	                /* 
+	                 * If the user is holding down ctrl, then we want to delete all
+	                 * characters to the left until we hit a space
+	                 */
+	                if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
+	                	int i = moveRight(label, position);
+	                    label = label.substring(0, position) + label.substring(i);
+	                } else { // act as normal
+	                    label = label.substring(0, position) + label.substring(position+1);
+	                }
+            	}
+            	break;
+            case Input.KEY_LEFT:
+            	if (position > 0) {
+            		--position;
+            	}
+            	break;
+            case Input.KEY_RIGHT:
+            	if (position < label.length()) {
+            		++position;
+            	}
+            	break;
+            case Input.KEY_RETURN:
                 /* 
                  * TODO:  Add a boolean which says whether to process this as an event
                  *        or as a \n.
                  */
                 callback(new Event(this, EventType.TEXT_ENTER));
-            } else if( c >= 0x20 && c <= 0x7F ){ // if a printable character
-                
-                // TODO:  Add a max length
-                label += c;
-                ++position; // increase the caret position by 1.
+            	break;
+            default:
+                if (c >= 0x20 && c <= 0x7F) {
+	                // TODO:  Add a max length
+	                label += c;
+	                ++position; // increase the caret position by 1.
+                }
+            	break;
             }
             needsRefresh = true;
         }
@@ -138,7 +205,8 @@ public class TextCtrl extends Control {
                 // Draw background
                 if( GUIUtility.getInstance().isActiveElement(this) ) {
                     g.drawImage(handler.getImage(background_selected), 0, 0);
-                    str += "|"; // The pipe is for showing the "active" cursor location
+                    // The pipe is for showing the cursor position
+//                    str = str.substring(0, position) + "|" + str.substring(position);
                 } else if( highlighted ) {
                     g.drawImage(handler.getImage(background_highlighted), 0, 0);
                 } else {
@@ -147,6 +215,13 @@ public class TextCtrl extends Control {
                 
                 // Draw text
                 g.drawString(str, textOffsetX, textOffsetY);
+                int xOffset = g.getFont().getWidth(str.substring(0, position));
+                if (GUIUtility.getInstance().isActiveElement(this)) {
+                	// "Drawing twice for a "bold" effect
+                	// FIXME:  We need to fix Slick's getWidth
+	                g.drawString("|", textOffsetX+xOffset-1, textOffsetY);
+	                g.drawString("|", textOffsetX+xOffset, textOffsetY);
+                }
                 g.flush();
             }
         } catch (SlickException e) {

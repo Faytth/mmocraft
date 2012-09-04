@@ -38,7 +38,7 @@ public class RegisterFrame extends Frame {
      * @param x The x offset for this frame (from the parent GUI element)
      * @param y The y offset for this frame (from the parent GUI element)
      */
-    public RegisterFrame(final GUIElement parent, EventIntf intf, GameContainer container
+    public RegisterFrame(final Frame parent, EventIntf intf, GameContainer container
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
         

@@ -24,7 +24,7 @@ public class LoginFrame extends Frame {
      * @param x The x offset for this frame (from the parent GUI element)
      * @param y The y offset for this frame (from the parent GUI element)
      */
-    public LoginFrame(final GUIElement parent, EventIntf intf, GameContainer container
+    public LoginFrame(final Frame parent, EventIntf intf, GameContainer container
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
 

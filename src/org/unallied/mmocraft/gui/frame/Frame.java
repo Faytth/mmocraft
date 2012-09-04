@@ -11,7 +11,7 @@ import org.unallied.mmocraft.gui.GUIUtility;
 
 public abstract class Frame extends GUIElement {
 
-    public Frame(GUIElement parent, EventIntf intf, GameContainer container,
+    public Frame(Frame parent, EventIntf intf, GameContainer container,
             float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
     }
