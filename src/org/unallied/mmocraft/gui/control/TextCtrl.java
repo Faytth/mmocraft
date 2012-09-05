@@ -1,7 +1,5 @@
 package org.unallied.mmocraft.gui.control;
 
-import net.phys2d.raw.strategies.QuadSpaceStrategy.Space;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -179,7 +177,7 @@ public class TextCtrl extends Control {
             default:
                 if (c >= 0x20 && c <= 0x7F) {
 	                // TODO:  Add a max length
-	                label += c;
+	                label = label.substring(0, position) + c + label.substring(position);
 	                ++position; // increase the caret position by 1.
                 }
             	break;
@@ -213,8 +211,6 @@ public class TextCtrl extends Control {
                 // Draw background
                 if( GUIUtility.getInstance().isActiveElement(this) ) {
                     g.drawImage(handler.getImage(background_selected), 0, 0);
-                    // The pipe is for showing the cursor position
-                    str = str.substring(0, position) + "|" + str.substring(position);
                 } else if( highlighted ) {
                     g.drawImage(handler.getImage(background_highlighted), 0, 0);
                 } else {
@@ -223,12 +219,11 @@ public class TextCtrl extends Control {
                 
                 // Draw text
                 g.drawString(str, textOffsetX, textOffsetY);
-                int xOffset = g.getFont().getWidth(str.substring(0, position));
+                int xOffset = g.getFont().getWidth(label.substring(0, position));
                 if (GUIUtility.getInstance().isActiveElement(this)) {
                 	// "Drawing twice for a "bold" effect
-                	// FIXME:  We need to fix Slick's getWidth
-//	                g.drawString("|", textOffsetX+xOffset-1, textOffsetY);
-//	                g.drawString("|", textOffsetX+xOffset, textOffsetY);
+	                g.drawString("|", textOffsetX+xOffset-4, textOffsetY);
+	                g.drawString("|", textOffsetX+xOffset-3, textOffsetY);
                 }
                 g.flush();
             }
