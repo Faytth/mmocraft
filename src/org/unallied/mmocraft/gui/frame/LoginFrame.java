@@ -96,36 +96,12 @@ public class LoginFrame extends Frame {
     }
     
     @Override
-    /**
-     * This should be called when this element is being destroyed.  By calling
-     * this, the GUI element is able to properly remove itself from the container
-     * as a listener.
-     */
-    public void destroy() {
-        
-        // Destroy our children
-        for(GUIElement element : elements) {
-            element.destroy();
-        }
-        
-        if (isHandler) {
-            container.getInput().removeListener(this);
-        }
-    }
-    
-    @Override
     public void update(GameContainer container) {
 
         // Iterate over all GUI controls and inform them of input
         for( GUIElement element : elements ) {
             element.update(container);
         }
-    }
-
-    @Override
-    public boolean isAcceptingInput() {
-        // TODO Auto-generated method stub
-        return true;
     }
 
     @Override
@@ -155,4 +131,9 @@ public class LoginFrame extends Frame {
     public String getPassword() {
         return passTextCtrl.getLabel();
     }
+
+	@Override
+	protected boolean isAcceptingFocus() {
+		return true;
+	}
 }

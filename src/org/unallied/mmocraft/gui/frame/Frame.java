@@ -11,9 +11,58 @@ import org.unallied.mmocraft.gui.GUIUtility;
 
 public abstract class Frame extends GUIElement {
 
+	/**
+	 * Keeps track of all frames and their position relative to one another.
+	 * This is used when determining which frame to draw first as well as which
+	 * frame has "focus."
+	 * FIXME:  Implement this!
+	 */
+	public static List<Frame> zIndex = new ArrayList<Frame>();
+	
     public Frame(Frame parent, EventIntf intf, GameContainer container,
             float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
+        
+        /* We only draw frames that can obtain focus.  Otherwise it's part
+         * of the "background" and is responsible for drawing itself
+         */
+        if (isAcceptingFocus()) {
+        	zIndex.add(0, this);
+        }
+    }
+    
+    @Override
+    public boolean isAcceptingInput() {
+        // TODO Auto-generated method stub
+        return true;
+    }
+    
+    @Override
+    public void mousePressed(int button, int x, int y) {
+        if (isAcceptingFocus() && this.containsPoint(x, y)) {
+            int i = zIndex.indexOf(this);
+            if (i >= 0) {
+            	zIndex.remove(i);
+            	zIndex.add(0, this); // insert at the front
+            }
+        }
+    }
+
+    protected abstract boolean isAcceptingFocus();
+    
+    @Override
+    public void destroy() {
+    	// Remove self from the zIndex
+    	zIndex.remove(this);
+    	
+	    // Destroy our children
+	    for(GUIElement element : elements) {
+	        element.destroy();
+	    }
+	    
+	    if (isHandler) {
+	        container.getInput().removeListener(this);
+	    }
     }
     
     @Override

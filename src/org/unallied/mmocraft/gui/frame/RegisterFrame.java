@@ -127,24 +127,6 @@ public class RegisterFrame extends Frame {
     }
     
     @Override
-    /**
-     * This should be called when this element is being destroyed.  By calling
-     * this, the GUI element is able to properly remove itself from the container
-     * as a listener.
-     */
-    public void destroy() {
-        
-        // Destroy our children
-        for(GUIElement element : elements) {
-            element.destroy();
-        }
-        
-        if (isHandler) {
-            container.getInput().removeListener(this);
-        }
-    }
-    
-    @Override
     public void update(GameContainer container) {
 
         // Check to see if there's an error message for registration
@@ -158,13 +140,7 @@ public class RegisterFrame extends Frame {
             element.update(container);
         }
     }
-
-    @Override
-    public boolean isAcceptingInput() {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
+    
     @Override
     public boolean isAcceptingTab() {
         // TODO Auto-generated method stub
@@ -227,4 +203,9 @@ public class RegisterFrame extends Frame {
         }
         return result;
     }
+
+	@Override
+	protected boolean isAcceptingFocus() {
+		return true;
+	}
 }

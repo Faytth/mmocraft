@@ -153,12 +153,20 @@ public class TextCtrl extends Control {
             	break;
             case Input.KEY_LEFT:
             	if (position > 0) {
-            		--position;
+            		if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
+            			position = moveLeft(label, position);
+            		} else {
+            			--position;
+            		}
             	}
             	break;
             case Input.KEY_RIGHT:
             	if (position < label.length()) {
-            		++position;
+            		if (input.isKeyDown(Input.KEY_LCONTROL) || input.isKeyDown(Input.KEY_RCONTROL)) {
+            			position = moveRight(label, position);
+            		} else {
+            			++position;
+            		}
             	}
             	break;
             case Input.KEY_RETURN:
@@ -206,7 +214,7 @@ public class TextCtrl extends Control {
                 if( GUIUtility.getInstance().isActiveElement(this) ) {
                     g.drawImage(handler.getImage(background_selected), 0, 0);
                     // The pipe is for showing the cursor position
-//                    str = str.substring(0, position) + "|" + str.substring(position);
+                    str = str.substring(0, position) + "|" + str.substring(position);
                 } else if( highlighted ) {
                     g.drawImage(handler.getImage(background_highlighted), 0, 0);
                 } else {
@@ -219,8 +227,8 @@ public class TextCtrl extends Control {
                 if (GUIUtility.getInstance().isActiveElement(this)) {
                 	// "Drawing twice for a "bold" effect
                 	// FIXME:  We need to fix Slick's getWidth
-	                g.drawString("|", textOffsetX+xOffset-1, textOffsetY);
-	                g.drawString("|", textOffsetX+xOffset, textOffsetY);
+//	                g.drawString("|", textOffsetX+xOffset-1, textOffsetY);
+//	                g.drawString("|", textOffsetX+xOffset, textOffsetY);
                 }
                 g.flush();
             }

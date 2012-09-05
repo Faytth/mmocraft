@@ -2,10 +2,6 @@ package org.unallied.mmocraft;
 
 import java.awt.geom.Point2D;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +14,6 @@ import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.constants.WorldConstants;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.sessions.TerrainSession;
-
-import org.unallied.mmocraft.tools.DatabaseConnection;
-import org.unallied.mmocraft.tools.PrintError;
 
 /**
  * Contains all information for a given player.
@@ -104,62 +97,6 @@ public class Player extends Living implements Serializable {
                 Game.getInstance().getClient().announce(
                         PacketCreator.getMovement(this) );
             }
-        }
-    }
-    
-    /**
-     * Saves everything about the Player to the database.
-     */
-    public void save() {
-        Connection conn = DatabaseConnection.getConnection();
-        try {
-            int index = 1;
-            PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE player " +
-                    "SET player_name=?, player_posx=?, player_posy=?" +
-                    "WHERE player_id=?");
-            ps.setString(index++, getName());
-            ps.setLong(index++, location.getX());
-            ps.setLong(index++, location.getY());
-            ps.setInt(index++, playerId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            PrintError.print(PrintError.EXCEPTION_CAUGHT, e);
-        }
-        
-    }
-
-    /**
-     * Creates a new player in the database (INSERT).
-     * @return True if player was created; false if there was a problem
-     * (such as username already exists)
-     */
-    public boolean create() {
-        Connection conn = DatabaseConnection.getConnection();
-        try {
-            int index = 1;
-            PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO player(player_name, player_posx, player_posy) " +
-                    "VALUES(?,?,?)");
-            ps.setString(index++, getName());
-            ps.setLong(index++, location.getX());
-            ps.setLong(index++, location.getY());
-            
-            ps.executeUpdate();
-            
-            // Get the player's id
-            ps = conn.prepareStatement(
-                    "SELECT player_id FROM player WHERE player_name=?");
-            ps.setString(1, getName());
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs != null && rs.next()) {
-                playerId = rs.getInt("player_id");
-            }
-            
-            return true;
-        } catch (SQLException e) {
-            return false;
         }
     }
     

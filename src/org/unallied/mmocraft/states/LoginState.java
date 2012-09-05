@@ -255,6 +255,7 @@ public class LoginState extends AbstractState {
             image.draw(getAbsoluteWidth(), getAbsoluteHeight());
         }
         
+        
         if (elements != null) {
             // Iterate over all GUI controls and inform them of input
             for( GUIElement element : elements ) {
@@ -270,4 +271,9 @@ public class LoginState extends AbstractState {
     @Override
     public void renderImage(Image image) {
     }
+
+	@Override
+	protected boolean isAcceptingFocus() {
+		return false;
+	}
 }

@@ -261,4 +261,9 @@ public class RegisterState extends AbstractState {
         // Set background
         image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
     }
+
+	@Override
+	protected boolean isAcceptingFocus() {
+		return false;
+	}
 }

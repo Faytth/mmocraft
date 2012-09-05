@@ -282,4 +282,9 @@ public class IngameState extends AbstractState {
         
     }
 
+	@Override
+	protected boolean isAcceptingFocus() {
+		return false;
+	}
+
 }
