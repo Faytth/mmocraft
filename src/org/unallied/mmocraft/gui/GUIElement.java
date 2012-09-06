@@ -339,4 +339,20 @@ public abstract class GUIElement implements InputListener {
     public GUIElement getParent() {
         return parent;
     }
+    
+    /**
+     * Gets the width of this control.
+     * @return width
+     */
+    public int getWidth() {
+    	return width;
+    }
+    
+    /**
+     * Gets the height of this control.
+     * @return height
+     */
+    public int getHeight() {
+    	return height;
+    }
 }

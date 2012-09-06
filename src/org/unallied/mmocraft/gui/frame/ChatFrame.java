@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.unallied.mmocraft.client.FontHandler;
+import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.EventType;
@@ -24,6 +28,8 @@ public class ChatFrame extends Frame {
 	 * The color of "world" messages.
 	 */
 	private static final Color WORLD_COLOR = new Color(227, 115, 40);
+	
+	private static final String MESSAGE_FONT = FontID.STATIC_TEXT_MEDIUM.toString();
 
 	/**
 	 * The distance from the top of the chat frame that messageTextCtrl is positioned.
@@ -83,6 +89,8 @@ public class ChatFrame extends Frame {
         elements.add(messageTextCtrl);
         
         setType(MessageType.SAY);
+        this.width  = messageTextCtrl.getWidth();
+        this.height = chatHeight + messageTextCtrl.getHeight();
     }
     
     @Override
@@ -114,10 +122,46 @@ public class ChatFrame extends Frame {
     }
     
     @Override
-    public void renderImage(Image image) {        
+    public void renderImage(Image image) {
+    	try {
+    		image.setAlpha(1);
+    		Graphics g = image.getGraphics();
+    		g.clear();
+			Graphics.setCurrent(g);			
+			
+	    	int lineHeight = FontHandler.getInstance().getFont(MESSAGE_FONT).getLineHeight();
+	    	int lineY = this.chatHeight - lineHeight;
+	    	for (int i = this.receivedMessages.size()-1; i >= 0 && lineY >= 0; --i, lineY -= lineHeight) {
+	    		ChatMessage message = receivedMessages.get(i);
+	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), 0, lineY, getTypeColor(message.getType()), width, height, false);
+	    	}
+	    	g.flush();
+		} catch (SlickException e) {
+			e.printStackTrace();
+		}
     }
 
     /**
+     * Retrieves the color of the given type
+     * @param type the type to get the color of
+     * @return typeColor
+     */
+    private Color getTypeColor(MessageType type) {
+    	Color result = null;
+    	switch (type) {
+    	case WORLD:
+    		result = WORLD_COLOR;
+    		break;
+    	case SAY:
+    	default:
+    		result = SAY_COLOR;
+    		break;
+    	}
+    	
+		return result;
+	}
+
+	/**
      * Returns the message that the user is attempting to send.
      * @return message
      */
@@ -144,15 +188,7 @@ public class ChatFrame extends Frame {
      */
     public void setType(MessageType type) {
     	this.messageType = type;
-    	switch (this.messageType) {
-    	case WORLD:
-    		messageTextCtrl.setColor(WORLD_COLOR);
-    		break;
-    	case SAY:
-    	default:
-    		messageTextCtrl.setColor(SAY_COLOR);
-    		break;
-    	}
+    	messageTextCtrl.setColor(getTypeColor(type));
     }
     
     /**
@@ -161,7 +197,8 @@ public class ChatFrame extends Frame {
      * @param message
      */
     public void addMessage(ChatMessage message) {
-    	receivedMessages.add(message);
+    	receivedMessages.add(new ChatMessage(message));
+    	needsRefresh = true;
     }
     
 	@Override

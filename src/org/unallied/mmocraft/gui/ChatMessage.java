@@ -21,6 +21,11 @@ public class ChatMessage {
 		this.messageBody = messageBody;
 	}
 	
+	public ChatMessage(ChatMessage message) {
+		this.messageType = message.getType();
+		this.messageBody = message.getBody();
+	}
+
 	/**
 	 * Returns the message type.
 	 * @return messageType
@@ -30,10 +35,26 @@ public class ChatMessage {
 	}
 	
 	/**
+	 * Sets the type of the message, such as Say, Guild, Party, World.
+	 * @param messageType
+	 */
+	public void setType(MessageType messageType) {
+		this.messageType = messageType;
+	}
+	
+	/**
 	 * Returns the body of the message.
 	 * @return messageBody
 	 */
 	public String getBody() {
 		return messageBody;
+	}
+	
+	/**
+	 * Sets the body of the message.
+	 * @param messageBody the body of the message
+	 */
+	public void setBody(String messageBody) {
+		this.messageBody = messageBody;
 	}
 }
