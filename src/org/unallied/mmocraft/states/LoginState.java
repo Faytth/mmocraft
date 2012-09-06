@@ -10,7 +10,6 @@ import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
-import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.frame.LoginFrame;

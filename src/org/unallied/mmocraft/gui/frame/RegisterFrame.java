@@ -31,8 +31,6 @@ public class RegisterFrame extends Frame {
     private Button   backButton;
     private Button   registerButton;
     
-    private GameContainer container;
-    
     /**
      * Initializes a LoginFrame with its elements (e.g. Username, Password fields)
      * @param x The x offset for this frame (from the parent GUI element)

@@ -1,8 +1,5 @@
 package org.unallied.mmocraft.states;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -15,13 +12,16 @@ import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.frame.ChatFrame;
 
 public class IngameState extends AbstractState {
 
     private int stateID = GameState.INGAME;
     
-    // Contains all GUI elements (e.g. buttons / text) for this game state
-    private List<GUIElement> controls = new ArrayList<GUIElement>();
+    /**
+     * The chat frame that the user can send and receive chat messages through.
+     */
+    private ChatFrame chatFrame = null;
     
     public IngameState() {
         super(null, null, null, 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
@@ -160,6 +160,23 @@ public class IngameState extends AbstractState {
     @Override
     public void enter(GameContainer container, StateBasedGame game)
             throws SlickException {
+        // Set GUI elements
+        if( this.elements.size() == 0 ) {
+            chatFrame = new ChatFrame(this, new EventIntf(){
+
+                @Override
+                public void callback(Event event) {
+                    switch( event.getId() ) {
+                    case SEND_CHAT_MESSAGE:
+                    	System.out.println(chatFrame.getMessage().getBody());
+                        break;
+                    }
+                }
+                
+            }, container, 10, Game.SCREEN_HEIGHT-210 + 60, -1, -1);
+            // Controls
+            this.elements.add(chatFrame);
+        }
     }
 
     @Override
@@ -177,6 +194,13 @@ public class IngameState extends AbstractState {
     @Override
     public void leave(GameContainer container, StateBasedGame game)
             throws SlickException {
+        if( this.elements.size() > 0 ) {
+            if (chatFrame != null) {
+                chatFrame.destroy();
+            }
+            // Controls
+            this.elements.clear();
+        }
     }
 
     @Override
@@ -199,7 +223,16 @@ public class IngameState extends AbstractState {
            Location l  = gl.getCurrentPlayer().getLocation();*/
                            
            // Player is always at center, even at world's edge.
-
+        if (elements != null) {
+            // Iterate over all GUI controls and inform them of input
+            for( GUIElement element : elements ) {
+                element.render(container, game, g);
+            }
+            
+            for( GUIElement element : elements ) {
+                element.renderToolTip(container, game, g);
+            }
+        }
     }
 
     @Override
@@ -259,8 +292,8 @@ public class IngameState extends AbstractState {
         }*/
         
         // Iterate over all GUI controls and inform them of input
-        for( GUIElement control : controls ) {
-            control.update(container);
+        for( GUIElement element : elements) {
+            element.update(container);
         }
     }
 
@@ -272,7 +305,6 @@ public class IngameState extends AbstractState {
 
     @Override
     public boolean isAcceptingTab() {
-        // TODO Auto-generated method stub
         return false;
     }
 

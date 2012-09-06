@@ -1,12 +1,13 @@
 package org.unallied.mmocraft.gui.control;
 
-import net.phys2d.raw.strategies.QuadSpaceStrategy.Space;
-
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.unallied.mmocraft.client.FontHandler;
+import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.gui.EventType;
@@ -21,9 +22,15 @@ public class TextCtrl extends Control {
     /// The text will be replaced by asterisks.
     public static final int PASSWORD = 1 << 0; // The text will be echoed as asterisks.
     
+    private String fontKey = FontID.STATIC_TEXT_MEDIUM.toString();
     private String label;
     private int textOffsetX = 4;
     private int textOffsetY = 2;
+    
+    /**
+     * The color to render the text in.
+     */
+    private Color textColor;
     
     /**
      * The caret position.  0 is just before the first character.
@@ -53,6 +60,7 @@ public class TextCtrl extends Control {
         
         this.label = "";
         this.style = style;
+        this.textColor = new Color(255, 255, 255);
         needsRefresh = true;
     }
 
@@ -179,7 +187,7 @@ public class TextCtrl extends Control {
             default:
                 if (c >= 0x20 && c <= 0x7F) {
 	                // TODO:  Add a max length
-	                label += c;
+	                label = label.substring(0, position) + c + label.substring(position);
 	                ++position; // increase the caret position by 1.
                 }
             	break;
@@ -213,8 +221,6 @@ public class TextCtrl extends Control {
                 // Draw background
                 if( GUIUtility.getInstance().isActiveElement(this) ) {
                     g.drawImage(handler.getImage(background_selected), 0, 0);
-                    // The pipe is for showing the cursor position
-                    str = str.substring(0, position) + "|" + str.substring(position);
                 } else if( highlighted ) {
                     g.drawImage(handler.getImage(background_highlighted), 0, 0);
                 } else {
@@ -222,13 +228,14 @@ public class TextCtrl extends Control {
                 }
                 
                 // Draw text
-                g.drawString(str, textOffsetX, textOffsetY);
-                int xOffset = g.getFont().getWidth(str.substring(0, position));
+                FontHandler.getInstance().draw(fontKey, str, textOffsetX, 
+                		textOffsetY, textColor, width, height, false);
+//                g.drawString(str, textOffsetX, textOffsetY);
+                int xOffset = FontHandler.getInstance().getFont(fontKey).getWidth(str.substring(0, position));
                 if (GUIUtility.getInstance().isActiveElement(this)) {
                 	// "Drawing twice for a "bold" effect
-                	// FIXME:  We need to fix Slick's getWidth
-//	                g.drawString("|", textOffsetX+xOffset-1, textOffsetY);
-//	                g.drawString("|", textOffsetX+xOffset, textOffsetY);
+	                g.drawString("|", xOffset, textOffsetY);
+	                g.drawString("|", xOffset+1, textOffsetY);
                 }
                 g.flush();
             }
@@ -246,4 +253,32 @@ public class TextCtrl extends Control {
     public String getLabel() {
         return label;
     }
+
+    /**
+     * Assigns the color to render the text in.
+     * @param textColor the color to render the text in
+     */
+	public void setColor(Color textColor) {
+		this.textColor = textColor;
+	}
+	
+	/**
+	 * Retrieves the TextCtrl's text color.
+	 * @return textColor
+	 */
+	public Color getColor() {
+		return textColor;
+	}
+
+	/**
+	 * Sets the text control's label.  If label is null, nothing happens.
+	 * Also sets the position to the very end of the new label.
+	 * @param label the new label
+	 */
+	public void setLabel(String label) {
+		if (label != null) {
+			this.label = label;
+			this.position = this.label.length();
+		}
+	}
 }
