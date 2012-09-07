@@ -3,9 +3,12 @@ package org.unallied.mmocraft.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.newdawn.slick.AngelCodeFont;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
 import org.newdawn.slick.font.effects.ShadowEffect;
@@ -18,7 +21,7 @@ import org.newdawn.slick.font.effects.ShadowEffect;
  *
  */
 public class FontHandler {
-    private Map<String, UnicodeFont> fonts = new HashMap<String, UnicodeFont>();
+    private Map<String, Font> fonts = new HashMap<String, Font>();
     
     /**
      * Initializes the FontHandler with the default fonts.
@@ -37,23 +40,35 @@ public class FontHandler {
             ShadowEffect shadow = new ShadowEffect();
             shadow.setXDistance(1);
             shadow.setYDistance(1);
+            shadow.setOpacity(1);
+            TrueTypeFont uFont;
             
-            UnicodeFont uFont = new UnicodeFont("resources/fonts/verdana.ttf", 12, false, false);
-            uFont.addAsciiGlyphs();
-            uFont.getEffects().add(shadow);
-            uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
-            uFont.loadGlyphs();
-            fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
-            fonts.put( FontID.STATIC_TEXT_MEDIUM.toString(), uFont);
+            try {
+                uFont = new TrueTypeFont(new java.awt.Font("Verdana", 0, 13), false);
+/*                uFont = new TrueTypeFont("resources/fonts/verdana.ttf", 13, true, false);
+                uFont.addAsciiGlyphs();
+                uFont.getEffects().add(shadow);
+                uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
+                uFont.loadGlyphs();*/
+                fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
+                fonts.put( FontID.STATIC_TEXT_MEDIUM.toString(), uFont);
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
             
-            uFont = new UnicodeFont("resources/fonts/verdana.ttf", 16, false, false);
-            uFont.addAsciiGlyphs();
-            uFont.getEffects().add(shadow);
-            uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
-            uFont.loadGlyphs();
-            fonts.put( FontID.STATIC_TEXT_LARGE.toString(), uFont );
+            try {
+                uFont = new TrueTypeFont(new java.awt.Font("Verdana", 0, 13), false);
+/*                uFont = new UnicodeFont("resources/fonts/verdana.ttf", 16, false, false);
+                uFont.addAsciiGlyphs();
+                uFont.getEffects().add(shadow);
+                uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
+                uFont.loadGlyphs();*/
+                fonts.put( FontID.STATIC_TEXT_LARGE.toString(), uFont );
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
             
-        } catch (SlickException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
