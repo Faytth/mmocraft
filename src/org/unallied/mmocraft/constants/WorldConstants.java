@@ -114,4 +114,12 @@ public class WorldConstants {
      * cause it to rapidly change direction.
      */
     public static final int WORM_DIRECTION_CHANGE_RATE = 19;
+
+    /**
+     * The distance that the server uses to determine which players are "nearby."
+     * The width / height in chunks is determined by:
+     * (<code>WORLD_DRAW_DISTANCE</code>*2+1)
+     * You can think of this value as the "radius" in chunks between the player and whatever else.
+     */
+	public static final int WORLD_DRAW_DISTANCE = 5;
 }
