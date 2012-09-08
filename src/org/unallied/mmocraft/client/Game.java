@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.client;
 
+import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
