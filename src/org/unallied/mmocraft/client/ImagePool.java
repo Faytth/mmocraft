@@ -56,7 +56,21 @@ public class ImagePool {
     private void initImageNodes(int width, int height) {
         int key = getImagesKey(width, height);
         if (!images.containsKey(key)) {
-            images.put(key, new ImageNode[ClientConstants.IMAGE_POOL_SIZE]);
+        	int chunkWidth = WorldConstants.WORLD_BLOCK_WIDTH * WorldConstants.WORLD_CHUNK_WIDTH;
+        	int chunkHeight = WorldConstants.WORLD_BLOCK_HEIGHT * WorldConstants.WORLD_CHUNK_HEIGHT;
+        	
+        	// This is a kludge for chunks.  Chunks require extra special image size to prevent some MAJOR rendering problems.
+        	// TODO: Remove this kludge
+        	if (width == chunkWidth && height == chunkHeight && chunkWidth != 0 && chunkHeight != 0) {
+        		int chunksAcross = (Game.getInstance().getContainer().getWidth() / chunkWidth) + 1;
+        		int chunksHigh   = (Game.getInstance().getContainer().getHeight() / chunkHeight) + 1;
+        		chunksAcross = chunksAcross * 2 + 1;
+        		chunksHigh   = chunksHigh   * 2 + 1;
+        		// The +1 below is to stop "lag" between two adjacent coordinates when walking back and forth
+        		images.put(key, new ImageNode[(chunksAcross+1) * (chunksHigh+1)]);
+        	} else {
+        		images.put(key, new ImageNode[ClientConstants.IMAGE_POOL_SIZE]);
+        	}
 
             ImageNode[] node = images.get(key);
             

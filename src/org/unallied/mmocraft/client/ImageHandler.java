@@ -46,9 +46,15 @@ public class ImageHandler {
     private void init() {
         try {
             images.put( ImageID.LOGIN_SCREEN.toString(), new Image("resources/images/login_screen.png") );
+            images.put( ImageID.TEXTCTRL_CHAT_NORMAL.toString(), new Image("resources/images/textctrl_chat_normal.png"));
+            images.put( ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_chat_highlighted.png"));
+            images.put( ImageID.TEXTCTRL_CHAT_SELECTED.toString(), new Image("resources/images/textctrl_chat_selected.png"));
             images.put( ImageID.TEXTCTRL_LOGIN_NORMAL.toString(), new Image("resources/images/textctrl_login_normal.png"));
             images.put( ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_login_highlighted.png"));
             images.put( ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), new Image("resources/images/textctrl_login_selected.png"));
+            images.put( ImageID.TEXTCTRL_CHAT_NORMAL.toString(), new Image("resources/images/textctrl_chat_normal.png"));
+            images.put( ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_chat_highlighted.png"));
+            images.put( ImageID.TEXTCTRL_CHAT_SELECTED.toString(), new Image("resources/images/textctrl_chat_selected.png"));
             images.put( ImageID.BUTTON_BACK_NORMAL.toString(), new Image("resources/images/button_back_normal.png"));
             images.put( ImageID.BUTTON_BACK_HIGHLIGHTED.toString(), new Image("resources/images/button_back_highlighted.png"));
             images.put( ImageID.BUTTON_BACK_SELECTED.toString(), new Image("resources/images/button_back_selected.png"));

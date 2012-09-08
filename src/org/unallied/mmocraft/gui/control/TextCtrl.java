@@ -210,7 +210,8 @@ public class TextCtrl extends Control {
         try {
             if( image != null ) {
                 g = image.getGraphics();
-            
+                image.setAlpha(1);
+                g.clear();
                 String str = label; // The string to draw on the screen
                 
                 // Password mask check

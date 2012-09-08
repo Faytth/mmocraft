@@ -79,8 +79,8 @@ public class TerrainChunk {
     public void render(GameContainer container, StateBasedGame game,
             Graphics g, int x, int y, boolean forceUpdate) {
         
-        int w = WorldConstants.WORLD_CHUNK_WIDTH * WorldConstants.WORLD_BLOCK_WIDTH;
-        int h = WorldConstants.WORLD_CHUNK_HEIGHT * WorldConstants.WORLD_BLOCK_HEIGHT;
+        final int w = WorldConstants.WORLD_CHUNK_WIDTH * WorldConstants.WORLD_BLOCK_WIDTH;
+        final int h = WorldConstants.WORLD_CHUNK_HEIGHT * WorldConstants.WORLD_BLOCK_HEIGHT;
         
         synchronized (this) {
             if (blocks != null) {

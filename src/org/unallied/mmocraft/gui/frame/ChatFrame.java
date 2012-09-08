@@ -82,9 +82,9 @@ public class ChatFrame extends Frame {
                     break;
                 }
             }
-        }, container, "", 0, chatHeight, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), 0);
+        }, container, "", 0, chatHeight, -1, -1, ImageID.TEXTCTRL_CHAT_NORMAL.toString()
+                , ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString()
+                , ImageID.TEXTCTRL_CHAT_SELECTED.toString(), 0);
 
         elements.add(messageTextCtrl);
         

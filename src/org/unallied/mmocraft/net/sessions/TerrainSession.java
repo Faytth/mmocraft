@@ -12,6 +12,7 @@ import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Location;
 import org.unallied.mmocraft.TerrainChunk;
 import org.unallied.mmocraft.blocks.Block;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.constants.WorldConstants;
 
 /**
@@ -101,15 +102,16 @@ public class TerrainSession {
         
         Graphics g2;
         try {
+        	int chunkWidth = WorldConstants.WORLD_BLOCK_WIDTH * WorldConstants.WORLD_CHUNK_WIDTH;
+        	int chunkHeight = WorldConstants.WORLD_BLOCK_HEIGHT * WorldConstants.WORLD_CHUNK_HEIGHT;
+        	int chunksAcross = (Game.getInstance().getContainer().getWidth() / chunkWidth) + 1;
+    		int chunksHigh   = (Game.getInstance().getContainer().getHeight() / chunkHeight) + 1;
+    		chunksAcross = chunksAcross * 2 + 1;
+    		chunksHigh   = chunksHigh   * 2 + 1;
+    		
             // Get all of the adjoining chunks
-            int radius = WorldConstants.WORLD_DRAW_DISTANCE;
-            int length = radius * 2 + 1;
-            
             if (buffer == null) {
-                buffer = new Image(length * WorldConstants.WORLD_BLOCK_WIDTH
-                        * WorldConstants.WORLD_CHUNK_WIDTH, length
-                        * WorldConstants.WORLD_BLOCK_HEIGHT
-                        * WorldConstants.WORLD_CHUNK_HEIGHT);
+                buffer = new Image(chunksAcross * chunkWidth, chunksHigh * chunkHeight);
             }
             
             g2 = buffer.getGraphics();
@@ -134,11 +136,11 @@ public class TerrainSession {
             
             // x and y now define a chunk
             
-            for (int i=0; i < length; ++i) { // rows
-                for (int j=0; j < length; ++j) { // columns
+            for (int i=0; i < chunksAcross; ++i) { // columns
+                for (int j=0; j < chunksHigh; ++j) { // rows
                     // (y << 32) | x
-                    int chunkX = (int) ((x+i-radius) % maxX);
-                    int chunkY = (int) (y+j-radius);
+                    int chunkX = (int) ((x+i-(chunksAcross-1)/2) % maxX);
+                    int chunkY = (int) (y+j-(chunksHigh-1)/2);
                     
                     // Make sure we don't get negative coordinates
                     chunkX = (int) (chunkX < 0 ? maxX+chunkX : chunkX);
@@ -157,8 +159,8 @@ public class TerrainSession {
             }
             
             // Render the frame
-            float xBase = location.getX() - (x - radius) * WorldConstants.WORLD_CHUNK_WIDTH;
-            float yBase = location.getY() - (y - radius) * WorldConstants.WORLD_CHUNK_HEIGHT;
+            float xBase = location.getX() - (x - (chunksAcross-1)/2) * WorldConstants.WORLD_CHUNK_WIDTH;
+            float yBase = location.getY() - (y - (chunksHigh-1)/2) * WorldConstants.WORLD_CHUNK_HEIGHT;
             xBase *= WorldConstants.WORLD_BLOCK_WIDTH;
             yBase *= WorldConstants.WORLD_BLOCK_HEIGHT;
             xBase += location.getXOffset();

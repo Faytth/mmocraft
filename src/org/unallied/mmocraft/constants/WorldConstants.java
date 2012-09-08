@@ -87,7 +87,7 @@ public class WorldConstants {
     /**
      *  The number of chunks (radius) to draw.  Right now we're just using squares.
      */
-    public static final int WORLD_DRAW_DISTANCE = 1;
+//    public static final int WORLD_DRAW_DISTANCE = 1;
     
     /**
      * The number of worms to generate throughout the world.  A worm is land
