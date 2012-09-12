@@ -3,6 +3,7 @@ package org.unallied.mmocraft.net.sessions;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.newdawn.slick.BigImage;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -102,10 +103,14 @@ public class TerrainSession {
         
         Graphics g2;
         try {
+            // Screen width and height
+            int w = container.getWidth();
+            int h = container.getHeight();
+            
         	int chunkWidth = WorldConstants.WORLD_BLOCK_WIDTH * WorldConstants.WORLD_CHUNK_WIDTH;
         	int chunkHeight = WorldConstants.WORLD_BLOCK_HEIGHT * WorldConstants.WORLD_CHUNK_HEIGHT;
-        	int chunksAcross = (Game.getInstance().getContainer().getWidth() / chunkWidth) + 1;
-    		int chunksHigh   = (Game.getInstance().getContainer().getHeight() / chunkHeight) + 1;
+        	int chunksAcross = (w / chunkWidth) + 1;
+    		int chunksHigh   = (h / chunkHeight) + 1;
     		chunksAcross = chunksAcross * 2 + 1;
     		chunksHigh   = chunksHigh   * 2 + 1;
     		
@@ -125,10 +130,6 @@ public class TerrainSession {
             
             // The maximum value of y.  Any higher will wrap
             long maxY = WorldConstants.WORLD_CHUNKS_TALL;
-
-            // Screen width and height
-            float w = container.getWidth();
-            float h = container.getHeight();
             
             // Divide by size of a chunk
             x /= WorldConstants.WORLD_CHUNK_WIDTH;
@@ -153,7 +154,7 @@ public class TerrainSession {
                     if (!chunks.containsKey(chunkId)) {
                         chunks.put(chunkId, new TerrainChunk(chunkId));
                     }
-                    chunks.get(chunkId).render(container, game, g2,
+                    chunks.get(chunkId).render(container, game, g,
                             i, j, centerChunk != (y << 32 | (int)x));
                 }
             }
