@@ -1,7 +1,6 @@
 package org.unallied.mmocraft.net.sessions;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import org.unallied.mmocraft.tools.Hasher;
 
 /**
  * Contains important information about client / server nonces and other
@@ -29,26 +28,15 @@ public class LoginSession {
     
     /**
      * Gets the hashed password.
-     * @return password Returns the hashed password.  On failure returns the
-     *                  empty string.
+     * @return password Returns the hashed password.
      */
     public String getPassword() {
-        
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(username.getBytes());
-            md.update(password.getBytes());
-            byte[] byteData = md.digest();
-            StringBuffer sb = new StringBuffer();
-            for (int i=0; i < byteData.length; ++i) {
-                sb.append(Integer.toString((byteData[i] & 0xFF) + 0x100, 16).substring(1));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) { //Uh oh!
-            System.out.println(e.getMessage());
+        byte[] byteData = Hasher.getSHA256((username + password).getBytes());
+        StringBuffer sb = new StringBuffer();
+        for (int i=0; i < byteData.length; ++i) {
+            sb.append(Integer.toString((byteData[i] & 0xFF) + 0x100, 16).substring(1));
         }
-        
-        return ""; // Failed
+        return sb.toString();
     }
     
     /**
