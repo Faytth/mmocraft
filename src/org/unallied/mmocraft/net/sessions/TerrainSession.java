@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Location;
@@ -27,19 +25,6 @@ public class TerrainSession {
      *  The key is a unique
      */
     private Map<Long, TerrainChunk> chunks = new HashMap<Long, TerrainChunk>();
-
-    /**
-     * Keeps track of the center chunk that the image has been rendered on.  If
-     * this chunk != the current center chunk, then we need to update all images
-     */
-    private long centerChunk = -1;
-    
-    /**
-     * This is a canvas for TerrainChunks to draw on.  It is divided into:
-     * pow((WORLD_DRAW_DISTANCE*2+1),2)
-     * sections.  Each TerrainChunk gets its own section to draw on.
-     */
-    private Image buffer = null;
         
     /**
      * Culls terrain that is no longer needed
@@ -99,78 +84,62 @@ public class TerrainSession {
      */
     public void render(GameContainer container, StateBasedGame game, Graphics g, BoundLocation location) {
         
-        Graphics g2;
-        try {
-            // Screen width and height
-            int w = container.getWidth();
-            int h = container.getHeight();
-            
-        	int chunkWidth = WorldConstants.WORLD_BLOCK_WIDTH * WorldConstants.WORLD_CHUNK_WIDTH;
-        	int chunkHeight = WorldConstants.WORLD_BLOCK_HEIGHT * WorldConstants.WORLD_CHUNK_HEIGHT;
-        	int chunksAcross = (w / chunkWidth) + 1;
-    		int chunksHigh   = (h / chunkHeight) + 1;
-    		chunksAcross = chunksAcross * 2 + 1;
-    		chunksHigh   = chunksHigh   * 2 + 1;
-    		
-            // Get all of the adjoining chunks
-            if (buffer == null) {
-                buffer = new Image(chunksAcross * chunkWidth, chunksHigh * chunkHeight);
-            }
-            
-            g2 = buffer.getGraphics();
-            
-            // Grab the unique chunk IDs based on player's center chunk
-            long x = location.getX();
-            long y = location.getY();
-            
-            // The maximum value of x.  Any higher will wrap
-            long maxX = WorldConstants.WORLD_CHUNKS_WIDE;
-            
-            // The maximum value of y.  Any higher will wrap
-            long maxY = WorldConstants.WORLD_CHUNKS_TALL;
-            
-            // Divide by size of a chunk
-            x /= WorldConstants.WORLD_CHUNK_WIDTH;
-            y /= WorldConstants.WORLD_CHUNK_HEIGHT;
-            
-            // x and y now define a chunk
-            
-            for (int i=0; i < chunksAcross; ++i) { // columns
-                for (int j=0; j < chunksHigh; ++j) { // rows
-                    // (y << 32) | x
-                    int chunkX = (int) ((x+i-(chunksAcross-1)/2) % maxX);
-                    int chunkY = (int) (y+j-(chunksHigh-1)/2);
-                    
-                    // Make sure we don't get negative coordinates
-                    chunkX = (int) (chunkX < 0 ? maxX+chunkX : chunkX);
-                    chunkY = (int) (chunkY < 0    ? 0 : 
-                                    chunkY > maxY ? maxY :
-                                                    chunkY);
-                    
-                    long chunkId = ((long) (chunkY) << 32) | chunkX;
+        // Screen width and height
+        int w = container.getWidth();
+        int h = container.getHeight();
+        
+    	int chunkWidth = WorldConstants.WORLD_BLOCK_WIDTH * WorldConstants.WORLD_CHUNK_WIDTH;
+    	int chunkHeight = WorldConstants.WORLD_BLOCK_HEIGHT * WorldConstants.WORLD_CHUNK_HEIGHT;
+    	int chunksAcross = (w / chunkWidth) + 1;
+		int chunksHigh   = (h / chunkHeight) + 1;
+		chunksAcross = chunksAcross * 2 + 1;
+		chunksHigh   = chunksHigh   * 2 + 1;
+		            
+        // Grab the unique chunk IDs based on player's center chunk
+        long x = location.getX();
+        long y = location.getY();
+        
+        // The maximum value of x.  Any higher will wrap
+        long maxX = WorldConstants.WORLD_CHUNKS_WIDE;
+        
+        // The maximum value of y.  Any higher will wrap
+        long maxY = WorldConstants.WORLD_CHUNKS_TALL;
+        
+        // Divide by size of a chunk
+        x /= WorldConstants.WORLD_CHUNK_WIDTH;
+        y /= WorldConstants.WORLD_CHUNK_HEIGHT;
+        
+        // x and y now define a chunk
+        
+        // Render the frame
+        float xBase = location.getX() - (x - (chunksAcross-1)/2) * WorldConstants.WORLD_CHUNK_WIDTH;
+        float yBase = location.getY() - (y - (chunksHigh-1)/2) * WorldConstants.WORLD_CHUNK_HEIGHT;
+        xBase *= WorldConstants.WORLD_BLOCK_WIDTH;
+        yBase *= WorldConstants.WORLD_BLOCK_HEIGHT;
+        xBase += location.getXOffset();
+        yBase += location.getYOffset();
 
-                    if (!chunks.containsKey(chunkId)) {
-                        chunks.put(chunkId, new TerrainChunk(chunkId));
-                    }
-                    chunks.get(chunkId).render(container, game, g2,
-                            i, j, centerChunk != (y << 32 | (int)x));
+        
+        for (int i=0; i < chunksAcross; ++i) { // columns
+            for (int j=0; j < chunksHigh; ++j) { // rows
+                // (y << 32) | x
+                int chunkX = (int) ((x+i-(chunksAcross-1)/2) % maxX);
+                int chunkY = (int) (y+j-(chunksHigh-1)/2);
+                
+                // Make sure we don't get negative coordinates
+                chunkX = (int) (chunkX < 0 ? maxX+chunkX : chunkX);
+                chunkY = (int) (chunkY < 0    ? 0 : 
+                                chunkY > maxY ? maxY :
+                                                chunkY);
+                
+                long chunkId = ((long) (chunkY) << 32) | chunkX;
+
+                if (!chunks.containsKey(chunkId)) {
+                    chunks.put(chunkId, new TerrainChunk(chunkId));
                 }
+                chunks.get(chunkId).render(container, game, g, xBase, yBase,
+                        i, j, true);
             }
-            
-            // Render the frame
-            float xBase = location.getX() - (x - (chunksAcross-1)/2) * WorldConstants.WORLD_CHUNK_WIDTH;
-            float yBase = location.getY() - (y - (chunksHigh-1)/2) * WorldConstants.WORLD_CHUNK_HEIGHT;
-            xBase *= WorldConstants.WORLD_BLOCK_WIDTH;
-            yBase *= WorldConstants.WORLD_BLOCK_HEIGHT;
-            xBase += location.getXOffset();
-            yBase += location.getYOffset();
-            
-            buffer.draw(0, 0, w, h, xBase, yBase, xBase + w, yBase + h);
-            
-            
-            // Update the center chunk
-            centerChunk = (y << 32 | (int)x);
-        } catch (SlickException e) {
         }
     }
 

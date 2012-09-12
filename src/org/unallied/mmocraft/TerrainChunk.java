@@ -76,15 +76,18 @@ public class TerrainChunk {
      * to the graphics.  If false, the chunk will determine if it
      * needs to update itself or not.
      */
-    public void render(GameContainer container, StateBasedGame game,
-            Graphics g, int x, int y, boolean forceUpdate) {
+	public void render(GameContainer container, StateBasedGame game, Graphics g,
+			float xBase, float yBase, int x, int y, boolean forceUpdate) {        
+		int w = WorldConstants.WORLD_BLOCK_WIDTH * WorldConstants.WORLD_CHUNK_WIDTH;
+        int h = WorldConstants.WORLD_BLOCK_HEIGHT * WorldConstants.WORLD_CHUNK_HEIGHT;
         
-        final int w = WorldConstants.WORLD_CHUNK_WIDTH * WorldConstants.WORLD_BLOCK_WIDTH;
-        final int h = WorldConstants.WORLD_CHUNK_HEIGHT * WorldConstants.WORLD_BLOCK_HEIGHT;
+        float xOffset = x * w - xBase;
+        float yOffset = y * h - yBase;
+		
+        System.out.println(xBase + " " + yBase);
         
-        synchronized (this) {
+		synchronized (this) {
             if (blocks != null) {
-
                 Image buffer = ImagePool.getInstance().getImage(this, w, h);
 
                 // See if we have to initialize our buffer
@@ -94,16 +97,17 @@ public class TerrainChunk {
 
                 if ((forceUpdate || dirty > 0) && !(buffer == null)) {
                     // Draw our chunk!
-                    g.drawImage(buffer, x*w, y*h);
-                    g.flush();
+                    g.drawImage(buffer,  xOffset, yOffset, xOffset + w, yOffset + h, 0, 0, w, h);
+                    
+//                    g.flush();
                     --dirty;
                 }
             } else { // Not loaded, so just draw a black rectangle
                 if (forceUpdate || dirty > 0) {
-                    g.fill(new Rectangle(x*w, y*h, w, h), 
+                    g.fill(new Rectangle(xOffset, yOffset, w, h), 
                             new GradientFill(0, 0, Color.black,
                                     w, h, Color.black));
-                    g.flush();
+//                    g.flush();
                     --dirty;
                 }
             }
