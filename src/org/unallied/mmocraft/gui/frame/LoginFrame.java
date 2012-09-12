@@ -93,6 +93,8 @@ public class LoginFrame extends Frame {
         elements.add(passTextCtrl);
         elements.add(loginButton);
         elements.add(registerButton);
+        
+        GUIUtility.getInstance().setActiveElement(userTextCtrl);
     }
     
     @Override

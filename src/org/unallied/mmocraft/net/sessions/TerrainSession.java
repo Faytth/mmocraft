@@ -3,7 +3,6 @@ package org.unallied.mmocraft.net.sessions;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.newdawn.slick.BigImage;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -13,7 +12,6 @@ import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Location;
 import org.unallied.mmocraft.TerrainChunk;
 import org.unallied.mmocraft.blocks.Block;
-import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.constants.WorldConstants;
 
 /**
@@ -154,7 +152,7 @@ public class TerrainSession {
                     if (!chunks.containsKey(chunkId)) {
                         chunks.put(chunkId, new TerrainChunk(chunkId));
                     }
-                    chunks.get(chunkId).render(container, game, g,
+                    chunks.get(chunkId).render(container, game, g2,
                             i, j, centerChunk != (y << 32 | (int)x));
                 }
             }

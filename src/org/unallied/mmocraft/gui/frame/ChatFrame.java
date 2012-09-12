@@ -15,6 +15,7 @@ import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.MessageType;
 import org.unallied.mmocraft.gui.control.TextCtrl;
 import org.unallied.mmocraft.net.handlers.ChatMessageHandler;
@@ -80,8 +81,10 @@ public class ChatFrame extends Frame {
             public void callback(Event event) {
                 switch (event.getId()) {
                 case TEXT_ENTER:
-                    GUIElement element = event.getElement().getParent();
-                    element.callback(new Event(element, EventType.SEND_CHAT_MESSAGE));
+                    if (isActive()) {
+                        GUIElement element = event.getElement().getParent();
+                        element.callback(new Event(element, EventType.SEND_CHAT_MESSAGE));
+                    }
                     break;
                 }
             }
@@ -244,4 +247,29 @@ public class ChatFrame extends Frame {
 	protected boolean isAcceptingFocus() {
 		return true;
 	}
+
+	/**
+	 * Sets the chat frame to the active control.  This will let the player enter a message.
+	 */
+    public void activate() {
+        GUIUtility.getInstance().setActiveElement(messageTextCtrl);
+    }
+    
+    /**
+     * Deactivates the chat frame if it's the active control.
+     */
+    public void deactivate() {
+        if (GUIUtility.getInstance().getActiveElement() == messageTextCtrl) {
+            GUIUtility.getInstance().setActiveElement(null);
+        }
+    }
+
+    /**
+     * Returns whether or not this frame is active (meaning that the user can
+     * enter a chat message).
+     * @return active
+     */
+    public boolean isActive() {
+        return GUIUtility.getInstance().getActiveElement() == messageTextCtrl;
+    }
 }

@@ -13,6 +13,7 @@ import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.net.PacketCreator;
 
@@ -91,6 +92,12 @@ public class IngameState extends AbstractState {
 
     @Override
     public void keyPressed(int key, char c) {
+        // Be careful about using this function, because it occurs BEFORE child elements
+        
+        // Deactivate chat box.  Enter / return are implemented in a different area.
+        if (key == Input.KEY_ESCAPE && chatFrame != null && chatFrame.isActive()) {
+            chatFrame.deactivate();
+        }
     }
 
     @Override
@@ -171,12 +178,18 @@ public class IngameState extends AbstractState {
                     switch( event.getId() ) {
                     case SEND_CHAT_MESSAGE:
                     	ChatMessage message = chatFrame.getMessage();
-                    	// Send the message to the server
-                    	Game.getInstance().getClient().announce(
-                    			PacketCreator.getChatMessage(message));
-                    	// Clear the message from the chat frame
-                    	message.setBody("");
-                    	chatFrame.setMessage(message);
+                    	if (!message.getBody().isEmpty()) {
+                        	// Send the message to the server
+                        	Game.getInstance().getClient().announce(
+                        			PacketCreator.getChatMessage(message));
+                        	// Clear the message from the chat frame
+                        	message.setBody("");
+                        	chatFrame.setMessage(message);
+                    	}
+                    	chatFrame.deactivate();
+                    	// Needed to stop any other enter / return events
+                    	Game.getInstance().getContainer().getInput().isKeyPressed(Input.KEY_ENTER);
+                    	Game.getInstance().getContainer().getInput().isKeyPressed(Input.KEY_RETURN);
                         break;
                     }
                 }
@@ -185,6 +198,8 @@ public class IngameState extends AbstractState {
             // Controls
             this.elements.add(chatFrame);
         }
+        // Start off with the game focused
+        GUIUtility.getInstance().setActiveElement(null);
     }
 
     @Override
@@ -267,26 +282,29 @@ public class IngameState extends AbstractState {
             // Perform shielding
             player.shieldUpdate(input.isKeyDown(Input.KEY_B));
             
-            // Perform movement
-            if (leftMove && !rightMove) {
-                player.tryMoveLeft(delta);
-                idle = false;
+            // These next checks are only if the main game is focused and not a GUI control
+            if (GUIUtility.getInstance().getActiveElement() == null) {
+                // Perform movement
+                if (leftMove && !rightMove) {
+                    player.tryMoveLeft(delta);
+                    idle = false;
+                }
+                if (rightMove && !leftMove) {
+                    player.tryMoveRight(delta);
+                    idle = false;
+                }
+                if (upMove && !downMove) {
+                    player.tryMoveUp(delta);
+                    idle = false;
+                }
+                if (downMove && !upMove) {
+                    player.tryMoveDown(delta);
+                    idle = false;
+                }
+                
+                // perform attacks
+                player.attackUpdate(input.isKeyDown(Input.KEY_LSHIFT));
             }
-            if (rightMove && !leftMove) {
-                player.tryMoveRight(delta);
-                idle = false;
-            }
-            if (upMove && !downMove) {
-                player.tryMoveUp(delta);
-                idle = false;
-            }
-            if (downMove && !upMove) {
-                player.tryMoveDown(delta);
-                idle = false;
-            }
-            
-            // perform attacks
-            player.attackUpdate(input.isKeyDown(Input.KEY_LSHIFT));
             
             if (idle) {
                 player.idle();
@@ -302,6 +320,15 @@ public class IngameState extends AbstractState {
         // Iterate over all GUI controls and inform them of input
         for( GUIElement element : elements) {
             element.update(container);
+        }
+        
+        // If the main game is focused and not a GUI element
+        if (input.isKeyPressed(Input.KEY_ENTER) || input.isKeyPressed(Input.KEY_RETURN)) {
+            if (GUIUtility.getInstance().getActiveElement() == null) {
+                if (chatFrame != null) {
+                    chatFrame.activate();
+                }
+            }
         }
     }
 

@@ -601,7 +601,7 @@ public class Player extends Living implements Serializable {
             Location newEnd = new Location(ts.collideWithBlock(start, end));
             
             hitSomething |= !newEnd.equals(end);
-                        
+            
             // We now need to fix our distance based on our new end
             distance.setLocation(
                     (newEnd.getX()-start.getX()) * WorldConstants.WORLD_BLOCK_WIDTH + (newEnd.getXOffset()-start.getXOffset()),

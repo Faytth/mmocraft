@@ -10,6 +10,7 @@ import org.unallied.mmocraft.constants.DatabaseConstants;
 import org.unallied.mmocraft.constants.StringConstants;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.ToolTip;
 import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.StaticText;
@@ -42,44 +43,61 @@ public class RegisterFrame extends Frame {
         
         this.container = container;
         
-        userTextCtrl = new TextCtrl(this, new EventIntf() {
-            @Override
-            public void callback(Event event) {
-                //parent.callback(event);
-            }
-        }, container, "", 140, 0, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
-        userTextCtrl.setToolTip(new ToolTip("Must be between 6 and 14 characters.\nMust be unique.\nMay only contain a-z, A-Z, and/or 0-9."));
-        
-        passTextCtrl = new TextCtrl(this, new EventIntf() {
-            @Override
-            public void callback(Event event) {
-                //parent.callback(event);
-            }
-        }, container, "", 140, 30, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.PASSWORD);
-        passTextCtrl.setToolTip(new ToolTip("Must be between 6 and 50 characters."));
-        
-        pass2TextCtrl = new TextCtrl(this, new EventIntf() {
-            @Override
-            public void callback(Event event) {
-                //parent.callback(event);
-            }
-        }, container, "", 140, 60, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.PASSWORD);
-        
         emailTextCtrl = new TextCtrl(this, new EventIntf() {
             @Override
             public void callback(Event event) {
-                //parent.callback(event);
+                switch (event.getId()) {
+                case TEXT_ENTER:
+                    GUIElement element = event.getElement().getParent();
+                    element.callback(new Event(element, EventType.REGISTER_CLICKED));
+                    break;
+                }
             }
         }, container, "", 140, 90, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
                 , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
                 , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
         emailTextCtrl.setToolTip(new ToolTip("Must be unique.\nE-mail addresses are used for password recovery."));
+        
+        pass2TextCtrl = new TextCtrl(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case TEXT_ENTER:
+                    GUIUtility.getInstance().setActiveElement(emailTextCtrl);
+                    break;
+                }
+            }
+        }, container, "", 140, 60, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
+                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
+                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.PASSWORD);
+        
+        passTextCtrl = new TextCtrl(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case TEXT_ENTER:
+                    GUIUtility.getInstance().setActiveElement(pass2TextCtrl);
+                    break;
+                }
+            }
+        }, container, "", 140, 30, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
+                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
+                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.PASSWORD);
+        passTextCtrl.setToolTip(new ToolTip("Must be between 6 and 50 characters."));
+                
+        userTextCtrl = new TextCtrl(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case TEXT_ENTER:
+                    GUIUtility.getInstance().setActiveElement(passTextCtrl);
+                    break;
+                }
+            }
+        }, container, "", 140, 0, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
+                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
+                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
+        userTextCtrl.setToolTip(new ToolTip("Must be between 6 and 14 characters.\nMust be unique.\nMay only contain a-z, A-Z, and/or 0-9."));
         
         backButton = new Button(this, new EventIntf() {
             @Override
@@ -122,6 +140,8 @@ public class RegisterFrame extends Frame {
         elements.add(backButton);
         elements.add(registerButton);
         elements.add(successStaticText);
+        
+        GUIUtility.getInstance().setActiveElement(userTextCtrl);
     }
     
     @Override
