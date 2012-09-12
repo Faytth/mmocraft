@@ -12,7 +12,10 @@ import java.util.regex.Pattern;
  */
 public class Authenticator {
 
-    public static boolean isValidUser(String user) {
+	/** The maximum length of a player-written message for sending chat messages. */
+    public static final int MAX_MESSAGE_LENGTH = 255;
+
+	public static boolean isValidUser(String user) {
         if (user != null) {
             if (user.length() >= 6 && user.length() <= 14) {
                 boolean result = true;
@@ -57,8 +60,14 @@ public class Authenticator {
         return false;
     }
 
+    /**
+     * Returns whether this string is a valid email address.  Although not
+     * perfect, this is as good a Regex match as we're going to get.
+     * @param email the email to check for validity
+     * @return valid true if email is a valid email, else false
+     */
     public static boolean isValidEmail(String email) {
-        // No emails longer than 128 characters
+        // No e-mails longer than 128 characters
         if (email != null && email.length() >= 5 && email.length() <= 128) {
             Pattern pattern = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b");
             Matcher matcher = pattern.matcher(email);
@@ -69,4 +78,13 @@ public class Authenticator {
         return false;
     }
 
+    /**
+     * Returns whether this string is a valid chat message.  This includes
+     * checking its length.
+     * @param message The message to check for validity.
+     * @return valid true if valid, else false
+     */
+    public static boolean isValidChatMessage(String message) {
+    	return message.length() <= MAX_MESSAGE_LENGTH;
+    }
 }

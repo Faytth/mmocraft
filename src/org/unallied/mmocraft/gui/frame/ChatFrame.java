@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -16,6 +17,8 @@ import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.MessageType;
 import org.unallied.mmocraft.gui.control.TextCtrl;
+import org.unallied.mmocraft.net.handlers.ChatMessageHandler;
+import org.unallied.mmocraft.tools.Authenticator;
 
 public class ChatFrame extends Frame {
 	
@@ -85,6 +88,7 @@ public class ChatFrame extends Frame {
         }, container, "", 0, chatHeight, -1, -1, ImageID.TEXTCTRL_CHAT_NORMAL.toString()
                 , ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString()
                 , ImageID.TEXTCTRL_CHAT_SELECTED.toString(), 0);
+        messageTextCtrl.setMaxLength(Authenticator.MAX_MESSAGE_LENGTH);
 
         elements.add(messageTextCtrl);
         
@@ -96,6 +100,12 @@ public class ChatFrame extends Frame {
     @Override
     public void update(GameContainer container) {
 
+    	// Poll the chat handler for new messages
+    	ChatMessage receivedMessage;
+    	while ((receivedMessage = ChatMessageHandler.getNextMessage()) != null) {
+    		addMessage(receivedMessage);
+    	}
+    	
         // Iterate over all GUI controls and inform them of input
         for( GUIElement element : elements ) {
             element.update(container);
@@ -197,7 +207,36 @@ public class ChatFrame extends Frame {
      * @param message
      */
     public void addMessage(ChatMessage message) {
-    	receivedMessages.add(new ChatMessage(message));
+    	Font font = FontHandler.getInstance().getFont(MESSAGE_FONT);
+    	String[] words = message.getBody().split(" ");
+    	String line = "[" + message.getAuthor() + "]: ";
+    	
+    	/*
+    	 *  Go through each character and separate the message into chunks.
+    	 *  This is done so that the message can be read in the chat frame
+    	 *  without the message extending past the end of the frame.
+    	 */
+    	for (String word : words) {
+    		if (font.getWidth(line + word) < width) {
+    			line += word + " ";
+    		} else if (line.length() == 0) {
+       			/*
+    			 *  The word was too long for an entire line!
+    			 *  We should split it and display it on multiple lines, but I'm
+    			 *  lazy.  For now we'll just display what we can.
+    			 *  TODO:  Display huge words on multiple lines.
+    			 */
+    			line += word;
+    			receivedMessages.add(new ChatMessage(message.getType(), line));
+    			line = "";
+    		} else {
+    			receivedMessages.add(new ChatMessage(message.getType(), line));
+    			line = word + " ";
+    		}
+    	}
+    	if (line.length() > 0) {
+    		receivedMessages.add(new ChatMessage(message.getType(), line));
+    	}
     	needsRefresh = true;
     }
     

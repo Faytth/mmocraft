@@ -16,7 +16,8 @@ public enum RecvOpcode {
     CHUNK(0x06),
     MOVEMENT(0x07),
     PLAYER_DISCONNECT(0x08), 
-    REGISTRATION_ACK(0x09);
+    REGISTRATION_ACK(0x09), 
+    CHAT_MESSAGE(0x0A);
     private int code = 0;
     
     private RecvOpcode(int code) {

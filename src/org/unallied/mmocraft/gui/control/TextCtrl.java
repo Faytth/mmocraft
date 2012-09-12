@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.gui.control;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -37,6 +38,8 @@ public class TextCtrl extends Control {
      */
     private int position = 0;
     private int style = 0;
+    /** The maximum number of characters allowed by the text control.  -1 means infinite. */
+    private int maxLength = -1;
     
     /**
      * 
@@ -186,9 +189,10 @@ public class TextCtrl extends Control {
             	break;
             default:
                 if (c >= 0x20 && c <= 0x7F) {
-	                // TODO:  Add a max length
-	                label = label.substring(0, position) + c + label.substring(position);
-	                ++position; // increase the caret position by 1.
+                	if (maxLength == -1 || label.length() < maxLength) {
+		                label = label.substring(0, position) + c + label.substring(position);
+		                ++position; // increase the caret position by 1.
+                	}
                 }
             	break;
             }
@@ -229,14 +233,26 @@ public class TextCtrl extends Control {
                 }
                 
                 // Draw text
-                FontHandler.getInstance().draw(fontKey, str, textOffsetX, 
-                		textOffsetY, textColor, width, height, false);
-//                g.drawString(str, textOffsetX, textOffsetY);
-                int xOffset = FontHandler.getInstance().getFont(fontKey).getWidth(str.substring(0, position));
-                if (GUIUtility.getInstance().isActiveElement(this)) {
-                	// "Drawing twice for a "bold" effect
-	                g.drawString("|", xOffset, textOffsetY);
-	                g.drawString("|", xOffset+1, textOffsetY);
+                Font font = FontHandler.getInstance().getFont(fontKey);
+                if (font != null) {
+	                int xOffset = font.getWidth(str.substring(0, position));
+	                /*
+	                 *  When drawing text, we need to only show the text that "fits" into the text ctrl.
+	                 *  To do this, we use:  widthOfText - widthOfTextCtrl.  If this value is > 0, then
+	                 *  we know that we need to render only the "displayFrame" part of the text ctrl.
+	                 *  For now this will just be based on the end of the text.  Later on, we need to
+	                 *  make a new variable that keeps track of what we're looking at.
+	                 */
+	                int xDelta = font.getWidth(str+"|") - width + textOffsetX;
+	                xDelta = xDelta > 0 ? xDelta : 0;
+	                FontHandler.getInstance().draw(fontKey, str, textOffsetX-xDelta, 
+	                		textOffsetY, textColor, width, height, false);
+	//                g.drawString(str, textOffsetX, textOffsetY);
+	                if (GUIUtility.getInstance().isActiveElement(this)) {
+	                	// "Drawing twice for a "bold" effect
+		                g.drawString("|", xOffset-xDelta, textOffsetY);
+		                g.drawString("|", xOffset+1-xDelta, textOffsetY);
+	                }
                 }
                 g.flush();
             }
@@ -281,5 +297,24 @@ public class TextCtrl extends Control {
 			this.label = label;
 			this.position = this.label.length();
 		}
+	}
+	
+	/**
+	 * Returns the maximum length for this text control.  This is the number of
+	 * characters that are allowed to be entered by the text control.
+	 * @return maximumLength.  A value of -1 indicates infinite.
+	 */
+	public int getMaxLength() {
+		return maxLength;
+	}
+	
+	/**
+	 * Sets the maximum length of the text control.  This is the number of
+	 * characters that are allowed to be entered by the text control.
+	 * @param maxLength the number of characters allowed to be entered by this
+	 *                  text control.  A value of -1 indicates infinite.
+	 */
+	public void setMaxLength(int maxLength) {
+		this.maxLength = maxLength;
 	}
 }

@@ -66,5 +66,6 @@ public class PacketProcessor {
         registerHandler(RecvOpcode.MOVEMENT, new MovementHandler());
         registerHandler(RecvOpcode.PLAYER_DISCONNECT, new PlayerDisconnectHandler());
         registerHandler(RecvOpcode.REGISTRATION_ACK, new RegistrationAckHandler());
+        registerHandler(RecvOpcode.CHAT_MESSAGE, new ChatMessageHandler());
     }
 }

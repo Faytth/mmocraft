@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.net;
 
 import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.gui.ChatMessage;
 
 /**
  * Creates Packets to send to the client
@@ -108,4 +109,21 @@ public class PacketCreator {
         
         return writer.getPacket();
     }
+
+    /**
+     * Returns a chat message packet, which contains the type and body of the
+     * chat message.  The server knows who sent it, and as such, is responsible
+     * for filling in the author on its own.
+     * @param message the message to send
+     * @return packet
+     */
+	public static Packet getChatMessage(ChatMessage message) {
+		PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+		
+		writer.write(SendOpcode.CHAT_MESSAGE);
+		writer.write((byte) message.getType().ordinal());
+		writer.writePrefixedAsciiString(message.getBody());
+		
+		return writer.getPacket();
+	}
 }

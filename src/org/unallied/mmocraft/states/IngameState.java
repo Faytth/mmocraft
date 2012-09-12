@@ -14,6 +14,7 @@ import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
+import org.unallied.mmocraft.net.PacketCreator;
 
 public class IngameState extends AbstractState {
 
@@ -170,7 +171,9 @@ public class IngameState extends AbstractState {
                     switch( event.getId() ) {
                     case SEND_CHAT_MESSAGE:
                     	ChatMessage message = chatFrame.getMessage();
-                    	chatFrame.addMessage(message); // echo
+                    	// Send the message to the server
+                    	Game.getInstance().getClient().announce(
+                    			PacketCreator.getChatMessage(message));
                     	// Clear the message from the chat frame
                     	message.setBody("");
                     	chatFrame.setMessage(message);
