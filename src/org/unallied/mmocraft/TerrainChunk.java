@@ -83,8 +83,6 @@ public class TerrainChunk {
         
         float xOffset = x * w - xBase;
         float yOffset = y * h - yBase;
-		
-        System.out.println(xBase + " " + yBase);
         
 		synchronized (this) {
             if (blocks != null) {
