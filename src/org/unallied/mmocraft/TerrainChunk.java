@@ -98,8 +98,6 @@ public class TerrainChunk {
                 if ((forceUpdate || dirty > 0) && !(buffer == null)) {
                     // Draw our chunk!
                     g.drawImage(buffer,  xOffset, yOffset, xOffset + w, yOffset + h, 0, 0, w, h);
-                    
-//                    g.flush();
                     --dirty;
                 }
             } else { // Not loaded, so just draw a black rectangle
@@ -107,7 +105,6 @@ public class TerrainChunk {
                     g.fill(new Rectangle(xOffset, yOffset, w, h), 
                             new GradientFill(0, 0, Color.black,
                                     w, h, Color.black));
-//                    g.flush();
                     --dirty;
                 }
             }

@@ -4,19 +4,24 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.net.PacketSocket;
 import org.unallied.mmocraft.states.*;
 
 public class Game extends StateBasedGame {
     public static final int SCREEN_WIDTH = 1024;
-    public static final int SCREEN_HEIGHT = 768;
+    public static final int SCREEN_HEIGHT = 668;
     protected static final int MAX_FPS = 60000;
     
     /// We are not able to use the superior Singleton pattern for this due to applet complications
     protected static Game instance = null;
     
-    protected MMOClient client = new MMOClient(); // The client associated with this game
+    /** The client associated with this game */
+    protected MMOClient client = new MMOClient();
 
+    /** Contains all controls and provides an easy context for configuring said controls. */
+    protected Controls controls = new Controls();
+    
     /**
      * Must be public to make AppGameContainer happy for AppLoader.
      * DO NOT USE THE CONSTRUCTOR IN YOUR CODE!!!
@@ -75,5 +80,14 @@ public class Game extends StateBasedGame {
      */
     public MMOClient getClient() {
         return client;
+    }
+    
+    /**
+     * Returns the game controls class which stores all information about which
+     * keys / controls do what.
+     * @return controls
+     */
+    public Controls getControls() {
+    	return controls;
     }
 }

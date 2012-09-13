@@ -6,6 +6,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
@@ -200,6 +201,8 @@ public class IngameState extends AbstractState {
         }
         // Start off with the game focused
         GUIUtility.getInstance().setActiveElement(null);
+        container.getInput().isKeyPressed(Input.KEY_ENTER);
+        container.getInput().isKeyPressed(Input.KEY_RETURN);
     }
 
     @Override
@@ -268,42 +271,40 @@ public class IngameState extends AbstractState {
         
         Input input = container.getInput();
         Player player = Game.getInstance().getClient().getPlayer();
-        boolean leftMove = input.isKeyDown(Input.KEY_LEFT);
-        boolean rightMove = input.isKeyDown(Input.KEY_RIGHT);
-        boolean upMove = input.isKeyDown(Input.KEY_UP);
-        boolean downMove = input.isKeyDown(Input.KEY_DOWN);
         boolean idle = true; // determines whether player is moving
 
         if (player != null) {
+        	Controls controls = Game.getInstance().getControls();
+
             // Perform gravity checks
             player.accelerateDown(delta, ClientConstants.FALL_ACCELERATION, 
                     ClientConstants.FALL_TERMINAL_VELOCITY);
             
             // Perform shielding
-            player.shieldUpdate(input.isKeyDown(Input.KEY_B));
+            player.shieldUpdate(controls.isShielding(input));
             
             // These next checks are only if the main game is focused and not a GUI control
             if (GUIUtility.getInstance().getActiveElement() == null) {
                 // Perform movement
-                if (leftMove && !rightMove) {
-                    player.tryMoveLeft(delta);
-                    idle = false;
+                if (controls.isMovingLeft(input)) {
+                	player.tryMoveLeft(delta);
+                	idle = false;
                 }
-                if (rightMove && !leftMove) {
+                if (controls.isMovingRight(input)) {
                     player.tryMoveRight(delta);
                     idle = false;
                 }
-                if (upMove && !downMove) {
+                if (controls.isMovingUp(input)) {
                     player.tryMoveUp(delta);
                     idle = false;
                 }
-                if (downMove && !upMove) {
+                if (controls.isMovingDown(input)) {
                     player.tryMoveDown(delta);
                     idle = false;
                 }
                 
                 // perform attacks
-                player.attackUpdate(input.isKeyDown(Input.KEY_LSHIFT));
+                player.attackUpdate(controls.isBasicAttack(input));
             }
             
             if (idle) {
