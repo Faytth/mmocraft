@@ -1,5 +1,7 @@
 package org.unallied.mmocraft.states;
 
+import java.awt.im.InputContext;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -170,6 +172,8 @@ public class IngameState extends AbstractState {
     @Override
     public void enter(GameContainer container, StateBasedGame game)
             throws SlickException {
+        InputContext context = InputContext.getInstance();
+        System.out.println(context.getLocale().toString());
         // Set GUI elements
         if( this.elements.size() == 0 ) {
             chatFrame = new ChatFrame(this, new EventIntf(){
