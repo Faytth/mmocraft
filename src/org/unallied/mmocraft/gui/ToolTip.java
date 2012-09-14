@@ -3,7 +3,6 @@ package org.unallied.mmocraft.gui;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.fills.GradientFill;
@@ -11,7 +10,6 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
-import org.unallied.mmocraft.client.ImagePool;
 
 public class ToolTip {
 
@@ -27,45 +25,20 @@ public class ToolTip {
         this.tip = tip;
         toolWidth = FontHandler.getInstance().getMaxWidth(FontID.TOOLTIP_DEFAULT.toString(), this.tip) + tipOffsetX*2;
         toolHeight = FontHandler.getInstance().getMaxHeight(FontID.TOOLTIP_DEFAULT.toString(), this.tip) + tipOffsetY*2;
-        
-        Image image = ImagePool.getInstance().getImage(this, toolWidth, toolHeight);
-        renderImage(image);
     }
     
-    public void render(GameContainer container, StateBasedGame game
-            , Graphics g) throws SlickException {
+    public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Input input = container.getInput();
         
         int mouseX = input.getMouseX();
         int mouseY = input.getMouseY();
 
-        Image image = ImagePool.getInstance().getImage(this, toolWidth, toolHeight);
-        if (image != null) {
-            if (ImagePool.getInstance().needsRefresh()) {
-                renderImage(image);
-            }
-            image.draw(rectOffX + mouseX, rectOffY + mouseY);
-            FontHandler.getInstance().draw(FontID.TOOLTIP_DEFAULT.toString()
-                    , tip
-                    , rectOffX + mouseX + tipOffsetX, rectOffY + mouseY + tipOffsetY
-                    , new Color(200, 248, 220), toolWidth-tipOffsetX*2, toolHeight-tipOffsetY*2, true);        
-        }
+        g.fill(new Rectangle(rectOffX + mouseX, rectOffY + mouseY, toolWidth, toolHeight), 
+        		new GradientFill(0, 0, new Color(47, 102, 176, 166), 
+        				toolWidth, toolHeight, new Color(99, 47, 176, 166), true));
+
+        FontHandler.getInstance().draw(FontID.TOOLTIP_DEFAULT.toString(), tip, 
+        		rectOffX + mouseX + tipOffsetX, rectOffY + mouseY + tipOffsetY, 
+        		new Color(200, 248, 220), toolWidth-tipOffsetX*2, toolHeight-tipOffsetY*2, true);
     }
-    
-    public void renderImage(Image image) {
-        try {
-            if (image != null) {
-                // Do background
-                Graphics g = image.getGraphics();
-                g.fill(new Rectangle(0, 0, toolWidth, toolHeight)
-                        , new GradientFill(0, 0, new Color(47, 102, 176)
-                        , toolWidth, toolHeight, new Color(99, 47, 176), true));
-                image.setAlpha(0.65f);
-                g.flush();
-            }
-        } catch (SlickException e) {
-            
-        }
-    }
-    
 }
