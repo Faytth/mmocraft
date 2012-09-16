@@ -1,7 +1,5 @@
 package org.unallied.mmocraft.states;
 
-import java.awt.im.InputContext;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -18,6 +16,7 @@ import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
+import org.unallied.mmocraft.gui.frame.InventoryFrame;
 import org.unallied.mmocraft.net.PacketCreator;
 
 public class IngameState extends AbstractState {
@@ -28,6 +27,9 @@ public class IngameState extends AbstractState {
      * The chat frame that the user can send and receive chat messages through.
      */
     private ChatFrame chatFrame = null;
+    
+    /** The inventory frame that contains all of a player's items. */
+    private InventoryFrame inventoryFrame = null;
     
     public IngameState() {
         super(null, null, null, 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
@@ -96,10 +98,34 @@ public class IngameState extends AbstractState {
     @Override
     public void keyPressed(int key, char c) {
         // Be careful about using this function, because it occurs BEFORE child elements
+    	Controls controls = Game.getInstance().getControls();
+    	
+        // Deactivate GUI if needed.
+        if (key == Input.KEY_ESCAPE) {
+        	if (chatFrame != null && chatFrame.isActive()) {
+        		chatFrame.deactivate();
+        	}
+        	if (inventoryFrame != null) {
+        		inventoryFrame.hide();
+        	}
+        }
         
-        // Deactivate chat box.  Enter / return are implemented in a different area.
-        if (key == Input.KEY_ESCAPE && chatFrame != null && chatFrame.isActive()) {
-            chatFrame.deactivate();
+        GUIElement activeElement = GUIUtility.getInstance().getActiveElement();
+        
+        try {
+	        switch (controls.getKeyType(key)) {
+		        case OPEN_INVENTORY:
+		        	if (inventoryFrame != null && (activeElement == null || activeElement == inventoryFrame)) {
+		        		if (inventoryFrame.isShown()) {
+		        			inventoryFrame.hide();
+		        		} else {
+		        			inventoryFrame.show();
+		        		}
+		        	}
+		        	break;
+		        }
+        } catch (NullPointerException e) {
+        	// Don't do anything, because all it means is the key wasn't found
         }
     }
 
@@ -172,11 +198,17 @@ public class IngameState extends AbstractState {
     @Override
     public void enter(GameContainer container, StateBasedGame game)
             throws SlickException {
-        InputContext context = InputContext.getInstance();
-        System.out.println(context.getLocale().toString());
         // Set GUI elements
         if( this.elements.size() == 0 ) {
-            chatFrame = new ChatFrame(this, new EventIntf(){
+        	inventoryFrame = new InventoryFrame(this, new EventIntf() {
+        		@Override
+        		public void callback(Event event) {
+        			
+        		}
+        	}, container, Game.SCREEN_WIDTH - 270, Game.SCREEN_HEIGHT-410, -1, -1);
+        	inventoryFrame.hide();
+        	
+            chatFrame = new ChatFrame(this, new EventIntf() {
 
                 @Override
                 public void callback(Event event) {
@@ -201,6 +233,7 @@ public class IngameState extends AbstractState {
                 
             }, container, 10, Game.SCREEN_HEIGHT-210 + 60, -1, -1);
             // Controls
+            this.elements.add(inventoryFrame);
             this.elements.add(chatFrame);
         }
         // Start off with the game focused

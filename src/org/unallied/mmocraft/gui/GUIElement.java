@@ -26,6 +26,9 @@ public abstract class GUIElement implements InputListener {
      */
     protected boolean needsRefresh = true;
     
+    /** True if the element should be "hidden" (not rendered), else false. */
+    protected boolean hidden = false;
+    
     public interface EventIntf {
         public void callback(Event event);
     }
@@ -150,27 +153,29 @@ public abstract class GUIElement implements InputListener {
     public void render(GameContainer container, StateBasedGame game
             , Graphics g) {
         
-        if (width > 0 && height > 0) {
-            Image image = ImagePool.getInstance().getImage(this, width, height);
-            if( image != null) {
-                if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
-                    renderImage(image);
-                    needsRefresh = false;
-                }
-                image.draw(getAbsoluteWidth(), getAbsoluteHeight());
-            }
-        }
-        
-        if (elements != null) {
-            // Iterate over all GUI controls and inform them of input
-            for( GUIElement element : elements ) {
-                element.render(container, game, g);
-            }
-            
-            for( GUIElement element : elements ) {
-                element.renderToolTip(container, game, g);
-            }
-        }
+    	if (!hidden) {
+	        if (width > 0 && height > 0) {
+	            Image image = ImagePool.getInstance().getImage(this, width, height);
+	            if( image != null) {
+	                if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
+	                    renderImage(image);
+	                    needsRefresh = false;
+	                }
+	                image.draw(getAbsoluteWidth(), getAbsoluteHeight());
+	            }
+	        }
+	        
+	        if (elements != null) {
+	            // Iterate over all GUI controls and inform them of input
+	            for( GUIElement element : elements ) {
+	                element.render(container, game, g);
+	            }
+	            
+	            for( GUIElement element : elements ) {
+	                element.renderToolTip(container, game, g);
+	            }
+	        }
+    	}
     }
     
     /**
@@ -354,5 +359,27 @@ public abstract class GUIElement implements InputListener {
      */
     public int getHeight() {
     	return height;
+    }
+    
+    /**
+     * Shows the element.  When an element is showing, it will be rendered.
+     */
+    public void show() {
+    	hidden = false;
+    }
+    
+    /**
+     * Hides the element.  When an element is hidden, it will not be rendered.
+     */
+    public void hide() {
+    	hidden = true;
+    }
+    
+    /**
+     * Returns whether the GUI element is being shown (rendered).
+     * @return shown: true if being rendered, else false
+     */
+    public boolean isShown() {
+    	return !hidden;
     }
 }

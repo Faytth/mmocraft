@@ -68,26 +68,28 @@ public abstract class Control extends GUIElement {
     public void render(GameContainer container, StateBasedGame game
             , Graphics g) {
         
-        boolean newActiveState;
-        
-        GUIUtility util = GUIUtility.getInstance();
-        newActiveState = util.isActiveElement(this);
-        
-        if( activeState != newActiveState ) {
-            activeState = newActiveState;
-            needsRefresh = true;
-        }
-        
-        // Perform normal render stuff
-        Image image = ImagePool.getInstance().getImage(this, width, height);
-        if( image != null) {
-            if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
-                renderImage(image);
-                needsRefresh = false;
-            }
-            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
-        }
-        renderToolTip(container, game, g);
+    	if (!hidden) {
+	        boolean newActiveState;
+	        
+	        GUIUtility util = GUIUtility.getInstance();
+	        newActiveState = util.isActiveElement(this);
+	        
+	        if( activeState != newActiveState ) {
+	            activeState = newActiveState;
+	            needsRefresh = true;
+	        }
+	        
+	        // Perform normal render stuff
+	        Image image = ImagePool.getInstance().getImage(this, width, height);
+	        if( image != null) {
+	            if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
+	                renderImage(image);
+	                needsRefresh = false;
+	            }
+	            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
+	        }
+	        renderToolTip(container, game, g);
+    	}
     }
     
     @Override

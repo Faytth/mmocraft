@@ -32,6 +32,7 @@ public class Controls {
 		controls.put(ControlType.MOVE_RIGHT, new Integer[] {Input.KEY_RIGHT, Input.KEY_D});
 		controls.put(ControlType.BASIC_ATTACK, new Integer[] {Input.KEY_LSHIFT});
 		controls.put(ControlType.SHIELD, new Integer[] {Input.KEY_SPACE});
+		controls.put(ControlType.OPEN_INVENTORY, new Integer[] {Input.KEY_I, Input.KEY_B});
 	}
 	
 	/**
@@ -118,5 +119,23 @@ public class Controls {
 	 */
 	public boolean isShielding(Input input) {
 		return isControlDown(input, ControlType.SHIELD);
+	}
+	
+	/**
+	 * Returns the ControlType associated with this key.  Returns null if no
+	 * such ControlType was found.
+	 * @param key the key to search for, such as W, A, S, D, etc.
+	 * @return controlType or null if not found
+	 */
+	public ControlType getKeyType(int key) {
+		for (ControlType control : controls.keySet()) {
+			for (Integer controlKey : controls.get(control)) {
+				if (controlKey == key) {
+					return control;
+				}
+			}
+		}
+		
+		return null;
 	}
 }
