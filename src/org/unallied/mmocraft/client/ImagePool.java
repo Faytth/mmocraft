@@ -155,16 +155,6 @@ public class ImagePool {
                 nodes[index].accessTime = System.currentTimeMillis();
                 nodes[index].object = object;
                 refreshNeeded = true;
-                
-                // Since a refresh is needed, we should go ahead and clear the image to prevent "badness"
-                try {
-                    nodes[index].image.setAlpha(1);
-                    Graphics graphics = nodes[index].image.getGraphics();
-                    graphics.clear();
-                } catch (SlickException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
 
                 return nodes[index].image;
             }

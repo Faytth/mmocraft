@@ -57,6 +57,9 @@ public class Player extends Living implements Serializable {
     
     private Direction direction = Direction.FACE_RIGHT; // direction that the player is facing
     
+    /** The inventory of the player */
+    private Inventory inventory = null;
+    
     public Player() {
         super();
         current = new SwordIdle(this, null);
@@ -677,5 +680,13 @@ public class Player extends Living implements Serializable {
     public void setDelay(int delay) {
         this.delay = delay;
     }
+
+    /**
+     * Returns the player's inventory, which contains all items that the player has.
+     * @return inventory
+     */
+	public Inventory getInventory() {
+		return inventory;
+	}
 
 }

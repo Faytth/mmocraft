@@ -13,7 +13,6 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.ImageID;
-import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
@@ -137,33 +136,19 @@ public class ChatFrame extends Frame {
     }
     
     @Override
-    public void render(GameContainer container, StateBasedGame game
-            , Graphics g) {
-        
-    	if (!hidden) {
+    public void renderImage(Image image) {
+    	try {
+    		image.setAlpha(1);
+    		Graphics g = image.getGraphics();
+    		g.clear();
 	    	int lineHeight = FontHandler.getInstance().getFont(MESSAGE_FONT).getLineHeight();
 	    	int lineY = this.chatHeight - lineHeight;
 	    	for (int i = this.receivedMessages.size()-1; i >= 0 && lineY >= 0; --i, lineY -= lineHeight) {
 	    		ChatMessage message = receivedMessages.get(i);
 	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), 0, lineY, getTypeColor(message.getType()), width, height, false);
 	    	}
-	    	
-	        if (elements != null) {
-	            // Iterate over all GUI controls and inform them of input
-	            for( GUIElement element : elements ) {
-	                element.render(container, game, g);
-	            }
-	            
-	            for( GUIElement element : elements ) {
-	                element.renderToolTip(container, game, g);
-	            }
-	        }
+    	} catch (SlickException e) {
     	}
-    }
-
-    
-    @Override
-    public void renderImage(Image image) {
     }
 
     /**

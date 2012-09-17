@@ -159,6 +159,11 @@ public abstract class GUIElement implements InputListener {
 	            if( image != null) {
 	                if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
 	                    renderImage(image);
+	                    // We need to flush the data to prevent graphical errors
+	                    try {
+	                    	image.getGraphics().flush();
+	                    } catch (SlickException e) {
+	                    }
 	                    needsRefresh = false;
 	                }
 	                image.draw(getAbsoluteWidth(), getAbsoluteHeight());
