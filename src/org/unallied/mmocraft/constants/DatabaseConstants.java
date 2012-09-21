@@ -1,6 +1,6 @@
 package org.unallied.mmocraft.constants;
 
-public class DatabaseConstants {
+public abstract class DatabaseConstants {
 //  public static final String DB_URL = "jdbc:mysql://localhost:/var/lib/mysql/mysql.sock/admin_daemon?autoReconnect=true";
   public static final String DB_URL = "jdbc:mysql://localhost:3306/mmocraft?autoReconnect=true";
   public static final String DB_USER = "root";

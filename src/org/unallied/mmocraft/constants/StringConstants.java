@@ -1,6 +1,6 @@
 package org.unallied.mmocraft.constants;
 
-public class StringConstants {
+public abstract class StringConstants {
 
     public static final String PASSWORD_MUST_MATCH = "Passwords must match.";
     public static final String USERNAME_TOO_SHORT = "Username must be at least 6 characters long.";

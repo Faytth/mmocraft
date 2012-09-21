@@ -290,7 +290,14 @@ public class Location implements Serializable {
         return writer.toByteArray();
     }
     
-    public static Location getLocation(SeekableLittleEndianAccessor slea) {
+    /**
+     * Retrieves this class from an SLEA, which contains the raw bytes of this class
+     * obtained from the getBytes() method.
+     * @param slea A seekable little endian accessor that is currently at the position containing
+     *             the bytes of a Location.
+     * @return location
+     */
+    public static Location fromBytes(SeekableLittleEndianAccessor slea) {
         long x = slea.readLong();
         long y = slea.readLong();
         float xOffset = slea.readFloat();

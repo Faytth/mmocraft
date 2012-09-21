@@ -5,7 +5,7 @@ package org.unallied.mmocraft.constants;
  * @author Alexandria
  *
  */
-public class WorldConstants {
+public abstract class WorldConstants {
     /**
      *  The width (in blocks) of a block "chunk"
      */
