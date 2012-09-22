@@ -10,6 +10,7 @@ import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.Inventory;
+import org.unallied.mmocraft.ItemType;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
@@ -17,6 +18,9 @@ import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.GUIElement;
 
 public class InventoryFrame extends Frame {
+	
+	private static final int categoryXOffset = 8;
+	private static final int categoryYOffset = 25;
 	
 	/** The font that item categories, such as Equipment, should be displayed in. */
 	private static final String CATEGORY_FONT = FontID.STATIC_TEXT_LARGE.toString();
@@ -56,47 +60,56 @@ public class InventoryFrame extends Frame {
         return false;
     }
 
+    public void renderBackground(Graphics g) {
+		final int offX = getAbsoluteWidth();  // offset from left of screen
+		final int offY = getAbsoluteHeight(); // offset from top of screen
+    	
+        // Render background
+        g.fill(new Rectangle(offX, offY, width, height),
+        		new GradientFill(0, 0, new Color(47, 47, 55, 166), 
+        				width, height, new Color(87, 87, 95, 166), true));
+    }
+    
+    public int renderCategory(Inventory inventory, ItemType type, Graphics g, final Font categoryFont, int yOffset) {
+    	int categoryWidth = 0;
+		final int offX = getAbsoluteWidth();  // offset from left of screen
+		final int offY = getAbsoluteHeight(); // offset from top of screen
+    	
+        // Render Equipment
+        FontHandler.getInstance().draw(CATEGORY_FONT, type.toString(), categoryXOffset + offX, 
+        		categoryYOffset + yOffset + offY, CATEGORY_COLOR, width - categoryXOffset, 
+        		height - yOffset - categoryYOffset, false);
+        categoryWidth = categoryFont.getWidth(type.toString());
+        int categoryHeight = categoryFont.getHeight(type.toString());
+        g.fill(new Rectangle(categoryXOffset + categoryWidth + offX + 4, categoryYOffset + yOffset + offY + categoryHeight / 2, 
+        		width - (categoryXOffset + categoryWidth + 4) - 4, 4),
+        		new GradientFill(0, 0, new Color(222, 222, 240),
+        				width - (categoryXOffset + categoryWidth + 4) - 4, 4, new Color(222, 222, 240)));
+        yOffset += categoryHeight + 2;
+        
+        return 0;
+    }
+    
+    public void renderInventory(Inventory inventory, Graphics g) {
+		int yOffset = 0; // additional offset based on what was already drawn
+        final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
+
+        yOffset = renderCategory(inventory, ItemType.EQUIPMENT, g, categoryFont, yOffset);
+        yOffset = renderCategory(inventory, ItemType.CONSUMABLES, g, categoryFont, yOffset);
+        yOffset = renderCategory(inventory, ItemType.TRADE_GOODS, g, categoryFont, yOffset);
+        yOffset = renderCategory(inventory, ItemType.BLOCKS, g, categoryFont, yOffset);
+        yOffset = renderCategory(inventory, ItemType.MISCELLANEOUS, g, categoryFont, yOffset);
+    }
+    
     public void render(GameContainer container, StateBasedGame game
             , Graphics g) {
         
     	if (!hidden) {
         	try {
-        		final int offX = getAbsoluteWidth();  // offset from left of screen
-        		final int offY = getAbsoluteHeight(); // offset from top of screen
-        		final int categoryXOffset = 8;
-        		final int categoryYOffset = 25;
-        		int yOffset = 0; // additional offset based on what was already drawn
-        		int categoryWidth = 0; // used for determining the width of a category name, like Equipment
-    	        final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
-        		
-    	        Inventory inventory = Game.getInstance().getClient().getPlayer().getInventory();
-//    	        renderInventory(inventory, )
-    	        
-    	        // Render background
-    	        g.fill(new Rectangle(offX, offY, width, height),
-    	        		new GradientFill(0, 0, new Color(47, 47, 55, 166), 
-    	        				width, height, new Color(87, 87, 95, 166), true));
-
-    	        // Render Equipment
-    	        FontHandler.getInstance().draw(CATEGORY_FONT, "Equipment", categoryXOffset + offX, 
-    	        		categoryYOffset + yOffset + offY, CATEGORY_COLOR, width - categoryXOffset, 
-    	        		height - yOffset - categoryYOffset, false);
-    	        categoryWidth = categoryFont.getWidth("Equipment");
-    	        int categoryHeight = categoryFont.getHeight("Equipment");
-    	        g.fill(new Rectangle(categoryXOffset + categoryWidth + offX + 4, categoryYOffset + yOffset + offY + categoryHeight / 2, 
-    	        		width - (categoryXOffset + categoryWidth + 4) - 4, 4),
-    	        		new GradientFill(0, 0, new Color(222, 222, 240),
-    	        				width - (categoryXOffset + categoryWidth + 4) - 4, 4, new Color(222, 222, 240)));
-    	        yOffset += categoryHeight + 2;
-    	        
-    	        // Render Consumables
-    	        
-    	        // Render Trade Goods
-    	        
-    	        // Render Blocks
-    	        
-    	        // Render Miscellaneous
-    		} catch (Exception e) {
+        		renderBackground(g);
+        		Inventory inventory = Game.getInstance().getClient().getPlayer().getInventory();
+        		renderInventory(inventory, g);
+        	} catch (Exception e) {
     			e.printStackTrace();
     		}
         	

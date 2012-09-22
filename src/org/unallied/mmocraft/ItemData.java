@@ -89,14 +89,20 @@ public class ItemData {
      * stuff that isn't particularly useful in this case.
      * 
      * This class serializes as follows:
-     * [id] [quantity]
+     * [id(4)] [name] [description] [quality(1)] [type(1)] [buyPrice(4)] [sellPrice(4)]
      * 
      * @return byteArray
      */
     public byte[] getBytes() {
         GenericLittleEndianWriter writer = new GenericLittleEndianWriter();
         
-        // TODO: Implement this
+        writer.writeInt(id);
+        writer.writePrefixedAsciiString(name);
+        writer.writePrefixedAsciiString(description);
+        writer.write(quality.getValue());
+        writer.write(type.getValue());
+        writer.writeInt(buyPrice);
+        writer.writeInt(sellPrice);
         
         return writer.toByteArray();
     }
@@ -105,11 +111,19 @@ public class ItemData {
      * Retrieves this class from an SLEA, which contains the raw bytes of this class
      * obtained from the getBytes() method.
      * @param slea A seekable little endian accessor that is currently at the position containing
-     *             the bytes of an Item.
-     * @return item
+     *             the bytes of an ItemData object.
+     * @return itemData
      */
-    public static Item fromBytes(SeekableLittleEndianAccessor slea) {
-        // TODO: Implement this
-        return null;//new Location(x, y, xOffset, yOffset);
+    public static ItemData fromBytes(SeekableLittleEndianAccessor slea) {
+        
+    	int id = slea.readInt();
+    	String name = slea.readPrefixedAsciiString();
+    	String description = slea.readPrefixedAsciiString();
+    	ItemQuality quality = ItemQuality.fromValue(slea.readByte());
+    	ItemType type = ItemType.fromValue(slea.readByte());
+    	Integer buyPrice = slea.readInt();
+    	Integer sellPrice = slea.readInt();
+    	
+    	return new ItemData(id, name, description, quality, type, buyPrice, sellPrice);
     }
 }

@@ -1,7 +1,5 @@
 package org.unallied.mmocraft;
 
-import org.unallied.mmocraft.Inventory.ItemCategory;
-import org.unallied.mmocraft.net.SendOpcode;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
@@ -11,16 +9,27 @@ import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
  * @author Alexandria
  *
  */
-public class Item extends ItemData {
+public class Item {
 
-	public Item(final int id, final String name, final String description, final ItemQuality quality,
-            final ItemType type, final Integer buyPrice, final Integer sellPrice) {
-        super(id, name, description, quality, type, buyPrice, sellPrice);
-    }
-
+    /** The item's id.  This should be unique for each item. */
+    protected final int id;
+	
     /** The quantity of this item. */
 	private long quantity = 0;
+    
+	public Item(final int id) {
+        this(id, 0);
+    }
 
+	public Item(final int id, final long quantity) {
+		this.id = id;
+		this.quantity = quantity;
+	}
+
+	public int getId() {
+		return id;
+	}
+	
     public long getQuantity() {
         return quantity;
     }
@@ -86,7 +95,8 @@ public class Item extends ItemData {
     public byte[] getBytes() {
         GenericLittleEndianWriter writer = new GenericLittleEndianWriter();
         
-        // TODO: Implement this
+        writer.writeInt(id);
+        writer.writeLong(quantity);
         
         return writer.toByteArray();
     }
@@ -99,7 +109,10 @@ public class Item extends ItemData {
      * @return item
      */
     public static Item fromBytes(SeekableLittleEndianAccessor slea) {
-        // TODO: Implement this
-        return null;//new Location(x, y, xOffset, yOffset);
+    	
+    	int id = slea.readInt();
+    	long quantity = slea.readLong();
+    	
+    	return new Item(id, quantity);
     }
 }

@@ -13,16 +13,10 @@ public class ItemTest {
     protected static final long MAX_ITEM_QUANTITY = Long.MAX_VALUE;
 
     private int expId = 1337;
-    private String expName = "Sword";
-    private String expDescription = "A sword.";
-    private ItemQuality expQuality = ItemQuality.EPIC;
-    private ItemType expType = ItemType.EQUIPMENT;
-    private Integer expBuyPrice = 42;
-    private Integer expSellPrice = 30;
     private long expQuantity = 0;
     
     protected Item getItem() {
-        Item result = new Item(expId, expName, expDescription, expQuality, expType, expBuyPrice, expSellPrice);
+        Item result = new Item(expId);
         result.addQuantity(expQuantity);
         return result;
     }
