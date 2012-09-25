@@ -25,6 +25,20 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
     }
 
     @Override
+    public int read7BitEncodedInt() {
+        int count = 0;
+        int shift = 0;
+        byte b;
+        do {
+            b = readByte();
+            count |= (b & 0x7F) << shift;
+            shift += 7;
+        } while ((b & 0x80) != 0 && shift != 5*7); // 5 bytes max to prevent hanging
+        
+        return count;
+    }
+    
+    @Override
     public int readInt() {
         int result = 0;
         result += bs.readByte();
@@ -108,6 +122,11 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
         return readAsciiString(readShort());
     }
 
+    @Override
+    public String read7BitPrefixedAsciiString() {
+        return readAsciiString(read7BitEncodedInt());
+    }
+    
     @Override
     public long getBytesRead() {
         return bs.getBytesRead();

@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.net.handlers;
 
+import org.unallied.mmocraft.Inventory;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.sword.SwordIdle;
 import org.unallied.mmocraft.client.MMOClient;
@@ -20,6 +21,7 @@ public class PlayerHandler extends AbstractPacketHandler {
         try {
             Player p = (Player) slea.readObject();
             p.init();
+            p.setInventory(Inventory.fromBytes(slea));
             p.setState(new SwordIdle(p, null)); // FIXME:  We need to set the idle state based on their weapon
             client.setPlayer(p);
         } catch (Throwable t) {

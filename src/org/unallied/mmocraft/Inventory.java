@@ -1,6 +1,9 @@
 package org.unallied.mmocraft;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
@@ -8,7 +11,7 @@ import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
 /** Inventory for the player.  Contains all items and inventory categories. */
 public class Inventory {
-    private volatile Map<Integer, Item> items = new HashMap<Integer, Item>();
+    protected volatile Map<Integer, Item> items = new HashMap<Integer, Item>();
 
     public Inventory() {
         init();
@@ -84,10 +87,27 @@ public class Inventory {
         Inventory result = new Inventory();
         
         int count = slea.readInt();
-        
         for (int i=0; i < count; ++i) {
         	Item item = Item.fromBytes(slea);
-        	result.addItem(item, item.getQuantity());
+        	result.addItem(item, 0);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Returns the item data that exists for the items contained in the inventory.
+     * If an item does not have item data associated with it, it is simply not added
+     * @return itemData
+     */
+    public Collection<ItemData> getItemData() {
+        List<ItemData> result = new ArrayList<ItemData>();
+        
+        for (Item item : items.values()) {
+            ItemData data = ItemManager.getItemData(item.getId());
+            if (data != null) {
+                result.add(data);
+            }
         }
         
         return result;

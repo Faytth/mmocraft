@@ -79,4 +79,10 @@ public interface LittleEndianWriter {
      * @param f The float value to write
      */
     void writeFloat(float f);
+
+    /**
+     * Writes a 7-bit encoded integer.  The 8th bit is used to determine if more bits follow.
+     * @param i The integer to write
+     */
+    void write7BitEncodedInt(int i);
 }

@@ -8,11 +8,16 @@ import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.fills.GradientFill;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.ImageID;
+import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
@@ -51,6 +56,14 @@ public class ChatFrame extends Frame {
 	 * Stores the message that the player is typing.
 	 */
 	private TextCtrl messageTextCtrl;
+	
+	/**
+	 * Index from the bottom of the chat frame.  In a way, this is a "reverse" index.
+	 * If a new message is added and this index != 0, then the index needs to be
+	 * incremented by the number of messages added.  This index should never go above
+	 * <code>receivedMessages.size()</code>.
+	 */
+	private int lineIndex = 0;
 
 //TODO:  Add these buttons.
     /**
@@ -143,14 +156,82 @@ public class ChatFrame extends Frame {
     		g.clear();
 	    	int lineHeight = FontHandler.getInstance().getFont(MESSAGE_FONT).getLineHeight();
 	    	int lineY = this.chatHeight - lineHeight;
-	    	for (int i = this.receivedMessages.size()-1; i >= 0 && lineY >= 0; --i, lineY -= lineHeight) {
+	    	int messageCount = receivedMessages.size();
+	    	for (int i = this.receivedMessages.size()-1-lineIndex; i >= 0 && lineY >= 0 && i < messageCount; --i, lineY -= lineHeight) {
 	    		ChatMessage message = receivedMessages.get(i);
-	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), 0, lineY, getTypeColor(message.getType()), width, height, false);
+	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), 5, lineY, getTypeColor(message.getType()), width, height, false);
 	    	}
     	} catch (SlickException e) {
     	}
     }
 
+    /**
+     * Returns the maximum number of displayable lines.
+     * @return lineCount
+     */
+    public int getMaxLines() {
+        return chatHeight / FontHandler.getInstance().getFont(MESSAGE_FONT).getLineHeight();
+    }
+    
+    public void renderScrollBar(Graphics g) {
+        if (receivedMessages.size() > 1) {
+            int offX = getAbsoluteWidth();
+            int offY = getAbsoluteHeight();
+            int scrollBarLength = (int)((1.0 * 1 / receivedMessages.size()) * (chatHeight));
+            scrollBarLength = scrollBarLength < 20 ? 20 : scrollBarLength; // minimum length
+            int scrollYOffset = chatHeight - scrollBarLength - ((int)(1.0 * lineIndex / (receivedMessages.size()-1) * (chatHeight - scrollBarLength)));
+            scrollYOffset = (scrollYOffset + scrollBarLength) > height ? (height - scrollBarLength) : scrollYOffset;
+            GradientFill scrollFill = new GradientFill(0, 0, new Color(120, 160, 160, 50),
+                    0, scrollBarLength/4, new Color(220, 220, 220), true);
+            g.fill(new Rectangle(offX, scrollYOffset + offY, 
+                    4, scrollBarLength/2), scrollFill);
+            g.fill(new Rectangle(offX, scrollYOffset + offY + scrollBarLength/2, 
+                    4, scrollBarLength-scrollBarLength/2), scrollFill.getInvertedCopy());
+        }
+    }
+    
+    @Override
+    public void render(GameContainer container, StateBasedGame game
+            , Graphics g) {
+        
+        if (!hidden) {
+            if (width > 0 && height > 0) {
+                Image image = ImagePool.getInstance().getImage(this, width, height);
+                if( image != null) {
+                    if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
+                        renderImage(image);
+                        // We need to flush the data to prevent graphical errors
+                        try {
+                            image.getGraphics().flush();
+                        } catch (SlickException e) {
+                        }
+                        needsRefresh = false;
+                    }
+                    if (isActive()) { // Show background
+                        g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight), 
+                                new GradientFill(0, 0, new Color(0, 0, 0, 150),
+                                        0, chatHeight/2, new Color(0, 0, 0, 150)));
+                    }
+                    image.draw(getAbsoluteWidth(), getAbsoluteHeight());
+                    
+                    // Render scrollbar
+                    renderScrollBar(g);
+                }
+            }
+            
+            if (elements != null) {
+                // Iterate over all GUI controls and inform them of input
+                for( GUIElement element : elements ) {
+                    element.render(container, game, g);
+                }
+                
+                for( GUIElement element : elements ) {
+                    element.renderToolTip(container, game, g);
+                }
+            }
+        }
+    }
+    
     /**
      * Retrieves the color of the given type
      * @param type the type to get the color of
@@ -217,7 +298,7 @@ public class ChatFrame extends Frame {
     	 *  without the message extending past the end of the frame.
     	 */
     	for (String word : words) {
-    		if (font.getWidth(line + word) < width) {
+    		if (font.getWidth(line + word) < width - 5) {
     			line += word + " ";
     		} else if (line.length() == 0) {
        			/*
@@ -228,14 +309,17 @@ public class ChatFrame extends Frame {
     			 */
     			line += word;
     			receivedMessages.add(new ChatMessage(message.getType(), line));
+    			lineIndex = lineIndex == 0 ? lineIndex : lineIndex + 1;
     			line = "";
     		} else {
     			receivedMessages.add(new ChatMessage(message.getType(), line));
+    			lineIndex = lineIndex == 0 ? lineIndex : lineIndex + 1;
     			line = word + " ";
     		}
     	}
     	if (line.length() > 0) {
     		receivedMessages.add(new ChatMessage(message.getType(), line));
+    		lineIndex = lineIndex == 0 ? lineIndex : lineIndex + 1;
     	}
     	needsRefresh = true;
     }
@@ -268,5 +352,17 @@ public class ChatFrame extends Frame {
      */
     public boolean isActive() {
         return GUIUtility.getInstance().getActiveElement() == messageTextCtrl;
+    }
+    
+    @Override
+    public void mouseWheelMoved(int change) {
+        Input input = Game.getInstance().getContainer().getInput();
+        if (input != null && input.getMouseX() >= x && input.getMouseX() <= x+width &&
+                input.getMouseY() >= y && input.getMouseY() <= y+height) {
+            lineIndex += change > 0 ? 1 : -1; // This is not a mistake.
+            lineIndex = lineIndex < 0 ? 0 : lineIndex;
+            lineIndex = lineIndex >= receivedMessages.size() ? receivedMessages.size()-1 : lineIndex;
+            needsRefresh = true;
+        }
     }
 }

@@ -39,4 +39,9 @@ public abstract class ClientConstants {
      * performed.
      */
     public static final long SHIELD_ROLL_DELAY = 50;
+    
+    /**
+     * The maximum stack size of an item.
+     */
+    public static final long MAX_ITEM_STACK = Long.MAX_VALUE;
 }

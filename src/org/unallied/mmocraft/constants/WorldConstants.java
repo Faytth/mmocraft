@@ -31,7 +31,7 @@ public abstract class WorldConstants {
      *  Width of the game world in blocks.  Use 400,000 for production for a
      *  world size of about 2 GB.
      */
-    public static final long WORLD_WIDTH = 5 * WORLD_REGION_WIDTH;
+    public static final long WORLD_WIDTH = 50 * WORLD_REGION_WIDTH;
     
     /**
      *  Height of the game world in blocks.  Leave this at 1 for now.

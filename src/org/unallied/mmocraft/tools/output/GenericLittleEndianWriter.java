@@ -71,6 +71,16 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
     }
 
     @Override
+    public void write7BitEncodedInt(int i) {
+        long v = (long)(i & 0x00000000FFFFFFFFL); // support negative numbers
+        while (v >= 0x80) {
+            baos.write((byte)(v | 0x80));
+            v >>= 7;
+        }
+        baos.write((byte)v);
+    }
+    
+    @Override
     public void writeInt(int i) {
         baos.write((byte)((i >>> 0) & 0xFF));
         baos.write((byte)((i >>> 8) & 0xFF));
@@ -132,5 +142,15 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
             baos.write(b);
         } catch (IOException e) {
         }
+    }
+
+    /**
+     * Writes an ASCII string prefixed with an integer that uses 7 bits for size
+     * and the 8th bit for determining whether there are more bytes to read for the size.
+     * @param str The ASCII string to write
+     */
+    public void write7BitPrefixedAsciiString(String str) {
+        write7BitEncodedInt(str.length());
+        writeAsciiString(str);
     }
 }

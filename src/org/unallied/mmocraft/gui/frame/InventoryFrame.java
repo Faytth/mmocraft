@@ -1,26 +1,72 @@
 package org.unallied.mmocraft.gui.frame;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.PriorityQueue;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.Inventory;
+import org.unallied.mmocraft.Item;
+import org.unallied.mmocraft.ItemData;
+import org.unallied.mmocraft.ItemManager;
 import org.unallied.mmocraft.ItemType;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
-import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.GUIElement;
 
 public class InventoryFrame extends Frame {
 	
+    protected enum ItemCategory {
+        CATEGORY, ITEM
+    }
+    
+    protected class ItemElementComparator implements Comparator<ItemElement> {
+
+        @Override
+        public int compare(ItemElement arg0, ItemElement arg1) {
+            return arg0.yOffset - arg1.yOffset;
+        }
+        
+    }
+    
+    /**
+     * This is a pretty ugly PriorityQueue container class which should ideally be split into two separate classes.
+     * However, I don't feel the time doing so would be worth it.
+     * @author Alexandria
+     *
+     */
+    protected class ItemElement {
+        protected ItemData data = null;
+        protected String name = ""; // The name to draw
+        protected ItemCategory category; // The category of this item
+        protected int yOffset = 0; // The absolute y offset of this item
+        protected long quantity = 0;
+        
+        public ItemElement(ItemData data, String name, ItemCategory category, long quantity, int yOffset) {
+            this.data = data;
+            this.name = name;
+            this.category = category;
+            this.quantity = quantity;
+            this.yOffset = yOffset;
+        }
+    }
+    
 	private static final int categoryXOffset = 8;
 	private static final int categoryYOffset = 25;
+	private static final int itemXOffset = 8;
+	private static final int itemYOffset = 25;
+	private static final int scrollbarWidth = 15;
 	
 	/** The font that item categories, such as Equipment, should be displayed in. */
 	private static final String CATEGORY_FONT = FontID.STATIC_TEXT_LARGE.toString();
@@ -33,7 +79,22 @@ public class InventoryFrame extends Frame {
 	
 	/** The color that items, such as Flimsy Broadsword, should be displayed in. */
 	private static final Color ITEM_COLOR = new Color(222, 222, 222);
-
+	
+	/** 
+	 * A priority queue of all elements that are to be drawn to the screen.
+	 * These elements are items and item categories and contain an offset from the
+	 * top.  All items in this queue are ordered by their y offset.
+	 */
+	private PriorityQueue<ItemElement> itemElements = new PriorityQueue<ItemElement>(10, new ItemElementComparator());
+	
+	/** The index to start rendering for itemElements. As this value increases,
+	 * "lower" parts of the inventory are shown.  Think of it as a scroll wheel.
+	 * The maximum value is whatever itemElements.size() is, but ideally you should
+	 * subtract from this some value.
+	 */
+	private int startingIndex = 0;
+	private int maxIndex = 0;
+	
     /**
      * Initializes a LoginFrame with its elements (e.g. Username, Password fields)
      * @param x The x offset for this frame (from the parent GUI element)
@@ -43,7 +104,7 @@ public class InventoryFrame extends Frame {
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
 
-        this.width  = 250;
+        this.width  = 280;
         this.height = 400;
     }
     
@@ -60,45 +121,260 @@ public class InventoryFrame extends Frame {
         return false;
     }
 
+    /**
+     * Returns an abbreviated quantity name, such as 100k, 100M, 100G, 100T, 100P.
+     * Prefixes are standard SI notation.  The reason for this is that when you get
+     * into really large numbers (like quadrillions / quintillions), simply using the
+     * first letter breaks down and results in confusion.
+     * @param quantity The quantity to get the short name of
+     * @return shortName the short name of the quantity
+     */
+    public String getShortQuantityName(long quantity) {
+        String result = "";
+        
+        if (quantity < 0) {
+            result += "-";
+            quantity *= -1;
+        }
+        
+        if (quantity < 100000L) { // 100k
+            result = Long.toString(quantity);
+        } else if (quantity < 10000000L) { //10M 
+            result = Long.toString(quantity / 1000L) + "k";
+        } else if (quantity < 10000000000L) { //10G
+            result = Long.toString(quantity / 1000000L) + "M";
+        } else if (quantity < 10000000000000L) { //10T
+            result = Long.toString(quantity / 1000000000L) + "G";
+        } else if (quantity < 10000000000000000L) { //10P
+            result = Long.toString(quantity / 1000000000000L) + "T";
+        } else {
+            result = Long.toString(quantity / 1000000000000000L) + "P";
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Returns a color based on the quantity.  Use this to color-code quantity results returned from <code>#getShortQuantityName(long)</code>.
+     * @param quantity The quantity to get the color of
+     * @return color The color of the quantity
+     */
+    public Color getQuantityColor(long quantity) {
+        Color result = null;
+        
+        if (quantity < 0) {
+            quantity *= -1;
+        }
+        
+        if (quantity < 100000L) { // 100k
+            result = new Color(241, 255, 18);
+        } else if (quantity < 10000000L) { //10M 
+            result = new Color(255, 255, 255);
+        } else if (quantity < 10000000000L) { //10G
+            result = new Color(6, 203, 29);
+        } else if (quantity < 10000000000000L) { //10T
+            result = new Color(26, 147, 241);
+        } else if (quantity < 10000000000000000L) { //10P
+            result = new Color(168, 119, 210);
+        } else {
+            result = new Color(232, 59, 59);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Updates the item elements.  This needs to be called whenever an item is
+     * added or removed.  It does not need to be called when an item's quantity
+     * changes.
+     */
+    public void updateItemElements() {
+        int yOffset = 0;
+        final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
+        final Font itemFont = FontHandler.getInstance().getFont(ITEM_FONT);
+        final int categoryHeight = categoryFont.getLineHeight() + 2;
+        final int itemHeight = itemFont.getLineHeight() + 2;
+        Collection<Item> items = Game.getInstance().getClient().getPlayer().getInventory().getItems().values();
+        
+        itemElements.clear();
+        
+        for (ItemType type : ItemType.values()) {
+            if (type != ItemType.UNASSIGNED && type != ItemType.EQUIPMENT) {
+                itemElements.add(new ItemElement(null, type.toString(), ItemCategory.CATEGORY, 0L, yOffset));
+                yOffset += categoryHeight;
+                // Now find all items with that type
+                for (Item item : items) {
+                    ItemData itemData = ItemManager.getItemData(item.getId());
+                    if (itemData.getType() == type) {
+                        itemElements.add(new ItemElement(itemData, 
+                                itemData.getName(),
+                                ItemCategory.ITEM, item.getQuantity(), yOffset));
+                        yOffset += itemHeight;
+                    }
+                }
+            }
+        }
+        maxIndex = getBottomIndex();
+    }
+    
     public void renderBackground(Graphics g) {
 		final int offX = getAbsoluteWidth();  // offset from left of screen
 		final int offY = getAbsoluteHeight(); // offset from top of screen
+		final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
     	
         // Render background
         g.fill(new Rectangle(offX, offY, width, height),
-        		new GradientFill(0, 0, new Color(47, 47, 55, 166), 
-        				width, height, new Color(87, 87, 95, 166), true));
+        		new GradientFill(0, 0, new Color(17, 17, 15, 166), 
+        				width, height, new Color(57, 57, 55, 166), true));
+        
+        // Render Inventory title
+        FontHandler.getInstance().draw(CATEGORY_FONT, "Inventory", offX + 2, 
+                offY, CATEGORY_COLOR, width - 16 - 2, // Leave room for the close button
+                height - categoryYOffset, false);
+        int underlineOffset = categoryFont.getHeight("Inventory");
+        // Left half
+        GradientFill gFill = new GradientFill(0, 0, new Color(0, 255, 255, 0),
+                width/4, 0, new Color(255, 255, 255, 255), true);
+        g.fill(new Rectangle(offX, offY + underlineOffset, width/2, 1),
+                gFill);
+        // Right half
+        g.fill(new Rectangle(offX + width/2, offY + underlineOffset, width - width/2, 1),
+                gFill.getInvertedCopy());
+        
+        // Render Close button
     }
     
-    public int renderCategory(Inventory inventory, ItemType type, Graphics g, final Font categoryFont, int yOffset) {
-    	int categoryWidth = 0;
-		final int offX = getAbsoluteWidth();  // offset from left of screen
-		final int offY = getAbsoluteHeight(); // offset from top of screen
-    	
-        // Render Equipment
-        FontHandler.getInstance().draw(CATEGORY_FONT, type.toString(), categoryXOffset + offX, 
-        		categoryYOffset + yOffset + offY, CATEGORY_COLOR, width - categoryXOffset, 
-        		height - yOffset - categoryYOffset, false);
-        categoryWidth = categoryFont.getWidth(type.toString());
-        int categoryHeight = categoryFont.getHeight(type.toString());
-        g.fill(new Rectangle(categoryXOffset + categoryWidth + offX + 4, categoryYOffset + yOffset + offY + categoryHeight / 2, 
-        		width - (categoryXOffset + categoryWidth + 4) - 4, 4),
-        		new GradientFill(0, 0, new Color(222, 222, 240),
-        				width - (categoryXOffset + categoryWidth + 4) - 4, 4, new Color(222, 222, 240)));
-        yOffset += categoryHeight + 2;
+    /**
+     * Returns the lowest allowable index at which the lowest items in the itemIndex
+     * are drawn.
+     * TODO:  Find a more efficient algorithm.  Might need to re-think the priority queue.
+     * @return index
+     */
+    public int getBottomIndex() {
+        final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
+        final Font itemFont = FontHandler.getInstance().getFont(ITEM_FONT);
+        final int categoryHeight = categoryFont.getLineHeight() + 2;
+        final int itemHeight = itemFont.getLineHeight() + 2;
+        int result = 0;
+        int curOffset = 0;
+        List<ItemElement> curElements = new ArrayList<ItemElement>();
         
-        return 0;
+        for (ItemElement element : itemElements) {
+            if (element.category == ItemCategory.CATEGORY) {
+                while (curOffset + categoryYOffset + categoryHeight > height) {
+                    ++result;
+                    curOffset -= curElements.remove(0).category == ItemCategory.CATEGORY ? categoryHeight : itemHeight;
+                }
+                curOffset += categoryHeight;
+                curElements.add(element);
+            } else if (element.category == ItemCategory.ITEM) {
+                while (curOffset + itemYOffset + itemHeight > height) {
+                    ++result;
+                    curOffset -= curElements.remove(0).category == ItemCategory.CATEGORY ? categoryHeight : itemHeight;
+                }
+                curOffset += itemHeight;
+                curElements.add(element);
+            }
+        }
+        
+        return result;
+    }
+    
+    public void renderItemTooltip(Graphics g, Input input, ItemElement element, int yOffset) {
+        final int offX = getAbsoluteWidth();  // offset from left of screen
+        final int offY = getAbsoluteHeight(); // offset from top of screen
+        final Font itemFont = FontHandler.getInstance().getFont(ITEM_FONT);
+        final int itemHeight = itemFont.getLineHeight() + 2;
+        
+        // If this element should have its tooltip rendered
+        if (input.getMouseX() >= offX && input.getMouseX() <= offX + width - scrollbarWidth &&
+                input.getMouseY() >= offY + itemYOffset + yOffset && input.getMouseY() < offY + itemYOffset + yOffset + itemHeight) {
+            // Render the backdrop for the item
+            g.fill(new Rectangle(offX, itemYOffset + yOffset + offY, 
+                    width - scrollbarWidth, itemHeight),
+                    new GradientFill(0, 0, new Color(0, 154, 200, 180),
+                            (width - scrollbarWidth)/2, 0, new Color(0, 154, 200, 0), true));
+        }
     }
     
     public void renderInventory(Inventory inventory, Graphics g) {
-		int yOffset = 0; // additional offset based on what was already drawn
         final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
+        final Font itemFont = FontHandler.getInstance().getFont(ITEM_FONT);
+        final int categoryHeight = categoryFont.getLineHeight() + 2;
+        final int itemHeight = itemFont.getLineHeight() + 2;
+        final int offX = getAbsoluteWidth();  // offset from left of screen
+        final int offY = getAbsoluteHeight(); // offset from top of screen
+        Input input = Game.getInstance().getContainer().getInput();
+        
+        updateItemElements(); // inefficient.  Should only be called when it needs to refresh
+        
+        startingIndex = startingIndex > maxIndex ? maxIndex : startingIndex;
+        startingIndex = startingIndex < 0 ? 0 : startingIndex;
+        
+        int curIndex = 0;
+        int curOffset = 0; // Current y offset
+        for (ItemElement element : itemElements) {
+            if (curOffset > height - categoryYOffset) { // Don't render pointless stuff
+                break;
+            }
+            if (curIndex >= startingIndex) {
+                // Render it!
+                if (element.category == ItemCategory.CATEGORY) {
+                    if (curOffset + categoryYOffset + categoryHeight > height) { // Not enough space
+                        break;
+                    }
+                    FontHandler.getInstance().draw(CATEGORY_FONT, element.name, categoryXOffset + offX, 
+                            categoryYOffset + curOffset + offY, CATEGORY_COLOR, width - categoryXOffset, 
+                            height - curOffset - categoryYOffset, false);
+                    int categoryWidth = categoryFont.getWidth(element.name);
+                    // Render the bar to the right of a category name
+                    g.fill(new Rectangle(categoryXOffset + categoryWidth + offX + 4, categoryYOffset + curOffset + offY + categoryHeight / 2, 
+                            width - (categoryXOffset + categoryWidth + 4) - 4 - scrollbarWidth, 4),
+                            new GradientFill(0, 0, new Color(222, 222, 240),
+                                    (width - (categoryXOffset + categoryWidth + 4) - 4 - scrollbarWidth)/2, 0, new Color(0, 147, 255, 50), true));
+                    curOffset += categoryHeight;
+                } else if (element.category == ItemCategory.ITEM) {
+                    if (curOffset + itemYOffset + itemHeight > height) { // Not enough space
+                        break;
+                    }
+                    Color itemColor = element.data.getQuality().getColor();
+                    renderItemTooltip(g, input, element, curOffset);
+                    FontHandler.getInstance().draw(ITEM_FONT, element.name, itemXOffset + offX, 
+                            itemYOffset + curOffset + offY, itemColor, width - itemXOffset, 
+                            height - curOffset - itemYOffset, false);
+                    int itemWidth = itemFont.getWidth(element.name);
+                    FontHandler.getInstance().draw(ITEM_FONT, " x ", itemXOffset + offX + itemWidth, 
+                            itemYOffset + curOffset + offY, ITEM_COLOR, width - itemXOffset - itemWidth, 
+                            height - curOffset - itemYOffset, false);
+                    itemWidth += itemFont.getWidth(" x ");
+                    FontHandler.getInstance().draw(ITEM_FONT, getShortQuantityName(element.quantity), itemXOffset + offX + itemWidth, 
+                            itemYOffset + curOffset + offY, getQuantityColor(element.quantity), width - itemXOffset - itemWidth, 
+                            height - curOffset - itemYOffset, false);
+                    curOffset += itemHeight;
+                }
+            }
+            ++curIndex;
+        }
+        
+        /*
+         *  At this point, curIndex is the LAST item displayed.  startingIndex is 
+         *  the FIRST item displayed.  With this information, we can determine
+         *  the length of the scroll bar to display and the location of it.
+         */
+        if ((startingIndex == 0 && curIndex == itemElements.size()) || itemElements.size() == 0 || maxIndex == 0) { // No scrollbar needed
+            return;
+        }
+        int scrollBarLength = (int)((1.0 * (curIndex - startingIndex) / 1.0 / itemElements.size()) * (height - categoryYOffset));
+        scrollBarLength = scrollBarLength < 10 ? 10 : scrollBarLength; // minimum length
+        int scrollYOffset = (int)(1.0 * startingIndex / maxIndex * (height - categoryYOffset - scrollBarLength));
+        scrollYOffset = (scrollYOffset + categoryYOffset + scrollBarLength) > height ? (height - categoryYOffset - scrollBarLength) : scrollYOffset;
+        GradientFill scrollFill = new GradientFill(0, 0, new Color(0, 255, 255, 50),
+                0, scrollBarLength/4, new Color(244, 244, 244), true);
+        g.fill(new Rectangle(width - 4 + offX, categoryYOffset + scrollYOffset + offY, 
+                4, scrollBarLength/2), scrollFill);
+        g.fill(new Rectangle(width - 4 + offX, categoryYOffset + scrollYOffset + offY + scrollBarLength/2, 
+                4, scrollBarLength-scrollBarLength/2), scrollFill.getInvertedCopy());
 
-        yOffset = renderCategory(inventory, ItemType.EQUIPMENT, g, categoryFont, yOffset);
-        yOffset = renderCategory(inventory, ItemType.CONSUMABLES, g, categoryFont, yOffset);
-        yOffset = renderCategory(inventory, ItemType.TRADE_GOODS, g, categoryFont, yOffset);
-        yOffset = renderCategory(inventory, ItemType.BLOCKS, g, categoryFont, yOffset);
-        yOffset = renderCategory(inventory, ItemType.MISCELLANEOUS, g, categoryFont, yOffset);
     }
     
     public void render(GameContainer container, StateBasedGame game
@@ -136,4 +412,15 @@ public class InventoryFrame extends Frame {
 	protected boolean isAcceptingFocus() {
 		return true;
 	}
+		
+	@Override
+    public void mouseWheelMoved(int change) {
+	    Input input = Game.getInstance().getContainer().getInput();
+	    if (input != null && input.getMouseX() >= x && input.getMouseX() <= x+width &&
+	            input.getMouseY() >= y && input.getMouseY() <= y+height) {
+            startingIndex += change > 0 ? -1 : 1; // This is not a mistake.
+            startingIndex = startingIndex < 0 ? 0 : startingIndex;
+            startingIndex = startingIndex > maxIndex ? maxIndex : startingIndex;
+	    }
+    }
 }

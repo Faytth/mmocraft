@@ -14,7 +14,8 @@ public enum SendOpcode {
     CHUNK(0x03), 
     MOVEMENT(0x04), 
     REGISTER(0x05), 
-    CHAT_MESSAGE(0x06);
+    CHAT_MESSAGE(0x06),
+    ITEM_DATA(0x07);
     private int code = 0;
     
     private SendOpcode(int code) {

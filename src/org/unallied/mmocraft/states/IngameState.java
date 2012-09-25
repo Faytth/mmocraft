@@ -205,7 +205,7 @@ public class IngameState extends AbstractState {
         		public void callback(Event event) {
         			
         		}
-        	}, container, Game.SCREEN_WIDTH - 270, Game.SCREEN_HEIGHT-410, -1, -1);
+        	}, container, Game.SCREEN_WIDTH - 300, Game.SCREEN_HEIGHT-410, -1, -1);
         	inventoryFrame.hide();
         	
             chatFrame = new ChatFrame(this, new EventIntf() {

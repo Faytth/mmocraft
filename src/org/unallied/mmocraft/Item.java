@@ -1,5 +1,6 @@
 package org.unallied.mmocraft;
 
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
@@ -38,8 +39,8 @@ public class Item {
      * Adds a quantity of items to this item.  For example, if I currently have
      * 2 Apples and then I addItem(3), I will now have 5 Apples.
      * 
-     * This method will "cap" at the maximum value of a long and will not overflow
-     * or underflow.  Adding a quantity that would normally exceed the maximum value
+     * This method will "cap" at the maximum value of a stacked item.  
+     * Adding a quantity that would normally exceed the maximum value
      * will set the quantity to the maximum value.
      * 
      * Negative values are ignored.
@@ -54,7 +55,7 @@ public class Item {
         if (this.quantity + quantity > 0) {
             this.quantity += quantity;
         } else { // prevent overflow
-            this.quantity = Long.MAX_VALUE;
+            this.quantity = ClientConstants.MAX_ITEM_STACK;
         }
     }
     

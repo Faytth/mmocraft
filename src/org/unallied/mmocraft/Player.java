@@ -58,7 +58,7 @@ public class Player extends Living implements Serializable {
     private Direction direction = Direction.FACE_RIGHT; // direction that the player is facing
     
     /** The inventory of the player */
-    private Inventory inventory = null;
+    private transient Inventory inventory = new Inventory();
     
     public Player() {
         super();
@@ -688,5 +688,15 @@ public class Player extends Living implements Serializable {
 	public Inventory getInventory() {
 		return inventory;
 	}
+
+	/**
+	 * Sets the player's inventory to the new inventory if the new inventory is not null.
+	 * @param inventory
+	 */
+    public void setInventory(Inventory inventory) {
+        if (inventory != null) {
+            this.inventory = inventory;
+        }
+    }
 
 }
