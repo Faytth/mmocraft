@@ -1,4 +1,4 @@
-package org.unallied.mmocraft.gui;
+package org.unallied.mmocraft.gui.tooltips;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -13,13 +13,13 @@ import org.unallied.mmocraft.client.FontID;
 
 public class ToolTip {
 
-    private String tip; // The tip to display
-    private int rectOffX = 15; // The x offset of the entire tip
-    private int rectOffY = 15; // The y offset of the entire tip
-    private int tipOffsetX = 4; // X offset of text from top-left corner of tip
-    private int tipOffsetY = 1; // Y offset of text from top-left corner of tip
-    private int toolWidth = 160; // Width of the tooltip
-    private int toolHeight = 80; // Height of the tooltip
+    protected String tip; // The tip to display
+    protected int rectOffX = 15; // The x offset of the entire tip
+    protected int rectOffY = 15; // The y offset of the entire tip
+    protected int tipOffsetX = 4; // X offset of text from top-left corner of tip
+    protected int tipOffsetY = 1; // Y offset of text from top-left corner of tip
+    protected int toolWidth = 160; // Width of the tooltip
+    protected int toolHeight = 80; // Height of the tooltip
     
     public ToolTip(String tip) {
         this.tip = tip;
@@ -35,7 +35,7 @@ public class ToolTip {
 
         g.fill(new Rectangle(rectOffX + mouseX, rectOffY + mouseY, toolWidth, toolHeight), 
         		new GradientFill(0, 0, new Color(47, 102, 176, 166), 
-        				toolWidth, toolHeight, new Color(99, 47, 176, 166), true));
+        				toolWidth/2, toolHeight/2, new Color(99, 47, 176, 166), true));
 
         FontHandler.getInstance().draw(FontID.TOOLTIP_DEFAULT.toString(), tip, 
         		rectOffX + mouseX + tipOffsetX, rectOffY + mouseY + tipOffsetY, 

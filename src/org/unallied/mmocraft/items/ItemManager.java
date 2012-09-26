@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.items;
 
 import java.io.IOException;
 import java.io.InputStream;

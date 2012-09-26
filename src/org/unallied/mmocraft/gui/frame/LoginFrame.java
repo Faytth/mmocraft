@@ -7,10 +7,10 @@ import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
-import org.unallied.mmocraft.gui.ToolTip;
 import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.StaticText;
 import org.unallied.mmocraft.gui.control.TextCtrl;
+import org.unallied.mmocraft.gui.tooltips.ToolTip;
 
 public class LoginFrame extends Frame {
 

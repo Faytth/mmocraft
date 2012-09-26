@@ -1,5 +1,6 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.items;
 
+import org.unallied.mmocraft.EffectType;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 

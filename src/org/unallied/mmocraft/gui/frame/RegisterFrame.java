@@ -11,10 +11,10 @@ import org.unallied.mmocraft.constants.StringConstants;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
-import org.unallied.mmocraft.gui.ToolTip;
 import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.StaticText;
 import org.unallied.mmocraft.gui.control.TextCtrl;
+import org.unallied.mmocraft.gui.tooltips.ToolTip;
 import org.unallied.mmocraft.net.handlers.RegistrationAckHandler;
 import org.unallied.mmocraft.tools.Authenticator;
 

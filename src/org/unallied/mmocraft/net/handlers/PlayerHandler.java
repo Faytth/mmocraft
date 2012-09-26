@@ -1,9 +1,9 @@
 package org.unallied.mmocraft.net.handlers;
 
-import org.unallied.mmocraft.Inventory;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.sword.SwordIdle;
 import org.unallied.mmocraft.client.MMOClient;
+import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 

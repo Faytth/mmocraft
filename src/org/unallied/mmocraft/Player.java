@@ -12,6 +12,7 @@ import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.sword.SwordIdle;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.constants.WorldConstants;
+import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.sessions.TerrainSession;
 

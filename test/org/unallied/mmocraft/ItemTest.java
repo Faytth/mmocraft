@@ -3,6 +3,7 @@ package org.unallied.mmocraft;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.unallied.mmocraft.items.Item;
 
 public class ItemTest {
     

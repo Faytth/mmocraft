@@ -1,5 +1,6 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.items;
 
+import org.unallied.mmocraft.RequirementType;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
@@ -10,20 +11,20 @@ import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
  * @author Alexandria
  *
  */
-public class ItemStat {
-    private StatType type;
+public class ItemRequirement {
+    private RequirementType type;
     private short value;
     
-    public ItemStat(StatType type, short value) {
+    public ItemRequirement(RequirementType type, short value) {
         this.type = type;
         this.value = value;
     }
     
-    public StatType getType() {
+    public RequirementType getType() {
         return type;
     }
     
-    public void setType(StatType type) {
+    public void setType(RequirementType type) {
         this.type = type;
     }
     
@@ -48,13 +49,13 @@ public class ItemStat {
      * Retrieves this class from an SLEA, which contains the raw bytes of this class
      * obtained from the getBytes() method.
      * @param slea A seekable little endian accessor that is currently at the position containing
-     *             the bytes of an ItemStat object.
-     * @return itemStat
+     *             the bytes of an ItemRequirement object.
+     * @return itemRequirement
      */
-    public static ItemStat fromBytes(SeekableLittleEndianAccessor slea) {
-        StatType type = StatType.fromValue(slea.readByte());
+    public static ItemRequirement fromBytes(SeekableLittleEndianAccessor slea) {
+        RequirementType type = RequirementType.fromValue(slea.readByte());
         short value = slea.readShort();
         
-        return new ItemStat(type, value);
+        return new ItemRequirement(type, value);
     }
 }

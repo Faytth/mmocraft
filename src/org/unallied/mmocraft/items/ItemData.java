@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.items;
 
 import java.util.ArrayList;
 import java.util.List;

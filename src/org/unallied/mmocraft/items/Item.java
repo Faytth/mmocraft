@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.items;
 
 import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;

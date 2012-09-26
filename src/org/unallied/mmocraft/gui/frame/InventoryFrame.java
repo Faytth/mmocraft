@@ -15,15 +15,16 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
-import org.unallied.mmocraft.Inventory;
-import org.unallied.mmocraft.Item;
-import org.unallied.mmocraft.ItemData;
-import org.unallied.mmocraft.ItemManager;
-import org.unallied.mmocraft.ItemType;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.tooltips.ItemToolTip;
+import org.unallied.mmocraft.items.Inventory;
+import org.unallied.mmocraft.items.Item;
+import org.unallied.mmocraft.items.ItemData;
+import org.unallied.mmocraft.items.ItemManager;
+import org.unallied.mmocraft.items.ItemType;
 
 public class InventoryFrame extends Frame {
 	
@@ -280,7 +281,16 @@ public class InventoryFrame extends Frame {
         return result;
     }
     
-    public void renderItemTooltip(Graphics g, Input input, ItemElement element, int yOffset) {
+    /**
+     * Renders the item's background if it's being hovered over.  Returns whether the item's background
+     * was rendered.
+     * @param g
+     * @param input
+     * @param element The element to check
+     * @param yOffset The offset from the top of the inventory
+     * @return true if this item's background was rendered.
+     */
+    public boolean renderItemBackground(Graphics g, Input input, ItemElement element, int yOffset) {
         final int offX = getAbsoluteWidth();  // offset from left of screen
         final int offY = getAbsoluteHeight(); // offset from top of screen
         final Font itemFont = FontHandler.getInstance().getFont(ITEM_FONT);
@@ -294,7 +304,10 @@ public class InventoryFrame extends Frame {
                     width - scrollbarWidth, itemHeight),
                     new GradientFill(0, 0, new Color(0, 154, 200, 180),
                             (width - scrollbarWidth)/2, 0, new Color(0, 154, 200, 0), true));
+            return true;
         }
+        
+        return false;
     }
     
     public void renderInventory(Inventory inventory, Graphics g) {
@@ -313,6 +326,7 @@ public class InventoryFrame extends Frame {
         
         int curIndex = 0;
         int curOffset = 0; // Current y offset
+        ItemElement elementForTooltip = null; // This is what the tooltip should be rendered on
         for (ItemElement element : itemElements) {
             if (curOffset > height - categoryYOffset) { // Don't render pointless stuff
                 break;
@@ -338,7 +352,9 @@ public class InventoryFrame extends Frame {
                         break;
                     }
                     Color itemColor = element.data.getQuality().getColor();
-                    renderItemTooltip(g, input, element, curOffset);
+                    if (renderItemBackground(g, input, element, curOffset)) {
+                        elementForTooltip = element;
+                    }
                     FontHandler.getInstance().draw(ITEM_FONT, element.name, itemXOffset + offX, 
                             itemYOffset + curOffset + offY, itemColor, width - itemXOffset, 
                             height - curOffset - itemYOffset, false);
@@ -375,6 +391,10 @@ public class InventoryFrame extends Frame {
         g.fill(new Rectangle(width - 4 + offX, categoryYOffset + scrollYOffset + offY + scrollBarLength/2, 
                 4, scrollBarLength-scrollBarLength/2), scrollFill.getInvertedCopy());
 
+        // Render the tooltip if we need to render one
+        if (elementForTooltip != null) {
+            ItemToolTip.render(g, input, elementForTooltip.data, elementForTooltip.quantity);
+        }
     }
     
     public void render(GameContainer container, StateBasedGame game

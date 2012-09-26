@@ -1,8 +1,8 @@
 package org.unallied.mmocraft.net.handlers;
 
-import org.unallied.mmocraft.ItemData;
-import org.unallied.mmocraft.ItemManager;
 import org.unallied.mmocraft.client.MMOClient;
+import org.unallied.mmocraft.items.ItemData;
+import org.unallied.mmocraft.items.ItemManager;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 

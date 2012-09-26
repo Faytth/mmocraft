@@ -11,6 +11,7 @@ import org.newdawn.slick.InputListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.ImagePool;
+import org.unallied.mmocraft.gui.tooltips.ToolTip;
 
 /**
  * A generic class for all GUI elements, such as frames and controls.

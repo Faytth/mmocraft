@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.items;
 
 import org.newdawn.slick.Color;
 

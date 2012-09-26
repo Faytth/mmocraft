@@ -1,4 +1,4 @@
-package org.unallied.mmocraft;
+package org.unallied.mmocraft.items;
 
 public enum ItemType {
     UNASSIGNED(0x00, "Unassigned"),
