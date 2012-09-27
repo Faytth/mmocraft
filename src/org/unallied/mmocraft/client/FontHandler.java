@@ -3,12 +3,8 @@ package org.unallied.mmocraft.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.newdawn.slick.AngelCodeFont;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
 import org.newdawn.slick.font.effects.ShadowEffect;
@@ -57,6 +53,18 @@ public class FontHandler {
             }
             
             try {
+//              uFont = new TrueTypeFont(new java.awt.Font("Verdana", 0, 13), false);
+              uFont = new UnicodeFont("resources/fonts/verdana.ttf", 14, true, false);
+              uFont.addAsciiGlyphs();
+              uFont.getEffects().add(shadow);
+              uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
+              uFont.loadGlyphs();
+              fonts.put( FontID.STATIC_TEXT_LARGE.toString(), uFont );
+          } catch (RuntimeException e) {
+              System.out.println(e.getMessage());
+          }
+            
+            try {
 //                uFont = new TrueTypeFont(new java.awt.Font("Verdana", 0, 13), false);
                 uFont = new UnicodeFont("resources/fonts/verdana.ttf", 16, false, false);
                 uFont.addAsciiGlyphs();
@@ -85,14 +93,20 @@ public class FontHandler {
      * @param width The maximum width of a line
      * @param height The maximum height of a line
      * @param wordWrap Whether to wrap the text or not
+     * @return y + the offset from the text drawn.  This can be used to determine
+     *         where to render the next line.
      */
-    public void draw(String key, String message, float x, float y, Color col
-            ,int width, int height, boolean wordWrap) {
+    public int draw(String key, String message, float x, float y, Color col,
+    		int width, int height, boolean wordWrap) {
+    	int newY = (int)y;
         if( fonts.containsKey(key) && fonts.get(key) != null ) {
             fonts.get(key).drawString(x, y, message, col);
+            newY += fonts.get(key).getLineHeight();
         } else {
             // FIXME:  Query from the server
         }
+        
+        return newY;
     }
     
     public static FontHandler getInstance() {

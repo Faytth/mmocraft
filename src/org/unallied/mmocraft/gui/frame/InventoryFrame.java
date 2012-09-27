@@ -130,7 +130,7 @@ public class InventoryFrame extends Frame {
      * @param quantity The quantity to get the short name of
      * @return shortName the short name of the quantity
      */
-    public String getShortQuantityName(long quantity) {
+    public static String getShortQuantityName(long quantity) {
         String result = "";
         
         if (quantity < 0) {
@@ -160,7 +160,7 @@ public class InventoryFrame extends Frame {
      * @param quantity The quantity to get the color of
      * @return color The color of the quantity
      */
-    public Color getQuantityColor(long quantity) {
+    public static Color getQuantityColor(long quantity) {
         Color result = null;
         
         if (quantity < 0) {

@@ -58,4 +58,9 @@ public class ItemStat {
         
         return new ItemStat(type, value);
     }
+    
+    @Override
+    public String toString() {
+    	return (value >= 0 ? "+" : "") + value + " " + type.toString();
+    }
 }
