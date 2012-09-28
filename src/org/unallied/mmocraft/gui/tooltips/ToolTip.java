@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.gui.tooltips;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.newdawn.slick.Color;
@@ -48,6 +49,41 @@ public class ToolTip {
                 FontHandler.getInstance().getFont(FontID.TOOLTIP_DEFAULT.toString()), maxWidth - tipOffsetX*2), null));
         toolWidth  = nodes.get(0).node.getWidth() + tipOffsetX*2;
         toolHeight = nodes.get(0).node.getHeight() + tipOffsetY*2;
+    }
+    
+    /**
+     * Adds a single node to the list of nodes.  This node will appear on its
+     * own line.
+     * @param node The node to add to its own line.
+     */
+    public void addNode(Node node) {
+        if (node != null) {
+            nodes.add(new NodeContainer(node, null));
+        }
+    }
+    
+    /**
+     * Adds a collection of nodes to the list of nodes.  All of these nodes will appear
+     * on the same line.
+     * @param nodeCollection The collection of nodes to add to a single line.
+     */
+    public void addNodes(Collection<Node> nodeCollection) {
+        NodeContainer first = null;
+        NodeContainer cur = null;
+        for (Node node : nodeCollection) {
+            if (node != null) {
+                if (cur == null || first == null) {
+                    first = new NodeContainer(node, null);
+                    cur = first;
+                } else {
+                    cur.next = new NodeContainer(node, null);
+                    cur = cur.next;
+                }
+            }
+        }
+        if (first != null) {
+            nodes.add(first);
+        }
     }
     
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
