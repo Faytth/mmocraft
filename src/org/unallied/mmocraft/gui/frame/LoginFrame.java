@@ -85,7 +85,7 @@ public class LoginFrame extends Frame {
         ImageID.BUTTON_REGISTER_HIGHLIGHTED.toString(),
         ImageID.BUTTON_REGISTER_SELECTED.toString(), 0);
         
-        registerButton.setToolTip(new ToolTip("If you don't have an\naccount, you can register\nfor one here."));
+        registerButton.setToolTip(new ToolTip("If you don't have an account, you can register for one here."));
         
         elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE));
         elements.add(userTextCtrl);

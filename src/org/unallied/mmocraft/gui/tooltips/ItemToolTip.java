@@ -1,5 +1,7 @@
 package org.unallied.mmocraft.gui.tooltips;
 
+import java.util.Collection;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
@@ -50,6 +52,59 @@ public class ItemToolTip extends ToolTip {
         // TODO Auto-generated constructor stub
     }
     
+    /**
+     * An internal class used to store all elements of a tooltip's text.
+     * @author Alexandria
+     *
+     */
+    protected class ToolTipNode {
+        /** The color to render the text in. */
+        private Color color;
+        /** The font that this node will be rendered in. */
+        private Font font;
+        /** The text to render for this node. */
+        private String text;
+        /** The next tooltip node that should be rendered on the same line as this node. */
+        private ToolTipNode next = null;
+        /** A border in pixels around the sides of the tooltip and between lines. */
+        private static final int BORDER = 2;
+        
+        public ToolTipNode(String text, Font font, Color color) {
+            this(text, font, color, null);
+        }
+        
+        public ToolTipNode(String text, Font font, Color color, ToolTipNode next) {
+            this.text = text;
+            this.font = font;
+            this.color = color;
+            this.next = next;
+        }
+    }
+    
+    public static int getMaxWidth(Collection<ToolTipNode> nodes) {
+        int result = DEFAULT_TOOL_WIDTH;
+        
+        for (ToolTipNode node : nodes) {
+            int curWidth = 0;
+            while (node != null && node.font != null && node.color != null) {
+                curWidth += node.font.getWidth(node.text);
+                node = node.next;
+            }
+            result = curWidth > result ? curWidth : result;
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Splits a tooltip node up into multiple nodes if its width exceeds the provided width.
+     * @param node The node to be modified if necessary.  The way {@link #splitNode(ToolTipNode)}
+     *             splits up nodes is by making use of the next in ToolTipNode.
+     */
+    public static void splitNode(ToolTipNode node) {
+        
+    }
+    
     public static void render(Graphics g, Input input, ItemData item, long quantity) {
     	// Guard
     	if (g == null || input == null || item == null) {
@@ -63,7 +118,7 @@ public class ItemToolTip extends ToolTip {
         int toolWidth = DEFAULT_TOOL_WIDTH;
         int toolHeight = DEFAULT_TOOL_HEIGHT;
         
-        // Expand the width of the tooltip if the name is too long
+        // Expand the width of the tooltip if anything is too long
         if (categoryFont.getWidth(item.getName()) + 10 > toolWidth) {
         	toolWidth = categoryFont.getWidth(item.getName()) + 10;
         }

@@ -56,7 +56,7 @@ public class RegisterFrame extends Frame {
         }, container, "", 140, 90, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
                 , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
                 , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
-        emailTextCtrl.setToolTip(new ToolTip("Must be unique.\nE-mail addresses are used for password recovery."));
+        emailTextCtrl.setToolTip(new ToolTip("Must be unique.  E-mail addresses are used for password recovery."));
         
         pass2TextCtrl = new TextCtrl(this, new EventIntf() {
             @Override
@@ -97,7 +97,7 @@ public class RegisterFrame extends Frame {
         }, container, "", 140, 0, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
                 , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
                 , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
-        userTextCtrl.setToolTip(new ToolTip("Must be between 6 and 14 characters.\nMust be unique.\nMay only contain a-z, A-Z, and/or 0-9."));
+        userTextCtrl.setToolTip(new ToolTip("Must be between 6 and 14 characters.  Must be unique.  May only contain a-z, A-Z, and/or 0-9."));
         
         backButton = new Button(this, new EventIntf() {
             @Override

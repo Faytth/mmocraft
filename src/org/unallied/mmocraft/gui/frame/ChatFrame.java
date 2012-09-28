@@ -298,7 +298,7 @@ public class ChatFrame extends Frame {
     	 *  without the message extending past the end of the frame.
     	 */
     	for (String word : words) {
-    		if (font.getWidth(line + word) < width - 5) {
+    		if (font.getWidth(line + word) < width - 5) { // The 5 here is for a border
     			line += word + " ";
     		} else if (line.length() == 0) {
        			/*
