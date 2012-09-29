@@ -59,7 +59,7 @@ public class FontHandler {
               uFont.getEffects().add(shadow);
               uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
               uFont.loadGlyphs();
-              fonts.put( FontID.STATIC_TEXT_LARGE.toString(), uFont );
+              fonts.put( FontID.STATIC_TEXT_MEDIUM_LARGE.toString(), uFont );
           } catch (RuntimeException e) {
               System.out.println(e.getMessage());
           }

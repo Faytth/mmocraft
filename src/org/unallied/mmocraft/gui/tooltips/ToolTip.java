@@ -25,7 +25,7 @@ public class ToolTip {
     protected int tipOffsetY = 1; // Y offset of text from top-left corner of tip
     protected int maxWidth = 300; // Max width of the tooltip
     protected int toolWidth = maxWidth; // Width of the tooltip
-    protected int toolHeight = 80; // Height of the tooltip
+    protected int toolHeight = tipOffsetY * 2; // Height of the tooltip
     
     /**
      * A container for nodes.  This lets us have multiple nodes on the same line.
@@ -44,6 +44,10 @@ public class ToolTip {
     
     private List<NodeContainer> nodes = new ArrayList<NodeContainer>();
     
+    public ToolTip() {
+    	
+    }
+    
     public ToolTip(String tip) {
         nodes.add(new NodeContainer(new StringNode(tip, new Color(200, 248, 220), 
                 FontHandler.getInstance().getFont(FontID.TOOLTIP_DEFAULT.toString()), maxWidth - tipOffsetX*2), null));
@@ -59,6 +63,7 @@ public class ToolTip {
     public void addNode(Node node) {
         if (node != null) {
             nodes.add(new NodeContainer(node, null));
+            toolHeight += node.getHeight();
         }
     }
     
@@ -68,10 +73,21 @@ public class ToolTip {
      * @param nodeCollection The collection of nodes to add to a single line.
      */
     public void addNodes(Collection<Node> nodeCollection) {
-        NodeContainer first = null;
+        addNodes((Node[])nodeCollection.toArray());
+    }
+    
+    /**
+     * Adds an array of nodes to the list of nodes.  All of these nodes will appear
+     * on the same line.
+     * @param nodeCollection The collection of nodes to add to a single line.
+     */
+    public void addNodes(Node[] nodeCollection) {
+    	NodeContainer first = null;
         NodeContainer cur = null;
+        int lineOffset = 0;
         for (Node node : nodeCollection) {
             if (node != null) {
+            	lineOffset = node.getHeight() > lineOffset ? node.getHeight() : lineOffset;
                 if (cur == null || first == null) {
                     first = new NodeContainer(node, null);
                     cur = first;
@@ -81,6 +97,7 @@ public class ToolTip {
                 }
             }
         }
+        toolHeight += lineOffset;
         if (first != null) {
             nodes.add(first);
         }
@@ -96,12 +113,14 @@ public class ToolTip {
         int offX = mouseX > container.getWidth()/2 ? mouseX - toolWidth - rectOffX : rectOffX + mouseX;
         int offY = mouseY > container.getHeight()/2 ? mouseY - toolHeight - rectOffY : rectOffY + mouseY;
         
+        // Render background
+        g.fill(new Rectangle(offX, offY, toolWidth, toolHeight), 
+        		new GradientFill(0, 0, new Color(0, 10, 46, 206), 
+        				toolWidth/2, toolHeight/2, new Color(0, 10, 46, 206), true));
+        // Render border
         g.setColor(new Color(0, 178, 200));
         g.drawRect(offX,  offY, toolWidth, toolHeight);
         g.setColor(new Color(255, 255, 255, 255));
-        g.fill(new Rectangle(offX, offY, toolWidth, toolHeight), 
-        		new GradientFill(0, 0, new Color(0, 10, 76, 106), 
-        				toolWidth/2, toolHeight/2, new Color(0, 10, 76, 106), true));
         
         offX += tipOffsetX;
         offY += tipOffsetY;
@@ -109,10 +128,14 @@ public class ToolTip {
         // Now render the nodes
         int heightNodeOffset = 0;
         for (NodeContainer node : nodes) {
+        	int lineOffset = 0;
+        	int widthOffset = 0;
             do {
-                node.node.render(g,  offX, offY + heightNodeOffset, toolHeight - heightNodeOffset - tipOffsetY*2);
-                heightNodeOffset += node.node.getHeight();
+                node.node.render(g,  offX + widthOffset, offY + heightNodeOffset, toolHeight - heightNodeOffset - tipOffsetY*2);
+                lineOffset = node.node.getHeight() > lineOffset ? node.node.getHeight() : lineOffset;
+                widthOffset += node.node.getWidth();
             } while ((node = node.next) != null); 
+            heightNodeOffset += lineOffset;
         }
     }
 }

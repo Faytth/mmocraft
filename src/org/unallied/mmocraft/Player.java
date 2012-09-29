@@ -13,6 +13,7 @@ import org.unallied.mmocraft.animations.sword.SwordIdle;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.constants.WorldConstants;
 import org.unallied.mmocraft.items.Inventory;
+import org.unallied.mmocraft.items.ItemRequirement;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.sessions.TerrainSession;
 
@@ -699,5 +700,17 @@ public class Player extends Living implements Serializable {
             this.inventory = inventory;
         }
     }
+
+    /**
+     * Returns whether the player meets the requirement.  This is based on the
+     * player's skill levels.  To meet a requirement, a player's skill level
+     * must be >= the requirement.
+     * TODO:  Implement this method.
+     * @param requirement The requirement to meet
+     * @return true if the player meets the requirement; else false
+     */
+	public boolean meetsRequirement(ItemRequirement requirement) {
+		return true;
+	}
 
 }

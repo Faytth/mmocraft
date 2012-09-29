@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.items;
 
+import org.newdawn.slick.Color;
 import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
@@ -115,5 +116,68 @@ public class Item {
     	long quantity = slea.readLong();
     	
     	return new Item(id, quantity);
+    }
+    
+
+    /**
+     * Returns an abbreviated quantity name, such as 100k, 100M, 100G, 100T, 100P.
+     * Prefixes are standard SI notation.  The reason for this is that when you get
+     * into really large numbers (like quadrillions / quintillions), simply using the
+     * first letter breaks down and results in confusion.
+     * @param quantity The quantity to get the short name of
+     * @return shortName the short name of the quantity
+     */
+    public static String getShortQuantityName(long quantity) {
+        String result = "";
+        
+        if (quantity < 0) {
+            result += "-";
+            quantity *= -1;
+        }
+        
+        if (quantity < 100000L) { // 100k
+            result = Long.toString(quantity);
+        } else if (quantity < 10000000L) { //10M 
+            result = Long.toString(quantity / 1000L) + "k";
+        } else if (quantity < 10000000000L) { //10G
+            result = Long.toString(quantity / 1000000L) + "M";
+        } else if (quantity < 10000000000000L) { //10T
+            result = Long.toString(quantity / 1000000000L) + "G";
+        } else if (quantity < 10000000000000000L) { //10P
+            result = Long.toString(quantity / 1000000000000L) + "T";
+        } else {
+            result = Long.toString(quantity / 1000000000000000L) + "P";
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Returns a color based on the quantity.  Use this to color-code quantity results returned from <code>#getShortQuantityName(long)</code>.
+     * @param quantity The quantity to get the color of
+     * @return color The color of the quantity
+     */
+    public static Color getQuantityColor(long quantity) {
+        Color result = null;
+        
+        if (quantity < 0) {
+            quantity *= -1;
+        }
+        
+        if (quantity < 100000L) { // 100k
+            result = new Color(241, 255, 18);
+        } else if (quantity < 10000000L) { //10M 
+            result = new Color(255, 255, 255);
+        } else if (quantity < 10000000000L) { //10G
+            result = new Color(6, 203, 29);
+        } else if (quantity < 10000000000000L) { //10T
+            result = new Color(26, 147, 241);
+        } else if (quantity < 10000000000000000L) { //10P
+            result = new Color(168, 119, 210);
+        } else {
+            result = new Color(232, 59, 59);
+        }
+        
+        return result;
     }
 }

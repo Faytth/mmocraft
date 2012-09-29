@@ -63,6 +63,9 @@ public class InventoryFrame extends Frame {
         }
     }
     
+    /** Used to determine if the scroll bar is currently being dragged. */
+    private boolean scrollBarIsDragging = false;
+    
 	private static final int categoryXOffset = 8;
 	private static final int categoryYOffset = 25;
 	private static final int itemXOffset = 8;
@@ -120,68 +123,6 @@ public class InventoryFrame extends Frame {
     @Override
     public boolean isAcceptingTab() {
         return false;
-    }
-
-    /**
-     * Returns an abbreviated quantity name, such as 100k, 100M, 100G, 100T, 100P.
-     * Prefixes are standard SI notation.  The reason for this is that when you get
-     * into really large numbers (like quadrillions / quintillions), simply using the
-     * first letter breaks down and results in confusion.
-     * @param quantity The quantity to get the short name of
-     * @return shortName the short name of the quantity
-     */
-    public static String getShortQuantityName(long quantity) {
-        String result = "";
-        
-        if (quantity < 0) {
-            result += "-";
-            quantity *= -1;
-        }
-        
-        if (quantity < 100000L) { // 100k
-            result = Long.toString(quantity);
-        } else if (quantity < 10000000L) { //10M 
-            result = Long.toString(quantity / 1000L) + "k";
-        } else if (quantity < 10000000000L) { //10G
-            result = Long.toString(quantity / 1000000L) + "M";
-        } else if (quantity < 10000000000000L) { //10T
-            result = Long.toString(quantity / 1000000000L) + "G";
-        } else if (quantity < 10000000000000000L) { //10P
-            result = Long.toString(quantity / 1000000000000L) + "T";
-        } else {
-            result = Long.toString(quantity / 1000000000000000L) + "P";
-        }
-        
-        return result;
-    }
-    
-    /**
-     * Returns a color based on the quantity.  Use this to color-code quantity results returned from <code>#getShortQuantityName(long)</code>.
-     * @param quantity The quantity to get the color of
-     * @return color The color of the quantity
-     */
-    public static Color getQuantityColor(long quantity) {
-        Color result = null;
-        
-        if (quantity < 0) {
-            quantity *= -1;
-        }
-        
-        if (quantity < 100000L) { // 100k
-            result = new Color(241, 255, 18);
-        } else if (quantity < 10000000L) { //10M 
-            result = new Color(255, 255, 255);
-        } else if (quantity < 10000000000L) { //10G
-            result = new Color(6, 203, 29);
-        } else if (quantity < 10000000000000L) { //10T
-            result = new Color(26, 147, 241);
-        } else if (quantity < 10000000000000000L) { //10P
-            result = new Color(168, 119, 210);
-        } else {
-            result = new Color(232, 59, 59);
-        }
-        
-        return result;
     }
     
     /**
@@ -363,8 +304,8 @@ public class InventoryFrame extends Frame {
                             itemYOffset + curOffset + offY, ITEM_COLOR, width - itemXOffset - itemWidth, 
                             height - curOffset - itemYOffset, false);
                     itemWidth += itemFont.getWidth(" x ");
-                    FontHandler.getInstance().draw(ITEM_FONT, getShortQuantityName(element.quantity), itemXOffset + offX + itemWidth, 
-                            itemYOffset + curOffset + offY, getQuantityColor(element.quantity), width - itemXOffset - itemWidth, 
+                    FontHandler.getInstance().draw(ITEM_FONT, Item.getShortQuantityName(element.quantity), itemXOffset + offX + itemWidth, 
+                            itemYOffset + curOffset + offY, Item.getQuantityColor(element.quantity), width - itemXOffset - itemWidth, 
                             height - curOffset - itemYOffset, false);
                     curOffset += itemHeight;
                 }
@@ -432,7 +373,70 @@ public class InventoryFrame extends Frame {
 	protected boolean isAcceptingFocus() {
 		return true;
 	}
+	
+	/**
+	 * Updates the scroll bar position by getting the index of where y should be.
+	 * This is used for determining index when the mouse is pressed or dragged on
+	 * the scroll bar.
+	 * @param y The absolute y value to update to.
+	 */
+	public void updateScrollBarPosition(int y) {
+		// Guard
+		if (this.height - categoryYOffset <= 0) {
+			return;
+		}
 		
+		// "Wiggle room" 
+		final float BORDER = 10f;
+		
+		// We need to see if our scroll bar was pressed
+		if (y >= this.y + categoryYOffset &&
+			y <= this.y + this.height) {
+			// Get the percentage from 0 to 1 of the index
+			float offset = this.y + this.height - y;
+			// Give the user some "wiggle room" for going to the top / bottom
+			if (offset < BORDER) {
+				offset = BORDER;
+			} else if (offset > this.height - categoryYOffset - BORDER) {
+				offset = this.height - categoryYOffset - BORDER;
+			}
+			
+			double index = 1.0 * offset / (this.height - categoryYOffset - BORDER*2);
+			startingIndex = maxIndex - (int)(maxIndex * index);
+		}
+	}
+	
+	@Override
+	public void mousePressed(int button, int x, int y) {
+		// Guard
+		if (this.height - categoryYOffset <= 0) {
+			return;
+		}
+		
+		// We need to see if our scroll bar was pressed
+		if (x >= this.x + this.width - scrollbarWidth &&
+			x <= this.x + this.width &&
+			y >= this.y + categoryYOffset &&
+			y <= this.y + this.height) {
+			updateScrollBarPosition(y);
+			scrollBarIsDragging = true;
+		} else {
+			scrollBarIsDragging = false;
+		}
+	}
+	
+	@Override
+	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+		if (scrollBarIsDragging) {
+			updateScrollBarPosition(newy);
+		}
+	}
+	
+	@Override
+	public void mouseReleased(int button, int x, int y) {
+		scrollBarIsDragging = false;
+	}
+	
 	@Override
     public void mouseWheelMoved(int change) {
 	    Input input = Game.getInstance().getContainer().getInput();

@@ -39,13 +39,15 @@ public class StringNode implements Node {
         if (color != null) {
             this.color = color;
         }
-        this.font = font;
+        if (font != null) {
+        	this.font = font;
+        }
         this.maxWidth = maxWidth;
         splitString(str);
         
         // This is a silly check to make sure the max width will still work even for super small max widths.
-        if (maxWidth < font.getWidth("M")) {
-            maxWidth = font.getWidth("M") + 1; // +1 for safe measure.
+        if (maxWidth < this.font.getWidth("M")) {
+            maxWidth = this.font.getWidth("M") + 1; // +1 for safe measure.
         }
     }
     
@@ -106,7 +108,7 @@ public class StringNode implements Node {
     public void render(Graphics g, int offX, int offY, int maxHeight) {
         int curHeight = 0;
         final int lineHeight = font.getLineHeight();
-        for (int i=0; (i+1) * lineHeight <= maxHeight; ++i) {
+        for (int i=0; (i+1) * lineHeight <= maxHeight && i < lines.size(); ++i) {
             font.drawString(offX, offY + curHeight, lines.get(i), color);
             curHeight += lineHeight;
         }
