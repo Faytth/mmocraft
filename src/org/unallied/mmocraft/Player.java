@@ -1,5 +1,6 @@
 package org.unallied.mmocraft;
 
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.sword.SwordIdle;
+import org.unallied.mmocraft.blocks.AirBlock;
+import org.unallied.mmocraft.blocks.Block;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.constants.WorldConstants;
 import org.unallied.mmocraft.items.Inventory;
@@ -131,6 +134,7 @@ public class Player extends Living implements Serializable {
      */
     public void update(long delta) {
         current.update(delta);
+        unstuck();
     }
     
     /**
@@ -184,6 +188,43 @@ public class Player extends Living implements Serializable {
             
         }
         return result;
+    }
+    
+    /**
+     * Returns whether or not the player's hitbox is currently overlapping with
+     * a collidable block.
+     * @return stuck.  True if the player is stuck; else false.
+     */
+    public boolean isStuck() {
+        TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
+        if (ts == null) {
+            return false;
+        }
+        
+        for (Point2D.Double p : hitbox) {
+            Location start = new Location(location);
+            start.moveRight((float) p.getX());
+            start.moveDown((float) p.getY());
+            Block block = ts.getBlock(start);
+            if (block != null && block.isCollidable()) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Gets the player out of a place that they would normally be stuck at.
+     * The way this works is it iterates over all points in the player's hitbox.
+     * If any point is colliding with a block, it shifts the player up and to the left.
+     * This continues until the player is no longer colliding with a block.
+     */
+    public void unstuck() {
+        while (isStuck()) {
+            location.moveLeft(1);
+            location.moveUp(1);
+        }
     }
     
     /**
@@ -576,9 +617,10 @@ public class Player extends Living implements Serializable {
      * @param terminalVelocity The maximum velocity in pixels
      */
     public void accelerateDown(int delta, float acceleration, float terminalVelocity) {
-/*        if (delta > 5) {
-            delta = 5;
-        }*/
+        // Guard
+        if (hitbox == null) {
+            init();
+        }
         
         // FIXME:  This is a bit incorrect
         boolean hitSomething = false;  // true if we hit something
@@ -712,5 +754,72 @@ public class Player extends Living implements Serializable {
 	public boolean meetsRequirement(ItemRequirement requirement) {
 		return true;
 	}
+
+	/**
+	 * Performs the collision checks from startingIndex to endingIndex
+	 * @param collisionArc All of the blobs that make up the animation's collision arc.
+	 * @param startingIndex The starting index (inclusive) of the collision arc to check collisions for.
+	 * @param endingIndex The ending index (inclusive) of the collision arc to check collisions for.
+	 * @param horizontalOffset The horizontal offset that must be added to the collision blob.
+	 * @param verticalOffset The vertical offset that must be added to the collision blob.
+	 */
+    public void doCollisionChecks(CollisionBlob[] collisionArc, int startingIndex,
+            int endingIndex, float horizontalOffset, float verticalOffset) {
+        // Guard
+        if (collisionArc == null || startingIndex < 0 || endingIndex < 0 || 
+                startingIndex >= collisionArc.length || endingIndex >= collisionArc.length) {
+            return;
+        }
+        
+        try {
+            int curIndex = startingIndex - 1;
+            do {
+                curIndex = (curIndex + 1) % collisionArc.length;
+                
+                TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
+                Location topLeft = new Location(this.location);
+                if (direction == Direction.FACE_RIGHT) {
+                    topLeft.moveDown(verticalOffset + collisionArc[curIndex].getYOffset());
+                    topLeft.moveRight(horizontalOffset + collisionArc[curIndex].getXOffset());
+                } else { // Flipped collision stuff.  This was such a pain to calculate.
+                    topLeft.moveDown(verticalOffset + collisionArc[curIndex].getYOffset());
+                    topLeft.moveRight(getWidth() - horizontalOffset - collisionArc[curIndex].getXOffset() - collisionArc[curIndex].getWidth());
+                }
+                Location bottomRight = new Location(topLeft);
+                bottomRight.moveDown(collisionArc[curIndex].getHeight());
+                bottomRight.moveRight(collisionArc[curIndex].getWidth());
+                
+                if (topLeft.equals(bottomRight)) {
+                    return;
+                }
+                /*
+                 *  We now have the topLeft and bottomRight coords of our rectangle.
+                 *  Using this, we need to grab every block in our rectangle for collision
+                 *  testing.
+                 */
+                for (long x = topLeft.getX(); x <= bottomRight.getX(); ++x) {
+                    for (long y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
+                        if (ts.getBlock(x, y).isCollidable() || true) {
+                            int xOff = 0;
+                            if (direction == Direction.FACE_RIGHT) {
+                                xOff = (int) (((x - this.location.getX()) * WorldConstants.WORLD_BLOCK_WIDTH - horizontalOffset - collisionArc[curIndex].getXOffset() - this.location.getXOffset()));
+                            } else {
+                                xOff = (int) (-this.location.getXOffset() + current.getWidth() - ((this.location.getX() - x) * WorldConstants.WORLD_BLOCK_WIDTH + getWidth() - horizontalOffset + collisionArc[curIndex].getFlipped().getXOffset()));
+                            }
+                            float damage =  (direction == Direction.FACE_RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
+                                    new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), 
+                                    xOff,
+                                    (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset())));
+                            if (damage > 0) {
+                                ts.setBlock(x, y, new AirBlock());
+                            }
+                        }
+                    }
+                }
+            } while (curIndex != endingIndex);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace(); // This should only happen if someone screwed up the arc image...
+        }
+    }
 
 }

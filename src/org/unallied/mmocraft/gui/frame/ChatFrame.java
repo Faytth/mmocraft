@@ -29,14 +29,10 @@ import org.unallied.mmocraft.tools.Authenticator;
 
 public class ChatFrame extends Frame {
 	
-	/**
-	 * The color of "say" messages.
-	 */
+	/** The color of "say" messages. */
 	private static final Color SAY_COLOR   = new Color(255, 255, 255);
 	
-	/**
-	 * The color of "world" messages.
-	 */
+	/** The color of "world" messages. */
 	private static final Color WORLD_COLOR = new Color(227, 115, 40);
 	
 	private static final String MESSAGE_FONT = FontID.STATIC_TEXT_MEDIUM.toString();
@@ -47,15 +43,17 @@ public class ChatFrame extends Frame {
 	 */
 	private int chatHeight = 120;
 	
-	/**
-	 * Determines the type of message that the player is writing.
-	 */
+	/** Used to determine if the scroll bar is currently being dragged. */
+	private boolean scrollBarIsDragging = false;
+	
+	/** Determines the type of message that the player is writing. */
 	private MessageType messageType;
 	
-	/**
-	 * Stores the message that the player is typing.
-	 */
+	/** Stores the message that the player is typing. */
 	private TextCtrl messageTextCtrl;
+	
+	/** The width in pixels of the scroll bar. */
+	private int scrollBarWidth = 4;
 	
 	/**
 	 * Index from the bottom of the chat frame.  In a way, this is a "reverse" index.
@@ -159,7 +157,7 @@ public class ChatFrame extends Frame {
 	    	int messageCount = receivedMessages.size();
 	    	for (int i = this.receivedMessages.size()-1-lineIndex; i >= 0 && lineY >= 0 && i < messageCount; --i, lineY -= lineHeight) {
 	    		ChatMessage message = receivedMessages.get(i);
-	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), 5, lineY, getTypeColor(message.getType()), width, height, false);
+	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), scrollBarWidth + 1, lineY, getTypeColor(message.getType()), width - scrollBarWidth - 1, height, false);
 	    	}
     	} catch (SlickException e) {
     	}
@@ -353,6 +351,75 @@ public class ChatFrame extends Frame {
     public boolean isActive() {
         return GUIUtility.getInstance().getActiveElement() == messageTextCtrl;
     }
+    
+    
+    /**
+     * Updates the scroll bar position by getting the index of where y should be.
+     * This is used for determining index when the mouse is pressed or dragged on
+     * the scroll bar.
+     * @param y The absolute y value to update to.
+     */
+    public void updateScrollBarPosition(int y) {
+        // Guard
+        if (chatHeight <= 0 || receivedMessages.size() < 2) {
+            return;
+        }
+        
+        // "Wiggle room" 
+        final float BORDER = 10f;
+        
+        // We need to see if our scroll bar was pressed
+        if (y >= this.y &&
+            y <= this.y + chatHeight) {
+            // Get the percentage from 0 to 1 of the index
+            float offset = this.y + chatHeight - y;
+            // Give the user some "wiggle room" for going to the top / bottom
+            if (offset < BORDER) {
+                offset = BORDER;
+            } else if (offset > chatHeight - BORDER) {
+                offset = chatHeight - BORDER;
+            }
+            
+            double index = 1.0 * offset / (chatHeight - BORDER*2);
+            int newIndex = (int)((receivedMessages.size()-1) * index);
+            if (newIndex != lineIndex) {
+                lineIndex = newIndex;
+                needsRefresh = true;
+            }
+        }
+    }
+    
+    @Override
+    public void mousePressed(int button, int x, int y) {
+        // Guard
+        if (chatHeight <= 0) {
+            return;
+        }
+        
+        // We need to see if our scroll bar was pressed
+        if (x >= this.x &&
+            x <= this.x + scrollBarWidth &&
+            y >= this.y &&
+            y <= this.y + chatHeight) {
+            updateScrollBarPosition(y);
+            scrollBarIsDragging = true;
+        } else {
+            scrollBarIsDragging = false;
+        }
+    }
+        
+    @Override
+    public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+        if (scrollBarIsDragging) {
+            updateScrollBarPosition(newy);
+        }
+    }
+    
+    @Override
+    public void mouseReleased(int button, int x, int y) {
+        scrollBarIsDragging = false;
+    }
+    
     
     @Override
     public void mouseWheelMoved(int change) {

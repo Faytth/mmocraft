@@ -36,6 +36,7 @@ public class SwordHorizontalAttack extends Rollable {
         animation.setAutoUpdate(false);
         animation.setLooping(false);
         SpriteSheet ss = SpriteHandler.getInstance().get(SpriteID.SWORD_HORIZONTAL_ATTACK.toString());
+        generateCollisionArc(SpriteHandler.getInstance().get(SpriteID.SWORD_HORIZONTAL_ATTACK_ARC.toString()));
         setAnimation(ss);
         animation.start();
         horizontalOffset = 53;

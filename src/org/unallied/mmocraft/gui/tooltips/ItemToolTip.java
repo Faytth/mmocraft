@@ -92,7 +92,6 @@ public class ItemToolTip extends ToolTip {
         		new StringNode(String.format("%,d", item.getSellPrice()), Item.getQuantityColor(item.getSellPrice()), detailFont, tip.maxWidth )
         		});
         
-        
         try {
 			tip.render(Game.getInstance().getContainer(), Game.getInstance(), g);
 		} catch (SlickException e) {

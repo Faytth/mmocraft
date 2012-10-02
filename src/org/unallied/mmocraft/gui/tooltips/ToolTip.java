@@ -24,7 +24,7 @@ public class ToolTip {
     protected int tipOffsetX = 4; // X offset of text from top-left corner of tip
     protected int tipOffsetY = 1; // Y offset of text from top-left corner of tip
     protected int maxWidth = 300; // Max width of the tooltip
-    protected int toolWidth = maxWidth; // Width of the tooltip
+    protected int toolWidth = 0; // Width of the tooltip
     protected int toolHeight = tipOffsetY * 2; // Height of the tooltip
     
     /**
@@ -64,6 +64,7 @@ public class ToolTip {
         if (node != null) {
             nodes.add(new NodeContainer(node, null));
             toolHeight += node.getHeight();
+            toolWidth = toolWidth < node.getWidth() + tipOffsetX*2 ? node.getWidth() + tipOffsetX*2 : toolWidth;
         }
     }
     
@@ -85,9 +86,11 @@ public class ToolTip {
     	NodeContainer first = null;
         NodeContainer cur = null;
         int lineOffset = 0;
+        int lineWidth = tipOffsetX * 2;
         for (Node node : nodeCollection) {
             if (node != null) {
             	lineOffset = node.getHeight() > lineOffset ? node.getHeight() : lineOffset;
+            	lineWidth += node.getWidth();
                 if (cur == null || first == null) {
                     first = new NodeContainer(node, null);
                     cur = first;
@@ -98,6 +101,7 @@ public class ToolTip {
             }
         }
         toolHeight += lineOffset;
+        toolWidth = toolWidth < lineWidth ? lineWidth : toolWidth;
         if (first != null) {
             nodes.add(first);
         }

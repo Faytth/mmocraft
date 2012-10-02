@@ -164,6 +164,10 @@ public class Location implements Serializable {
      * @param distance number of pixels to move left
      */
     public void moveLeft(float distance) {
+        if (distance == 0) {
+            return;
+        }
+        
         if (distance < 0) {
             moveRight(-distance);
         } else {
@@ -184,6 +188,10 @@ public class Location implements Serializable {
      * @param distance number of pixels to move right
      */
     public void moveRight(float distance) {
+        if (distance == 0) {
+            return;
+        }
+        
         if (distance < 0) {
             moveLeft(-distance);
         } else {
@@ -204,6 +212,10 @@ public class Location implements Serializable {
      * @param distance number of pixels to move up
      */
     public void moveUp(float distance) {
+        if (distance == 0) {
+            return;
+        }
+        
         if (distance < 0) {
             moveDown(-distance);
         } else {
@@ -237,10 +249,15 @@ public class Location implements Serializable {
      }
     
     /**
-     * Move up some number of pixels
-     * @param distance number of pixels to move up
+     * Move down some number of pixels.  If distance is negative, it will move
+     * up -distance pixels.
+     * @param distance number of pixels to move down
      */
     public void moveDown(float distance) {
+        if (distance == 0) {
+            return;
+        }
+        
         if (distance < 0) {
             moveUp(-distance);
         } else {

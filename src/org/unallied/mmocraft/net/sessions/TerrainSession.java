@@ -43,11 +43,11 @@ public class TerrainSession {
     
     /**
      * Returns the block at location (x,y) where each value is a block.
-     * @param aboveBlock the location containing (x,y) of the block
+     * @param location the location containing (x,y) of the block
      * @return the block at location (x,y).  Returns null if chunk is missing
      */
-    public Block getBlock(Location aboveBlock) {
-        return getBlock(aboveBlock.getX(), aboveBlock.getY());
+    public Block getBlock(Location location) {
+        return getBlock(location.getX(), location.getY());
     }
     
     /**
@@ -293,5 +293,30 @@ public class TerrainSession {
      */
     public void clear() {
         chunks.clear();
+    }
+
+    /**
+     * Sets a block at a specific (x,y).  If the chunk does not yet exist it
+     * will not be created, and the block will not be set.
+     * @param x The x coordinate of the block to set.
+     * @param y The y coordinate of the block to set.
+     * @param block The new block.
+     */
+    public void setBlock(long x, long y, Block block) {
+        // Get chunk x and y coordinates
+        x = x >= 0 ? x % WorldConstants.WORLD_WIDTH : WorldConstants.WORLD_WIDTH + x;
+        long cx = x / WorldConstants.WORLD_CHUNK_WIDTH;
+        long cy = y / WorldConstants.WORLD_CHUNK_HEIGHT;
+        int  bx = (int) (x % WorldConstants.WORLD_CHUNK_WIDTH);
+        int  by = (int) (y % WorldConstants.WORLD_CHUNK_HEIGHT);
+        
+        long chunkId = ((long) (cy) << 32) | cx;
+        
+        // The chunk does not yet exist.  Don't set the block.
+        if (!chunks.containsKey(chunkId)) {
+            return;
+        }
+        
+        chunks.get(chunkId).setBlock(bx, by, block);
     }
 }

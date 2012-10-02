@@ -174,4 +174,24 @@ public class TerrainChunk {
         
         return null;
     }
+
+    /**
+     * Sets a block to the given block.  Note that this will not create a block
+     * array if one does not yet exist.
+     * @param bx The 0-based index of the block in this chunk to set.
+     * @param by The 0-based index of the block in this chunk to set.
+     * @param block The new block.
+     */
+    public void setBlock(int bx, int by, Block block) {
+        // Guard
+        if (blocks == null || block == null) {
+            return;
+        }
+        
+        synchronized (this) {
+            blocks[bx][by] = block;
+            dirty = 0;
+            needsRefresh = true;
+        }
+    }
 }
