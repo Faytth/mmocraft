@@ -267,4 +267,24 @@ public abstract class AnimationState implements Serializable {
             collisionBody[x] = new CollisionBlob(ss.getSprite(x, 0));
         }
     }
+    
+    /**
+     * Retrieves the collision arc array for this animation.  This array is as
+     * long as the animation in images.  The indices align to the animation
+     * indices.
+     * @return collisionArc
+     */
+    public CollisionBlob[] getCollisionArc() {
+        return collisionArc;
+    }
+    
+    /**
+     * Retrieves the collision body array for this animation.  This array is as
+     * long as the animation in images.  The indices align to the animation
+     * indices.
+     * @return collisionBody
+     */
+    public CollisionBlob[] getCollisionBody() {
+        return collisionBody;
+    }
 }

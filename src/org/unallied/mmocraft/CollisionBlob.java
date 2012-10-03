@@ -144,7 +144,9 @@ public class CollisionBlob {
     }
     
     /**
-     * Retrieves the damage between two collision blobs.
+     * Retrieves the damage between two collision blobs.  Damage is calculated by taking
+     * the average of all collisions.
+     * 
      * @param other The other blob to test against
      * @param offsetX The x offset that the second blob is from the first
      * @param offsetY The y offset that the second blob is from the first
@@ -153,7 +155,8 @@ public class CollisionBlob {
      *                       used as a damage multiplier.
      */
     public float getDamage(CollisionBlob other, int offsetX, int offsetY) {
-        float minimumDamage = Float.MAX_VALUE;
+        float averageDamage = 0;
+        int damageCount = 0;
         
         // Check the bounding box
         Rectangle collision = getIntersection(new Rectangle(offsetX + other.x, offsetY + other.y, other.width, other.height));
@@ -162,19 +165,24 @@ public class CollisionBlob {
             for (int j=collision.y; j < collision.y + collision.height; ++j) {
                 float pixelDamage = other.collisionMatrix[i + offsetX][j + offsetY];
                 pixelDamage *= collisionMatrix[i][j];
-                minimumDamage = pixelDamage > 0 && pixelDamage < minimumDamage ? pixelDamage : minimumDamage;
+                if (pixelDamage > 0) {
+                    averageDamage += pixelDamage;
+                    ++damageCount;
+                }
             }
         }
         
-        minimumDamage /= 10000f; // normalize the damage
-        
-        return minimumDamage == Float.MAX_VALUE ? 0 : minimumDamage;
+        // The division by 10000f is for damage normalization.
+        return damageCount == 0 ? 0 : averageDamage / damageCount / 10000f;
     }
     
     /**
      * Retrieves the damage between a collision blob and a rectangle.  Use this
      * for getting the damage dealt to blocks and other objects that don't
      * have a collision blob.
+     * 
+     * Damage is calculated by taking the average of all collisions.
+     * 
      * @param other The other rectangle to test against
      * @param offsetX The x offset that the second blob is from the first
      * @param offsetY The y offset that the second blob is from the first
@@ -183,7 +191,8 @@ public class CollisionBlob {
      *                       used as a damage multiplier.
      */
     public float getDamage(Rectangle other, int offsetX, int offsetY) {
-        float minimumDamage = Float.MAX_VALUE;
+        float averageDamage = 0;
+        int damageCount = 0;
 
         // Check the bounding box
         Rectangle collision = getIntersection(new Rectangle(offsetX + other.x, offsetY + other.y, other.width, other.height));
@@ -191,12 +200,15 @@ public class CollisionBlob {
         for (int i=collision.x; i < collision.x + collision.width; ++i) {
             for (int j=collision.y; j < collision.y + collision.height; ++j) {
                 float pixelDamage = collisionMatrix[i][j];
-                minimumDamage = pixelDamage > 0 && pixelDamage < minimumDamage ? pixelDamage : minimumDamage;
+                if (pixelDamage > 0) {
+                    averageDamage += pixelDamage;
+                    ++damageCount;
+                }
             }
         }
 
-        // Return normalized damage
-        return minimumDamage == Float.MAX_VALUE ? 0 : minimumDamage / 100f;
+        // The division by 100f is for damage normalization.
+        return damageCount == 0 ? 0 : averageDamage / damageCount / 100f;
     }
     
     /**

@@ -32,38 +32,38 @@ public class Player extends Living implements Serializable {
      */
     private static final long serialVersionUID = 5548280611678732479L;
     
-    private transient AnimationState current = null; // the current state of this player
-    private transient boolean shielding = false; // true if the player is holding down the shield button
-    private transient boolean attacking = false;
+    protected transient AnimationState current = null; // the current state of this player
+    protected transient boolean shielding = false; // true if the player is holding down the shield button
+    protected transient boolean attacking = false;
     
     /**
      * The width of the player's hitbox.  Used in bounding box checks.
      * Starting location of the bounding box is <code>location</code>.
      */
-    private transient static final int collisionWidth = 24;
+    protected transient static final int collisionWidth = 24;
     
     /**
      * The height of the player's hitbox.  Used in bounding box checks.
      * Starting location of the bounding box is <code>location</code>.
      */
-    private transient static final int collisionHeight = 43;
+    protected transient static final int collisionHeight = 43;
     
     /**
      * Collection of the "boundary points" that need to be checked for player
      * movement across the world.  These should be no farther than one block
      * apart.
      */
-    private transient List<Point2D.Double> hitbox = null;
+    protected transient List<Point2D.Double> hitbox = null;
     
     protected float movementSpeed = 0.500f; // Determines the rate of movement for this player
     protected float fallSpeed = 0.0f; // The rate that the player is currently falling
     protected int playerId; // The unique ID of this player
     protected int delay = (int) (25 / movementSpeed); // delay between animation frames
     
-    private Direction direction = Direction.FACE_RIGHT; // direction that the player is facing
+    protected Direction direction = Direction.FACE_RIGHT; // direction that the player is facing
     
     /** The inventory of the player */
-    private transient Inventory inventory = new Inventory();
+    protected transient Inventory inventory = new Inventory();
     
     public Player() {
         super();
@@ -754,9 +754,14 @@ public class Player extends Living implements Serializable {
 	public boolean meetsRequirement(ItemRequirement requirement) {
 		return true;
 	}
-
+	
 	/**
-	 * Performs the collision checks from startingIndex to endingIndex
+	 * Performs the collision checks from startingIndex to endingIndex.
+	 * 
+	 * This code may look ugly, but it's very fast.  On an i7-2600k, performing
+	 * a single collision check on a 15x15 block takes roughly 8 microseconds.
+	 * There are about 12 such checks needed per collision animation.
+	 * 
 	 * @param collisionArc All of the blobs that make up the animation's collision arc.
 	 * @param startingIndex The starting index (inclusive) of the collision arc to check collisions for.
 	 * @param endingIndex The ending index (inclusive) of the collision arc to check collisions for.
@@ -770,7 +775,7 @@ public class Player extends Living implements Serializable {
                 startingIndex >= collisionArc.length || endingIndex >= collisionArc.length) {
             return;
         }
-        
+    
         try {
             int curIndex = startingIndex - 1;
             do {
@@ -806,12 +811,12 @@ public class Player extends Living implements Serializable {
                             } else {
                                 xOff = (int) (-this.location.getXOffset() + current.getWidth() - ((this.location.getX() - x) * WorldConstants.WORLD_BLOCK_WIDTH + getWidth() - horizontalOffset + collisionArc[curIndex].getFlipped().getXOffset()));
                             }
+                            int yOff = (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset()));
                             float damage =  (direction == Direction.FACE_RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
-                                    new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), 
-                                    xOff,
-                                    (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset())));
+                                    new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), xOff, yOff);
                             if (damage > 0) {
-                                ts.setBlock(x, y, new AirBlock());
+//                                ts.setBlock(x, y, new AirBlock());
+                                Game.getInstance().getClient().announce(PacketCreator.getBlockCollisionPacket(current.getId(), startingIndex, endingIndex, horizontalOffset, verticalOffset));
                             }
                         }
                     }
@@ -821,5 +826,4 @@ public class Player extends Living implements Serializable {
             e.printStackTrace(); // This should only happen if someone screwed up the arc image...
         }
     }
-
 }

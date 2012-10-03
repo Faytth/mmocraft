@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.net;
 
 import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.gui.ChatMessage;
 
 /**
@@ -126,4 +127,11 @@ public class PacketCreator {
 		
 		return writer.getPacket();
 	}
+
+    public static Packet getBlockCollisionPacket(AnimationType id,
+            int startingIndex, int endingIndex, float horizontalOffset,
+            float verticalOffset) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
