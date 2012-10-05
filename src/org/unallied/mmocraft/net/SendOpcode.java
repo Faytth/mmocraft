@@ -15,7 +15,8 @@ public enum SendOpcode {
     MOVEMENT(0x04), 
     REGISTER(0x05), 
     CHAT_MESSAGE(0x06),
-    ITEM_DATA(0x07);
+    ITEM_DATA(0x07),
+    BLOCK_COLLISION(0x08);
     private int code = 0;
     
     private SendOpcode(int code) {

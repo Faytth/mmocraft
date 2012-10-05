@@ -128,10 +128,16 @@ public class PacketCreator {
 		return writer.getPacket();
 	}
 
-    public static Packet getBlockCollisionPacket(AnimationType id,
+    public static Packet getBlockCollisionPacket(AnimationType animation,
             int startingIndex, int endingIndex, float horizontalOffset,
             float verticalOffset) {
-        // TODO Auto-generated method stub
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.BLOCK_COLLISION);
+        writer.writeInt(startingIndex);
+        writer.writeInt(endingIndex);
+        writer.writeFloat(horizontalOffset);
+        writer.writeFloat(verticalOffset);
         return null;
     }
 }
