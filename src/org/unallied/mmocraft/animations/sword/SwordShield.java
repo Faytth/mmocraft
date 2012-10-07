@@ -49,13 +49,13 @@ public class SwordShield extends AnimationState {
     
     @Override
     public void moveLeft(boolean smash) {
-        player.updateDirection(Direction.FACE_LEFT);
+        player.updateDirection(Direction.LEFT);
         player.setState(new SwordRoll(player, this));
     }
 
     @Override
     public void moveRight(boolean smash) {
-        player.updateDirection(Direction.FACE_RIGHT);
+        player.updateDirection(Direction.RIGHT);
         player.setState(new SwordRoll(player, this));
     }
 

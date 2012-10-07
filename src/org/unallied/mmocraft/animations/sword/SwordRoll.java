@@ -64,10 +64,10 @@ public class SwordRoll extends AnimationState {
             animation.update(delta);
         }
         switch (player.getDirection()) {
-        case FACE_LEFT:
+        case LEFT:
             player.moveLeft((int) (delta*ROLL_SPEED));
             break;
-        case FACE_RIGHT:
+        case RIGHT:
             player.moveRight((int) (delta*ROLL_SPEED));
             break;
         }

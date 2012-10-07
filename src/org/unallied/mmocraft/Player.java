@@ -11,9 +11,9 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.sword.SwordIdle;
-import org.unallied.mmocraft.blocks.AirBlock;
 import org.unallied.mmocraft.blocks.Block;
 import org.unallied.mmocraft.client.Game;
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.constants.WorldConstants;
 import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.items.ItemRequirement;
@@ -49,6 +49,22 @@ public class Player extends Living implements Serializable {
     protected transient static final int collisionHeight = 43;
     
     /**
+     * The time in milliseconds, obtained from {@link #currentTimeMillis()}.
+     * Used in player movement / smash calculations.
+     */
+    protected transient long lastMovementTime = 0;
+    
+    /** 
+     * The direction that the player was last traveling in.  This value can be
+     * null, in which case the player was not moving in a direction.  This is
+     * used when calculating smash attacks as well as movement.  Unlike in most
+     * games, there is a short delay before movement is performed.  This variable
+     * keeps track of that movement information so that in the {@link #update(long)}
+     * method the movement can be properly made.
+     */
+    protected transient Direction lastMovement = null;
+    
+    /**
      * Collection of the "boundary points" that need to be checked for player
      * movement across the world.  These should be no farther than one block
      * apart.
@@ -60,7 +76,7 @@ public class Player extends Living implements Serializable {
     protected int playerId; // The unique ID of this player
     protected int delay = (int) (25 / movementSpeed); // delay between animation frames
     
-    protected Direction direction = Direction.FACE_RIGHT; // direction that the player is facing
+    protected Direction direction = Direction.RIGHT; // direction that the player is facing
     
     /** The inventory of the player */
     protected transient Inventory inventory = new Inventory();
@@ -125,7 +141,7 @@ public class Player extends Living implements Serializable {
         float y = (location.getY() - camera.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT;
         y += location.getYOffset() - camera.getYOffset();
         
-        current.render(x, y, direction == Direction.FACE_LEFT);
+        current.render(x, y, direction == Direction.LEFT);
     }
     
     /**
@@ -133,6 +149,22 @@ public class Player extends Living implements Serializable {
      * @param delta time since last update.
      */
     public void update(long delta) {
+        if (lastMovement != null && System.currentTimeMillis() - lastMovementTime > ClientConstants.MOVEMENT_DELAY) {
+            switch (lastMovement) {
+            case LEFT:
+                tryMoveLeft((int) delta);
+                break;
+            case RIGHT:
+                tryMoveRight((int) delta);
+                break;
+            case UP:
+                tryMoveUp((int) delta);
+                break;
+            case DOWN:
+                tryMoveDown((int) delta);
+                break;
+            }
+        }
         current.update(delta);
         unstuck();
     }
@@ -238,7 +270,7 @@ public class Player extends Living implements Serializable {
     public void moveLeft(int delta) {
         // TODO:  Break this into several steps.  We must pass in a Location for each pixel.
         //        We pass in the modified location to the next Location, and "daisy chain"
-        //        them all together.  Our end result is the furthest we can move.
+        //        them all together.  Our end result is the farthest we can move.
         
         // Get new end location
         
@@ -350,13 +382,24 @@ public class Player extends Living implements Serializable {
      * Attempts to move left if the animation allows it.
      * @param delta The time in milliseconds since the last update
      */
-    public void tryMoveLeft(int delta) {
+    private void tryMoveLeft(int delta) {
         current.moveLeft(movementSpeed > 0.2f); // any slower movement than this means walk
         if (current.canMoveLeft()) {
             moveLeft(delta);
         }
     }
 
+    /**
+     * Tells the player that the left directional has been pressed.
+     * @param delta The time in milliseconds since the last update
+     */
+    public void startMoveLeft(int delta) {
+        if (lastMovement != Direction.LEFT) {
+            lastMovementTime = System.currentTimeMillis();
+            lastMovement = Direction.LEFT;
+        }
+    }
+    
     /**
      * Moves character to the right.  Distance is determined by:
      * (deltaTime) * (movementSpeed), where deltaTime is the difference in time
@@ -368,7 +411,7 @@ public class Player extends Living implements Serializable {
     public void moveRight(int delta) {
         // TODO:  Break this into several steps.  We must pass in a Location for each pixel.
         //        We pass in the modified location to the next Location, and "daisy chain"
-        //        them all together.  Our end result is the furthest we can move.
+        //        them all together.  Our end result is the farthest we can move.
         
         // Get new end location
         
@@ -481,10 +524,21 @@ public class Player extends Living implements Serializable {
      * Attempts to move right if the animation allows it.
      * @param delta The time in milliseconds since the last update
      */
-    public void tryMoveRight(int delta) {
+    private void tryMoveRight(int delta) {
         current.moveRight(movementSpeed > 0.2f); // any slower movement than this means walk
         if (current.canMoveRight()) {
             moveRight(delta);
+        }
+    }
+
+    /**
+     * Tells the player that the right directional has been pressed.
+     * @param delta The time in milliseconds since the last update
+     */
+    public void startMoveRight(int delta) {
+        if (lastMovement != Direction.RIGHT) { 
+            lastMovementTime = System.currentTimeMillis();
+            lastMovement = Direction.RIGHT;
         }
     }
     
@@ -503,11 +557,28 @@ public class Player extends Living implements Serializable {
      * Attempts to move up if the animation allows it.
      * @param delta The time in milliseconds since the last update
      */
-    public void tryMoveUp(int delta) {
+    private void tryMoveUp(int delta) {
         if (current.canMoveUp()) {
             moveUp(delta);
         }
         current.moveUp(true); // This ordering is NOT a mistake!
+    }
+
+    /**
+     * Tells the player that the up directional has been pressed.
+     * @param delta The time in milliseconds since the last update
+     */
+    public void startMoveUp(int delta) {
+        /* 
+         * The odd checks here are because you should be able to move both
+         * horizontally and vertically at the same time.
+         */
+        if (lastMovement == Direction.DOWN || lastMovement == null) {
+            lastMovementTime = System.currentTimeMillis();
+            lastMovement = Direction.UP;
+        } else if (lastMovement != Direction.UP) {
+            tryMoveUp(delta);
+        }
     }
     
     /**
@@ -526,10 +597,27 @@ public class Player extends Living implements Serializable {
      * Attempts to move down if the animation allows it.
      * @param delta The time in milliseconds since the last update
      */
-    public void tryMoveDown(int delta) {
+    private void tryMoveDown(int delta) {
         current.moveDown(true);
         if (current.canMoveDown()) {
             moveDown(delta);
+        }
+    }
+
+    /**
+     * Tells the player that the down directional has been pressed.
+     * @param delta The time in milliseconds since the last update
+     */
+    public void startMoveDown(int delta) {
+        /* 
+         * The odd checks here are because you should be able to move both
+         * horizontally and vertically at the same time.
+         */
+        if (lastMovement == Direction.UP || lastMovement == null) {
+            lastMovementTime = System.currentTimeMillis();
+            lastMovement = Direction.DOWN;
+        } else if (lastMovement != Direction.DOWN) {
+            tryMoveDown(delta);
         }
     }
     
@@ -554,7 +642,7 @@ public class Player extends Living implements Serializable {
      */
     public void attackUpdate(boolean isDown) {
         if (attacking && !isDown) {
-//            current.attack();
+//            current.attack(); // This is for charging attacks.
         } else if (!attacking && isDown) {
             current.attack();
         }
@@ -564,6 +652,7 @@ public class Player extends Living implements Serializable {
      * Tells player that they did not make an action this update.
      */
     public void idle() {
+        this.lastMovement = null;
         current.idle();
     }
     
@@ -747,11 +836,11 @@ public class Player extends Living implements Serializable {
      * Returns whether the player meets the requirement.  This is based on the
      * player's skill levels.  To meet a requirement, a player's skill level
      * must be >= the requirement.
-     * TODO:  Implement this method.
      * @param requirement The requirement to meet
      * @return true if the player meets the requirement; else false
      */
 	public boolean meetsRequirement(ItemRequirement requirement) {
+	    // TODO:  Implement this method.
 		return true;
 	}
 	
@@ -783,7 +872,7 @@ public class Player extends Living implements Serializable {
                 
                 TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
                 Location topLeft = new Location(this.location);
-                if (direction == Direction.FACE_RIGHT) {
+                if (direction == Direction.RIGHT) {
                     topLeft.moveDown(verticalOffset + collisionArc[curIndex].getYOffset());
                     topLeft.moveRight(horizontalOffset + collisionArc[curIndex].getXOffset());
                 } else { // Flipped collision stuff.  This was such a pain to calculate.
@@ -806,13 +895,13 @@ public class Player extends Living implements Serializable {
                     for (long y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
                         if (ts.getBlock(x, y).isCollidable() || true) {
                             int xOff = 0;
-                            if (direction == Direction.FACE_RIGHT) {
+                            if (direction == Direction.RIGHT) {
                                 xOff = (int) (((x - this.location.getX()) * WorldConstants.WORLD_BLOCK_WIDTH - horizontalOffset - collisionArc[curIndex].getXOffset() - this.location.getXOffset()));
                             } else {
                                 xOff = (int) (-this.location.getXOffset() + current.getWidth() - ((this.location.getX() - x) * WorldConstants.WORLD_BLOCK_WIDTH + getWidth() - horizontalOffset + collisionArc[curIndex].getFlipped().getXOffset()));
                             }
                             int yOff = (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset()));
-                            float damage =  (direction == Direction.FACE_RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
+                            float damage =  (direction == Direction.RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
                                     new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), xOff, yOff);
                             if (damage > 0) {
 //                                ts.setBlock(x, y, new AirBlock());

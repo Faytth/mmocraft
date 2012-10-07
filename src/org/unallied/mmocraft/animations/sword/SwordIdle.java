@@ -40,7 +40,7 @@ public class SwordIdle extends AnimationState {
 
     @Override
     public void moveLeft(boolean smash) {
-        player.updateDirection( Direction.FACE_LEFT );
+        player.updateDirection( Direction.LEFT );
         
         if (smash) {
             player.setState( new SwordRun(player, this) );
@@ -51,7 +51,7 @@ public class SwordIdle extends AnimationState {
 
     @Override
     public void moveRight(boolean smash) {
-        player.updateDirection( Direction.FACE_RIGHT );
+        player.updateDirection( Direction.RIGHT );
         
         if (smash) {
             player.setState( new SwordRun(player, this) );

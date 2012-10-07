@@ -176,12 +176,45 @@ public class Location implements Serializable {
             x += ((int)xOffset) / WorldConstants.WORLD_BLOCK_WIDTH;
             xOffset %= WorldConstants.WORLD_BLOCK_WIDTH;
             
-            while (xOffset < 0) {
-                --x;
-                xOffset += WorldConstants.WORLD_BLOCK_WIDTH;
+            if (xOffset < 0) {
+                long deltaX = (long) (-xOffset / WorldConstants.WORLD_BLOCK_WIDTH) + 1;
+                x -= deltaX;
+                xOffset += deltaX * WorldConstants.WORLD_BLOCK_WIDTH;
             }
         }
-     }
+    }
+    
+    /**
+     * Retrieves the x difference in pixels between two locations.
+     * This difference is (this.x - other.x) (where x is number of pixels)
+     * @param other The other location to compare this location to.
+     * @return deltaX
+     */
+    public double getDeltaX(Location other) {
+        double result;
+        
+        result = this.x - other.x;
+        result *= WorldConstants.WORLD_BLOCK_WIDTH;
+        result += this.xOffset - other.xOffset;
+        
+        return result;
+    }
+    
+    /**
+     * Retrieves the y difference in pixels between two locations.
+     * This difference is (this.y - other.y) (where y is number of pixels)
+     * @param other The other location to compare this location to.
+     * @return deltaY
+     */
+    public double getDeltaY(Location other) {
+        double result;
+        
+        result = this.y - other.y;
+        result *= WorldConstants.WORLD_BLOCK_HEIGHT;
+        result += this.yOffset - other.yOffset;
+        
+        return result;
+    }
     
     /**
      * Move to the right some number of pixels
@@ -200,9 +233,10 @@ public class Location implements Serializable {
             x += ((int)xOffset) / WorldConstants.WORLD_BLOCK_WIDTH;
             xOffset %= WorldConstants.WORLD_BLOCK_WIDTH;
             
-            while (xOffset < 0) {
-                --x;
-                xOffset += WorldConstants.WORLD_BLOCK_WIDTH;
+            if (xOffset < 0) {
+                long deltaX = (long) (-xOffset / WorldConstants.WORLD_BLOCK_WIDTH) + 1;
+                x -= deltaX;
+                xOffset += deltaX * WorldConstants.WORLD_BLOCK_WIDTH;
             }
         }
     }
@@ -224,9 +258,10 @@ public class Location implements Serializable {
             y += ((int)yOffset) / WorldConstants.WORLD_BLOCK_HEIGHT;
             yOffset %= WorldConstants.WORLD_BLOCK_HEIGHT;
             
-            while (yOffset < 0) {
-                --y;
-                yOffset += WorldConstants.WORLD_BLOCK_HEIGHT;
+            if (yOffset < 0) {
+                long deltaY = (long) (-yOffset / WorldConstants.WORLD_BLOCK_HEIGHT) + 1;
+                y -= deltaY;
+                yOffset += deltaY * WorldConstants.WORLD_BLOCK_HEIGHT;
             }
             
             // If we're < min height, then set us to min height
@@ -266,9 +301,10 @@ public class Location implements Serializable {
             y += ((int)yOffset) / WorldConstants.WORLD_BLOCK_HEIGHT;
             yOffset %= WorldConstants.WORLD_BLOCK_HEIGHT;
             
-            while (yOffset < 0) {
-                --y;
-                yOffset += WorldConstants.WORLD_BLOCK_HEIGHT;
+            if (yOffset < 0) {
+                long deltaY = (long) (-yOffset / WorldConstants.WORLD_BLOCK_HEIGHT) + 1;
+                y -= deltaY;
+                yOffset += deltaY * WorldConstants.WORLD_BLOCK_HEIGHT;
             }
             
             // If we're < min height, then set us to min height

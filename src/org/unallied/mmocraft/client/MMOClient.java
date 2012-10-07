@@ -31,6 +31,8 @@ public class MMOClient {
     private String accountName; // The username of the logged in account
     private long lastPing = 0;  // The time that the last ping was received from the server
     
+    private Camera camera = null;
+    
     // Stores important information about a client's login information
     public LoginSession loginSession = new LoginSession();
 
@@ -78,16 +80,12 @@ public class MMOClient {
     }
     
     public void setPlayer(Player player) {
-        this.player = player;
+        if (player != null) {
+            this.player = player;
+            camera = new Camera(new BoundLocation(this.player.getLocation()));
+        }
     }
-    
-    /**
-     * Get player from server
-     */
-    private void loadPlayer() {
-        /**/
-    }
-    
+        
     public boolean isLoggedIn() {
         return loggedIn;
     }
@@ -182,31 +180,41 @@ public class MMOClient {
         try {
             // Get player's Location.  Used to determine rendering location
             BoundLocation location = player.getLocation();
-            BoundLocation camera   = new BoundLocation(location);
+            BoundLocation cameraLocation = new BoundLocation(location);
             
             // Adjust camera location
-            camera.moveLeft(container.getWidth() / 2);
-            camera.moveUp(container.getHeight() / 2);
+            cameraLocation.moveLeft(container.getWidth() / 2);
+            cameraLocation.moveUp(container.getHeight() / 2);
+            
+            // Just in case...
+            if (camera == null) {
+                camera = new Camera(cameraLocation);
+            }
+            
+            camera.setLocation(cameraLocation);
+            cameraLocation = camera.getLocation();
             
             // Render the background
             ImageHandler.getInstance().draw(ImageID.BACKGROUND_SKY.toString(), 0, 0);
             
-            // Render the "back" blocks of the world
-            
-            // Render the "blocks" of the world
-            terrainSession.render(container, game, g, camera);
-
-            // Render the inanimate objects
-            objectSession.render(container, game, g, camera);
-            
-            // Render the other players
-            playerPoolSession.render(container, game, g, camera);
-            
-            // Render the NPCs
-            npcSession.render(container, game, g, camera);
-            
-            // Render yourself
-            player.render(container, game, g, camera);
+            if (cameraLocation != null) {
+                // Render the "back" blocks of the world
+                
+                // Render the "blocks" of the world
+                terrainSession.render(container, game, g, cameraLocation);
+    
+                // Render the inanimate objects
+                objectSession.render(container, game, g, cameraLocation);
+                
+                // Render the other players
+                playerPoolSession.render(container, game, g, cameraLocation);
+                
+                // Render the NPCs
+                npcSession.render(container, game, g, cameraLocation);
+                
+                // Render yourself
+                player.render(container, game, g, cameraLocation);
+            }
         } catch (Throwable t) {
             // Do nothing.  It's a rendering bug.  So what?
         }

@@ -303,70 +303,78 @@ public class IngameState extends AbstractState {
      * TODO:  Create a class for all GUI controls.  A game state should not
      *        handle GUI animation or events.
      */
-    public void update(GameContainer container, StateBasedGame game, int delta)
-            throws SlickException {
-        
-        Input input = container.getInput();
-        Player player = Game.getInstance().getClient().getPlayer();
-        boolean idle = true; // determines whether player is moving
-
-        if (player != null) {
-        	Controls controls = Game.getInstance().getControls();
-
-            // Perform gravity checks
-            player.accelerateDown(delta, ClientConstants.FALL_ACCELERATION, 
-                    ClientConstants.FALL_TERMINAL_VELOCITY);
+    public void update(GameContainer container, StateBasedGame game, int delta) {
+        try {
+            Input input = container.getInput();
+            Player player = Game.getInstance().getClient().getPlayer();
+            boolean idle = true; // determines whether player is moving
+    
+            /*
+             * The way movement works is a little tricky.  There is a movement delay
+             * which, if another button is pressed before that delay expires, a
+             * smash attack occurs.
+             */
             
-            // Perform shielding
-            player.shieldUpdate(controls.isShielding(input));
-            
-            // These next checks are only if the main game is focused and not a GUI control
-            if (GUIUtility.getInstance().getActiveElement() == null) {
-                // Perform movement
-                if (controls.isMovingLeft(input)) {
-                	player.tryMoveLeft(delta);
-                	idle = false;
-                }
-                if (controls.isMovingRight(input)) {
-                    player.tryMoveRight(delta);
-                    idle = false;
-                }
-                if (controls.isMovingUp(input)) {
-                    player.tryMoveUp(delta);
-                    idle = false;
-                }
-                if (controls.isMovingDown(input)) {
-                    player.tryMoveDown(delta);
-                    idle = false;
+            if (player != null) {
+            	Controls controls = Game.getInstance().getControls();
+    
+                // Perform gravity checks
+                player.accelerateDown(delta, ClientConstants.FALL_ACCELERATION, 
+                        ClientConstants.FALL_TERMINAL_VELOCITY);
+                
+                // Perform shielding
+                player.shieldUpdate(controls.isShielding(input));
+                
+                // These next checks are only if the main game is focused and not a GUI control
+                if (GUIUtility.getInstance().getActiveElement() == null) {
+                    // Perform movement
+                    if (controls.isMovingLeft(input)) {
+                    	player.startMoveLeft(delta);
+                    	idle = false;
+                    }
+                    if (controls.isMovingRight(input)) {
+                        player.startMoveRight(delta);
+                        idle = false;
+                    }
+                    if (controls.isMovingUp(input)) {
+                        player.startMoveUp(delta);
+                        idle = false;
+                    }
+                    if (controls.isMovingDown(input)) {
+                        player.startMoveDown(delta);
+                        idle = false;
+                    }
+                    
+                    // perform attacks
+                    player.attackUpdate(controls.isBasicAttack(input));
                 }
                 
-                // perform attacks
-                player.attackUpdate(controls.isBasicAttack(input));
+                if (idle) {
+                    player.idle();
+                }
+                player.update(delta);
+    
             }
             
-            if (idle) {
-                player.idle();
+    /*        if (delta > 20) {
+                System.out.println(delta);
+            }*/
+            
+            // Iterate over all GUI controls and inform them of input
+            for( GUIElement element : elements) {
+                element.update(container);
             }
-            player.update(delta);
-
-        }
-        
-/*        if (delta > 20) {
-            System.out.println(delta);
-        }*/
-        
-        // Iterate over all GUI controls and inform them of input
-        for( GUIElement element : elements) {
-            element.update(container);
-        }
-        
-        // If the main game is focused and not a GUI element
-        if (input.isKeyPressed(Input.KEY_ENTER) || input.isKeyPressed(Input.KEY_RETURN)) {
-            if (GUIUtility.getInstance().getActiveElement() == null) {
-                if (chatFrame != null) {
-                    chatFrame.activate();
+            
+            // If the main game is focused and not a GUI element
+            if (input.isKeyPressed(Input.KEY_ENTER) || input.isKeyPressed(Input.KEY_RETURN)) {
+                if (GUIUtility.getInstance().getActiveElement() == null) {
+                    if (chatFrame != null) {
+                        chatFrame.activate();
+                    }
                 }
             }
+        } catch (Throwable t) {
+            t.printStackTrace(); // We had a pretty major error, but let's try to keep going.
         }
     }
 

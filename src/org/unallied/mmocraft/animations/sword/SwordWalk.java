@@ -40,7 +40,7 @@ public class SwordWalk extends AnimationState {
 
     @Override
     public void moveLeft(boolean smash) {
-        player.updateDirection(Direction.FACE_LEFT);
+        player.updateDirection(Direction.LEFT);
         
         if (smash) {
             player.setState(new SwordRun(player, this));
@@ -49,7 +49,7 @@ public class SwordWalk extends AnimationState {
 
     @Override
     public void moveRight(boolean smash) {
-        player.updateDirection(Direction.FACE_RIGHT);
+        player.updateDirection(Direction.RIGHT);
         if (smash) {
             player.setState(new SwordRun(player, this));
         }
@@ -78,12 +78,12 @@ public class SwordWalk extends AnimationState {
 
     @Override
     public boolean canMoveLeft() {
-        return player.getDirection() == Direction.FACE_LEFT;
+        return player.getDirection() == Direction.LEFT;
     }
     
     @Override
     public boolean canMoveRight() {
-        return player.getDirection() == Direction.FACE_RIGHT;
+        return player.getDirection() == Direction.RIGHT;
     }
     
     @Override

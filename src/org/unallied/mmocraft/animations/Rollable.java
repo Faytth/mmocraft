@@ -33,7 +33,7 @@ public abstract class Rollable extends AnimationState {
     public void moveLeft(boolean smash) {
         if (shieldTime > shieldOffTime || 
                 shieldOffTime + ClientConstants.SHIELD_ROLL_DELAY > System.currentTimeMillis()) {
-            player.updateDirection(Direction.FACE_LEFT);
+            player.updateDirection(Direction.LEFT);
             player.setState(getRollState());
         }
     }
@@ -42,7 +42,7 @@ public abstract class Rollable extends AnimationState {
     public void moveRight(boolean smash) {
         if (shieldTime > shieldOffTime || 
                 shieldOffTime + ClientConstants.SHIELD_ROLL_DELAY > System.currentTimeMillis()) {
-            player.updateDirection(Direction.FACE_RIGHT);
+            player.updateDirection(Direction.RIGHT);
             player.setState(getRollState());
         }
     }

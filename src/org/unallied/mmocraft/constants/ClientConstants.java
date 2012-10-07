@@ -44,4 +44,7 @@ public abstract class ClientConstants {
      * The maximum stack size of an item.
      */
     public static final long MAX_ITEM_STACK = Long.MAX_VALUE;
+    
+    /** The delay in milliseconds between movement and when the player moves.  Used for smash effects. */
+    public static final int MOVEMENT_DELAY = 40;
 }

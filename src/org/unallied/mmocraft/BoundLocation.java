@@ -72,18 +72,47 @@ public class BoundLocation extends Location implements Serializable {
         x += ((int)xOffset) / WorldConstants.WORLD_BLOCK_WIDTH;
         xOffset %= WorldConstants.WORLD_BLOCK_WIDTH;
         
-        while (xOffset < 0) {
-            --x;
-            xOffset += WorldConstants.WORLD_BLOCK_WIDTH;
+        if (xOffset < 0) {
+            long deltaX = (long) (-xOffset / WorldConstants.WORLD_BLOCK_WIDTH) + 1;
+            x -= deltaX;
+            xOffset += deltaX * WorldConstants.WORLD_BLOCK_WIDTH;
         }
         
         // Wrap around if necessary
-        x %= WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH;
+        x %= WorldConstants.WORLD_WIDTH;
         // Correct for negative
         if (x < 0) {
-            x = WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH + x;
+            x = WorldConstants.WORLD_WIDTH + x;
         }
     }
+    
+    @Override
+    /**
+     * Retrieves the x difference in pixels between two locations.
+     * This difference is (this.x - other.x) (where x is number of pixels).
+     * This distance is appropriately wrapped around as needed.
+     * 
+     * @param other The other location to compare this location to.
+     * @return deltaX
+     */
+    public double getDeltaX(Location other) {
+        double result;
+        
+        // Technically this is a kludge, but no one really cares
+        long delta = this.x - other.x;
+        if (delta < WorldConstants.WORLD_WIDTH / 2 && 
+                delta > -WorldConstants.WORLD_WIDTH / 2) {
+            result = delta;
+        } else { // We need to wrap
+            result = delta;
+            result += result < 0 ? WorldConstants.WORLD_WIDTH : -WorldConstants.WORLD_WIDTH;
+        }
+        result *= WorldConstants.WORLD_BLOCK_WIDTH;
+        result += this.xOffset - other.xOffset;
+        
+        return result;
+    }
+    
     
     @Override
     /**
@@ -96,17 +125,18 @@ public class BoundLocation extends Location implements Serializable {
         x += ((int)xOffset) / WorldConstants.WORLD_BLOCK_WIDTH;
         xOffset %= WorldConstants.WORLD_BLOCK_WIDTH;
         
-        while (xOffset < 0) {
-            --x;
-            xOffset += WorldConstants.WORLD_BLOCK_WIDTH;
+        if (xOffset < 0) {
+            long deltaX = (long) (-xOffset / WorldConstants.WORLD_BLOCK_WIDTH) + 1;
+            x -= deltaX;
+            xOffset += deltaX * WorldConstants.WORLD_BLOCK_WIDTH;
         }
         
         // Wrap around if necessary
-        x %= WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH;
+        x %= WorldConstants.WORLD_WIDTH;
         
         // Correct for negative
         if (x < 0) {
-            x = WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH + x;
+            x = WorldConstants.WORLD_WIDTH + x;
         }
      }
     
@@ -121,9 +151,10 @@ public class BoundLocation extends Location implements Serializable {
         y += ((int)yOffset) / WorldConstants.WORLD_BLOCK_HEIGHT;
         yOffset %= WorldConstants.WORLD_BLOCK_HEIGHT;
         
-        while (yOffset < 0) {
-            --y;
-            yOffset += WorldConstants.WORLD_BLOCK_HEIGHT;
+        if (yOffset < 0) {
+            long deltaY = (long) (-yOffset / WorldConstants.WORLD_BLOCK_HEIGHT) + 1;
+            y -= deltaY;
+            yOffset += deltaY * WorldConstants.WORLD_BLOCK_HEIGHT;
         }
         
         // If we're < min height, then set us to min height
@@ -155,9 +186,10 @@ public class BoundLocation extends Location implements Serializable {
         y += ((int)yOffset) / WorldConstants.WORLD_BLOCK_HEIGHT;
         yOffset %= WorldConstants.WORLD_BLOCK_HEIGHT;
         
-        while (yOffset < 0) {
-            --y;
-            yOffset += WorldConstants.WORLD_BLOCK_HEIGHT;
+        if (yOffset < 0) {
+            long deltaY = (long) (-yOffset / WorldConstants.WORLD_BLOCK_HEIGHT) + 1;
+            y -= deltaY;
+            yOffset += deltaY * WorldConstants.WORLD_BLOCK_HEIGHT;
         }
         
         // If we're < min height, then set us to min height

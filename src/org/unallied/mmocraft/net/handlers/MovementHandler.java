@@ -30,14 +30,14 @@ public class MovementHandler extends AbstractPacketHandler {
                 p.setDelay(slea.readInt());
                 p.setLocation(BoundLocation.getLocation(slea));
                 p.setState(AnimationType.getState(p, null, slea.readShort()));
-                p.setDirection(slea.readByte() == 0 ? Direction.FACE_RIGHT : Direction.FACE_LEFT);
+                p.setDirection(slea.readByte() == 0 ? Direction.RIGHT : Direction.LEFT);
                 p.init();
                 client.playerPoolSession.addPlayer(p);
             } else { // not a new player, so just update it
                 p.setDelay(slea.readInt());
                 p.setLocation(BoundLocation.getLocation(slea));
                 p.setState(AnimationType.getState(p, p.getState(), slea.readShort()));
-                p.setDirection(slea.readByte() == 0 ? Direction.FACE_RIGHT : Direction.FACE_LEFT);
+                p.setDirection(slea.readByte() == 0 ? Direction.RIGHT : Direction.LEFT);
             }
         } catch (Throwable t) {
             t.printStackTrace();
