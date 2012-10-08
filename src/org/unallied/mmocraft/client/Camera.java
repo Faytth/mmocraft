@@ -1,7 +1,6 @@
 package org.unallied.mmocraft.client;
 
 import org.unallied.mmocraft.BoundLocation;
-import org.unallied.mmocraft.constants.WorldConstants;
 
 /**
  * The camera used by the game to determine which section of the game should be
@@ -16,6 +15,9 @@ public class Camera {
      * the destination.  The time delta (time between calls to 
      * {@link #getLocation()}) is divided by this number to get the percent
      * change between currentLocation and destination.
+     * 
+     * Higher values makes the camera change slower.  Lower values make it
+     * change faster.
      */
     public static final long CAMERA_CHANGE_RATE = 300;
     

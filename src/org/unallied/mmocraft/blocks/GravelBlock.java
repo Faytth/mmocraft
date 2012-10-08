@@ -27,4 +27,9 @@ public class GravelBlock extends Block {
     protected BlockType getType() {
         return type;
     }
+
+    @Override
+    public Block getCopy() {
+        return new GravelBlock();
+    }
 }

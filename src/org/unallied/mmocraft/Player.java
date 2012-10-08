@@ -32,8 +32,13 @@ public class Player extends Living implements Serializable {
      */
     private static final long serialVersionUID = 5548280611678732479L;
     
-    protected transient AnimationState current = null; // the current state of this player
-    protected transient boolean shielding = false; // true if the player is holding down the shield button
+    /** The current state of the player. */
+    protected transient AnimationState current = null;
+    
+    /** True if the player is holding down the shield button. */
+    protected transient boolean shielding = false;
+    
+    /** True if the player is currently in the middle of charging an attack. */
     protected transient boolean attacking = false;
     
     /**

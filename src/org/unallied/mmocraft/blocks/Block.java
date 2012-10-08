@@ -46,4 +46,10 @@ public abstract class Block implements Collidable {
     public boolean isCollidable() {
         return true;
     }
+    
+    /**
+     * Retrieves a copy of the block.
+     * @return block
+     */
+    public abstract Block getCopy();
 }

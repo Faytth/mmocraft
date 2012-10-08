@@ -33,4 +33,9 @@ public class AirBlock extends Block {
     public boolean isCollidable() {
         return false; // You can't collide with air!
     }
+
+    @Override
+    public Block getCopy() {
+        return new AirBlock();
+    }
 }

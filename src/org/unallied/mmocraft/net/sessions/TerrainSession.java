@@ -164,7 +164,7 @@ public class TerrainSession {
      * @param collision the new end location
      * @return the location right before the end location
      */
-    private Location getMaxLocation(Location end, Location end2, BoundLocation collision) {
+    public static Location getMaxLocation(Location end, Location end2, BoundLocation collision) {
         
         // Fix offsets for collision.  FIXME:  This is a kludge!
         if (end.getX() == end2.getX() && end.getXOffset() == end2.getXOffset()) {
