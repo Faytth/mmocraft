@@ -68,17 +68,11 @@ public enum AnimationType {
         case SWORD_ROLL:
             result = new SwordRoll(player, prev);
             break;
-        case SWORD_ROLL_COOLDOWN:
-            result = new SwordRollCooldown(player, prev);
-            break;
         case SWORD_RUN:
             result = new SwordRun(player, prev);
             break;
         case SWORD_SHIELD:
             result = new SwordShield(player, prev);
-            break;
-        case SWORD_SHIELD_COOLDOWN:
-            result = new SwordShieldCooldown(player, prev);
             break;
         case SWORD_WALK:
             result = new SwordWalk(player, prev);

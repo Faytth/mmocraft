@@ -57,4 +57,9 @@ public abstract class Rollable extends AnimationState {
     public void shieldOff() {
         shieldOffTime = System.currentTimeMillis();
     }
+    
+    @Override
+    public final boolean isRollable() {
+        return true;
+    }
 }

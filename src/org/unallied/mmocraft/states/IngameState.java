@@ -11,7 +11,6 @@ import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.MMOClient;
-import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
@@ -317,31 +316,24 @@ public class IngameState extends AbstractState {
             
             if (player != null) {
             	Controls controls = Game.getInstance().getControls();
-    
-                // Perform gravity checks
-                player.accelerateDown(delta, ClientConstants.FALL_ACCELERATION, 
-                        ClientConstants.FALL_TERMINAL_VELOCITY);
-                
-                // Perform shielding
-                player.shieldUpdate(controls.isShielding(input));
-                
+                    
                 // These next checks are only if the main game is focused and not a GUI control
                 if (GUIUtility.getInstance().getActiveElement() == null) {
                     // Perform movement
                     if (controls.isMovingLeft(input)) {
-                    	player.startMoveLeft(delta);
+                    	player.tryMoveLeft(delta);
                     	idle = false;
                     }
                     if (controls.isMovingRight(input)) {
-                        player.startMoveRight(delta);
+                        player.tryMoveRight(delta);
                         idle = false;
                     }
                     if (controls.isMovingUp(input)) {
-                        player.startMoveUp(delta);
+                        player.tryMoveUp(delta);
                         idle = false;
                     }
                     if (controls.isMovingDown(input)) {
-                        player.startMoveDown(delta);
+                        player.tryMoveDown(delta);
                         idle = false;
                     }
                     

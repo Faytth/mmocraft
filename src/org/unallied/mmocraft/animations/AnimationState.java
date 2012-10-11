@@ -20,6 +20,9 @@ public abstract class AnimationState implements Serializable {
      */
     private static final long serialVersionUID = 8464415414303084501L;
     
+    /** The max number of animation states chained together by last. */
+    private static final int MAX_CHAIN = 10;
+    
     protected transient Animation animation = null; // the animation to play for this state
     protected transient Player player; // the player attached to this animation
     protected transient AnimationState last; // the last animation state
@@ -46,8 +49,14 @@ public abstract class AnimationState implements Serializable {
         this.entryTime = System.currentTimeMillis();
         
         // Prevent unnecessary chains
-        if (last != null) {
-            last.last = null;
+        AnimationState index = this;
+        for (int i=0; i < MAX_CHAIN-1; ++i) {
+            if (index != null) {
+                index = index.last;
+            }
+        }
+        if (index != null) {
+            index.last = null;
         }
     }
     
@@ -286,5 +295,39 @@ public abstract class AnimationState implements Serializable {
      */
     public CollisionBlob[] getCollisionBody() {
         return collisionBody;
+    }
+
+    /**
+     * Returns whether this animation state is a rollable state.
+     * @return rollable
+     */
+    public boolean isRollable() {
+        return false;
+    }
+    
+    /**
+     * Returns true if whatever is performing this animation is currently
+     * invincible.  An example of this would be the start of a roll.
+     * @return true if invincible; else false
+     */
+    public boolean isInvincible() {
+        return false;
+    }
+    
+    /**
+     * Retrieves the previous animation state, or null if no state is previous.
+     * @return previousState
+     */
+    public AnimationState getPreviousState() {
+        return last;
+    }
+    
+    /**
+     * Returns the entry time of this state.  Entry time is the number of 
+     * milliseconds since the epoch, as specified by {@link System#currentTimeMillis()}.
+     * @return entryTime
+     */
+    public long getEntryTime() {
+        return entryTime;
     }
 }

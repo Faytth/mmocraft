@@ -2,7 +2,6 @@ package org.unallied.mmocraft.states;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.state.GameState;
-import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.frame.Frame;
 
 /**

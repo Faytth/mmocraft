@@ -52,7 +52,7 @@ public class Camera {
                 // At this point, higher delta means faster movement towards the destination
                 float deltaX = (float) (destination.getDeltaX(currentLocation));
                 float deltaY = (float) (destination.getDeltaY(currentLocation));
-
+                
                 // We have a "hard cap" which prevents the player from flying off-screen.
                 float maxDeltaX = Game.getInstance().getContainer().getWidth() / 3;
                 float maxDeltaY = Game.getInstance().getContainer().getHeight() / 3;

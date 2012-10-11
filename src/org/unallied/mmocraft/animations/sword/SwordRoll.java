@@ -5,10 +5,11 @@ import org.newdawn.slick.SpriteSheet;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
+import org.unallied.mmocraft.animations.Roll;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 
-public class SwordRoll extends AnimationState {
+public class SwordRoll extends Roll {
 
     /**
      * 
@@ -19,12 +20,18 @@ public class SwordRoll extends AnimationState {
      * Determines the multiplier for roll speed.  Multiplier is based on normal
      * movement speed.
      */
-    private static final transient double ROLL_SPEED = 1.5;
+    private static final transient float ROLL_SPEED = 1.0f;
     
     /**
      * The amount of time (in milliseconds) that the player rolls for.
      */
-    private static final transient int MAX_ROLL_TIME = 180;
+    private static final transient int MAX_ROLL_TIME = 380;
+    
+    /** The start of invincibility in milliseconds. */
+    private static final transient int MIN_INVINCIBLE_TIME = 50;
+    
+    /** The end of invincibility in milliseconds. */
+    private static final transient int MAX_INVINCIBLE_TIME = 250;
     
     /**
      * The amount of time (in milliseconds) that the player has been rolling.
@@ -41,8 +48,17 @@ public class SwordRoll extends AnimationState {
         animation.start();
         horizontalOffset = 21;
         verticalOffset = 3;
+        
+        switch (player.getDirection()) {
+        case LEFT:
+            player.setVelocity(-ROLL_SPEED * player.getMovementSpeed(), 0);
+            break;
+        case RIGHT:
+            player.setVelocity(ROLL_SPEED * player.getMovementSpeed(), 0);
+            break;
+        }
     }
-
+    
     @Override
     public void idle() {
         // We're already idle, so do nothing
@@ -65,19 +81,19 @@ public class SwordRoll extends AnimationState {
         }
         switch (player.getDirection()) {
         case LEFT:
-            player.moveLeft((int) (delta*ROLL_SPEED));
+            player.moveLeft((int) (delta));
             break;
         case RIGHT:
-            player.moveRight((int) (delta*ROLL_SPEED));
+            player.moveRight((int) (delta));
             break;
         }
         
         // The player has exceeded their rolling time, so reset their state
         if (rollTime > MAX_ROLL_TIME) {
             if (player.isShielding()) {
-                player.setState(new SwordShieldCooldown(player, this));
+                player.setState(new SwordShield(player, this));
             } else {
-                player.setState(new SwordRollCooldown(player, this));
+                player.setState(new SwordIdle(player, this));
             }
         }
     }
@@ -143,4 +159,8 @@ public class SwordRoll extends AnimationState {
         return AnimationType.SWORD_ROLL;
     }
 
+    @Override
+    public boolean isInvincible() {
+        return rollTime >= MIN_INVINCIBLE_TIME && rollTime <= MAX_INVINCIBLE_TIME;
+    }
 }

@@ -159,78 +159,64 @@ public class TerrainSession {
     /**
      * Get the location that is just before <code>end</code> based off of the
      * starting location.
-     * @param end the location to start at
-     * @param end2 the old end location
+     * TODO:  This function needs to be thought out better.  It's messing with 
+     * {@link #collideWithBlock(Location, Location)}collideWithBlock.
+     * @param start the location to start at
+     * @param end the old end location
      * @param collision the new end location
      * @return the location right before the end location
      */
-    public static Location getMaxLocation(Location end, Location end2, BoundLocation collision) {
+    public static Location getMaxLocation(Location start, Location end, BoundLocation collision) {
         
-        // Fix offsets for collision.  FIXME:  This is a kludge!
-        if (end.getX() == end2.getX() && end.getXOffset() == end2.getXOffset()) {
-            collision.setXOffset(end.getXOffset());
+        // Fix offsets for collision.
+        if (start.getX() == end.getX() && start.getXOffset() == end.getXOffset()) {
+            collision.setRawX(start.getRawX());
         }
-        if (end.getY() == end2.getY() && end.getYOffset() == end2.getYOffset()) {
-            collision.setYOffset(end.getYOffset());
+        if (start.getY() == end.getY() && start.getYOffset() == end.getYOffset()) {
+            collision.setRawY(start.getRawY());
         }
         
         // Special case for same block
-        if (end.getX() == collision.getX() && end.getY() == collision.getY()) {
-            collision.moveLeft(1);
-            collision.moveUp(1);
-        } else {
-            // Fix the x location
-            if (end.getX() < collision.getX()) {
-                collision.moveLeft(1);
-            } else if (end.getX() > collision.getX()){
-                collision.moveRight(WorldConstants.WORLD_BLOCK_WIDTH);
-            }
-            
-            // Fix the y location
-            if (end.getY() < collision.getY()) {
-                collision.moveUp(1);
-            } else if (end.getY() > collision.getY()) {
-                collision.moveDown(WorldConstants.WORLD_BLOCK_HEIGHT);
-            }
+        if (start.getX() == collision.getX() && start.getY() == collision.getY()) {
+            collision.setXOffset(0);
+            collision.setYOffset(0);
+            collision.decrementX();
+            collision.decrementY();
+        }
+        
+        // Fix the x location
+        if (collision.getBlockDeltaX(start) > 0) {
+            collision.decrementX();
+        } else if (collision.getBlockDeltaX(start) < 0){
+            collision.moveRawRight(Location.BLOCK_GRANULARITY);
+        }
+        
+        // Fix the y location
+        if (collision.getBlockDeltaY(start) > 0) {
+            collision.decrementY();
+        } else if (collision.getBlockDeltaY(start) < 0) {
+            collision.moveRawDown(Location.BLOCK_GRANULARITY);
         }
         
         return collision;
     }
     
     /**
-     * Returns true if the path between <code>start</code> and <code>end</code>
-     * collides with a block.
+     * Returns the farthest distance before colliding with a block from start
+     * to end.
      * Uses Bresenham's line algorithm.
-     * @param end the starting location (before moving)
-     * @param end2 the ending location (after moving)
+     * @param start the starting location (before moving)
+     * @param end the ending location (after moving)
      * @return modified location
      */
-    public Location collideWithBlock(Location end, Location end2) {
-        Location specialEnd = new Location(end2); // used for sub-pixel checks
-        long x0 = end.getX();
-        long y0 = end.getY();
-        long x1;
-        long y1;
-
-        // Special check for sub-pixels
-        // In order for "jitter" to occur, start and end must be the same block
-        if (end.getX() == end2.getX() && end.getY() == end2.getY()) {
-            
-            if (end2.getXOffset() < 1.0f && end.getXOffset() > end2.getXOffset()) {
-                specialEnd.moveLeft(1);
-            } else if (end2.getXOffset() > (WorldConstants.WORLD_BLOCK_WIDTH-1) && end.getXOffset() < end2.getXOffset()) {
-                specialEnd.moveRight(1);
-            }
-            if (end2.getYOffset() < 1.0f && end.getYOffset() > end2.getYOffset()) {
-                specialEnd.moveUp(1);
-            } else if (end2.getYOffset() > (WorldConstants.WORLD_BLOCK_HEIGHT-1) && end.getYOffset() < end2.getYOffset()) {
-                specialEnd.moveDown(1);
-            }
-        }
-        x1 = specialEnd.getX();
-        y1 = specialEnd.getY();
+    public Location collideWithBlock(Location start, Location end) {
+        BoundLocation specialEnd = new BoundLocation(end); // used for sub-pixel checks
+        long x0 = start.getX();
+        long y0 = start.getY();
+        long x1 = specialEnd.getX();
+        long y1 = specialEnd.getY();
         
-        boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
+        boolean steep = Math.abs(specialEnd.getBlockDeltaY(start)) > Math.abs(specialEnd.getBlockDeltaX(start));
         long tmp;
         if (steep) {
             tmp = x0;
@@ -241,19 +227,19 @@ public class TerrainSession {
             x1 = y1;
             y1 = tmp;
         }
-        long deltax = Math.abs(x1 - x0);
-        long deltay = Math.abs(y1 - y0);
+        long deltax = steep ? Math.abs(specialEnd.getBlockDeltaY(start)) : Math.abs(specialEnd.getBlockDeltaX(start));
+        long deltay = steep ? Math.abs(specialEnd.getBlockDeltaX(start)) : Math.abs(specialEnd.getBlockDeltaY(start));
         long error  = deltax / 2;
         long ystep;
         long y = y0;
-        if (y0 < y1) {
+        if ((steep ? specialEnd.getBlockDeltaX(start) : specialEnd.getBlockDeltaY(start)) >= 0) {
             ystep = 1;
         } else {
             ystep = -1;
         }
         
         long inc;
-        if (x0 < x1) {
+        if ((steep ? specialEnd.getBlockDeltaY(start) : specialEnd.getBlockDeltaX(start)) >= 0) {
             inc = 1;
         } else {
             inc = -1;
@@ -261,30 +247,40 @@ public class TerrainSession {
         // We want to ignore starting position.  Return if we get a solid block
         // TODO:  Should we allow collisions on our current block?
         boolean isLast = false;
-        for (long x=x0; x != x1 || isLast; x+=inc) {
+        for (long x=x0; x != x1 || isLast;) {
             if (steep) {
                 Block b = getBlock(y,x);
                 if (b == null || b.isCollidable()) {
-                    return getMaxLocation(end, end2, new BoundLocation(y,x));
+                    return getMaxLocation(start, end, new BoundLocation(y,x));
                 }
             } else {
                 Block b = getBlock(x,y);
                 if (b == null || b.isCollidable()) {
-                    return getMaxLocation(end, end2, new BoundLocation(x,y));
+                    return getMaxLocation(start, end, new BoundLocation(x,y));
                 }
             }
             error -= deltay;
             if (error < 0) {
                 y += ystep;
+                if (steep) {
+                    y = y < 0 ? WorldConstants.WORLD_WIDTH - y : y;
+                    y %= WorldConstants.WORLD_WIDTH;
+                }
                 error += deltax;
             }
             if (isLast) {
                 break;
             }
-            isLast = x+inc == x1;
+            x += inc;
+            // Correct x like a bounding location would
+            if (!steep) {
+                x = x < 0 ? WorldConstants.WORLD_WIDTH + x : x;
+                x %= WorldConstants.WORLD_WIDTH;
+            }
+            isLast = x == x1;
         }
                 
-        return end2; // no collision
+        return end; // no collision
     }
 
     /**

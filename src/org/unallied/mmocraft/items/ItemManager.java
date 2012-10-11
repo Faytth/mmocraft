@@ -2,7 +2,6 @@ package org.unallied.mmocraft.items;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

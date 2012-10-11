@@ -3,7 +3,6 @@ package org.unallied.mmocraft.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 
 /**

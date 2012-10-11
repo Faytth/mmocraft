@@ -6,8 +6,10 @@ import org.unallied.mmocraft.Direction;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
+import org.unallied.mmocraft.animations.Roll;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
+import org.unallied.mmocraft.constants.ClientConstants;
 
 public class SwordShield extends AnimationState {
     
@@ -49,14 +51,44 @@ public class SwordShield extends AnimationState {
     
     @Override
     public void moveLeft(boolean smash) {
-        player.updateDirection(Direction.LEFT);
-        player.setState(new SwordRoll(player, this));
+        boolean canRoll = true;
+        long lastRollExit = entryTime; // The time that the last roll exited
+        AnimationState index = last;
+        for (int i=0; i < 6 && canRoll; ++i) {
+            if (index != null) {
+                if (index instanceof Roll) {
+                    canRoll = false;
+                } else {
+                    lastRollExit = index.getEntryTime();
+                }
+                index = index.getPreviousState();
+            }
+        }
+        if (canRoll || (System.currentTimeMillis() - lastRollExit) > ClientConstants.ROLL_COOLDOWN) {
+            player.updateDirection(Direction.LEFT);
+            player.setState(new SwordRoll(player, this));
+        }
     }
 
     @Override
     public void moveRight(boolean smash) {
-        player.updateDirection(Direction.RIGHT);
-        player.setState(new SwordRoll(player, this));
+        boolean canRoll = true;
+        long lastRollExit = entryTime; // The time that the last roll exited
+        AnimationState index = last;
+        for (int i=0; i < 6 && canRoll; ++i) {
+            if (index != null) {                
+                if (index instanceof Roll) {
+                    canRoll = false;
+                } else {
+                    lastRollExit = index.getEntryTime();
+                }
+                index = index.getPreviousState();
+            }
+        }
+        if (canRoll || (System.currentTimeMillis() - lastRollExit) > ClientConstants.ROLL_COOLDOWN) {
+            player.updateDirection(Direction.RIGHT);
+            player.setState(new SwordRoll(player, this));
+        }
     }
 
     @Override

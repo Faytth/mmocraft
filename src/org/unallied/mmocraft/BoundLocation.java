@@ -31,34 +31,17 @@ public class BoundLocation extends Location implements Serializable {
     public BoundLocation(long x, long y, float xOffset, float yOffset) {
         super(x, y, xOffset, yOffset);
         
-        // Wrap around if necessary
-        x %= WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH;
-        // Correct for negative
-        if (x < 0) {
-            x = WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH + x;
-        }
+        fixBorders();
     }
 
     public BoundLocation(Location location) {
         super(location);
         
-        // Wrap around if necessary
-        x %= WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH;
-        // Correct for negative
-        if (x < 0) {
-            x = WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH + x;
-        }
+        fixBorders();
     }
 
     public BoundLocation(long x, long y) {
-        super(x, y);
-        
-        // Wrap around if necessary
-        x %= WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH;
-        // Correct for negative
-        if (x < 0) {
-            x = WorldConstants.WORLD_CHUNKS_WIDE * (long)WorldConstants.WORLD_CHUNK_WIDTH + x;
-        }
+        this(x, y, 0, 0);
     }
         
     @Override
@@ -67,23 +50,17 @@ public class BoundLocation extends Location implements Serializable {
      * @param distance number of pixels to move left
      */
     public void moveLeft(float distance) {
-        xOffset -= distance;
-        
-        x += ((int)xOffset) / WorldConstants.WORLD_BLOCK_WIDTH;
-        xOffset %= WorldConstants.WORLD_BLOCK_WIDTH;
-        
-        if (xOffset < 0) {
-            long deltaX = (long) (-xOffset / WorldConstants.WORLD_BLOCK_WIDTH) + 1;
-            x -= deltaX;
-            xOffset += deltaX * WorldConstants.WORLD_BLOCK_WIDTH;
+        if (distance == 0) {
+            return;
         }
         
-        // Wrap around if necessary
-        x %= WorldConstants.WORLD_WIDTH;
-        // Correct for negative
-        if (x < 0) {
-            x = WorldConstants.WORLD_WIDTH + x;
+        if (distance < 0) {
+            moveRight(-distance);
+        } else {
+            x -= distance / WorldConstants.WORLD_BLOCK_WIDTH * BLOCK_GRANULARITY;
         }
+        
+        fixBorders();
     }
     
     @Override
@@ -100,19 +77,129 @@ public class BoundLocation extends Location implements Serializable {
         
         // Technically this is a kludge, but no one really cares
         long delta = this.x - other.x;
-        if (delta < WorldConstants.WORLD_WIDTH / 2 && 
-                delta > -WorldConstants.WORLD_WIDTH / 2) {
+        if (delta < WorldConstants.WORLD_WIDTH / 2 * BLOCK_GRANULARITY && 
+                delta > -WorldConstants.WORLD_WIDTH / 2 * BLOCK_GRANULARITY) {
+            result = delta;
+        } else { // We need to wrap
+            result = delta;
+            result += result < 0 ? WorldConstants.WORLD_WIDTH * BLOCK_GRANULARITY : -WorldConstants.WORLD_WIDTH * BLOCK_GRANULARITY;
+        }
+
+        return result / BLOCK_GRANULARITY * WorldConstants.WORLD_BLOCK_WIDTH;
+    }
+    
+    @Override
+    /**
+     * Retrieves the raw x difference in pixels between two locations.
+     * This difference is (this.x - other.x) (where x is number of pixels).
+     * This distance is appropriately wrapped around as needed.
+     * 
+     * @param other The other location to compare this location to.
+     * @return rawDeltaX
+     */
+    public long getRawDeltaX(Location other) {
+        long result;
+        
+        // Technically this is a kludge, but no one really cares
+        long delta = this.x - other.x;
+        if (delta < WorldConstants.WORLD_WIDTH / 2 * BLOCK_GRANULARITY && 
+                delta > -WorldConstants.WORLD_WIDTH / 2 * BLOCK_GRANULARITY) {
+            result = delta;
+        } else { // We need to wrap
+            result = delta;
+            result += result < 0 ? WorldConstants.WORLD_WIDTH * BLOCK_GRANULARITY : -WorldConstants.WORLD_WIDTH * BLOCK_GRANULARITY;
+        }
+
+        return result;
+    }
+    
+    /**
+     * Retrieves the x difference in blocks between the two locations.
+     * @param other The other location to compare this location to.
+     * @return deltaX
+     */
+    public long getBlockDeltaX(Location other) {
+        long result;
+        
+        long delta = this.getX() - other.getX();
+        if (delta < WorldConstants.WORLD_WIDTH / 2 && delta > -WorldConstants.WORLD_WIDTH / 2) {
             result = delta;
         } else { // We need to wrap
             result = delta;
             result += result < 0 ? WorldConstants.WORLD_WIDTH : -WorldConstants.WORLD_WIDTH;
         }
-        result *= WorldConstants.WORLD_BLOCK_WIDTH;
-        result += this.xOffset - other.xOffset;
         
         return result;
     }
     
+    @Override
+    /**
+     * Moves to the left a raw number of location units.
+     * @param distance The distance to go to the left
+     */
+    public void moveRawLeft(long distance) {
+        x -= distance;
+        fixBorders();
+    }
+    
+    @Override
+    /**
+     * Moves to the right a raw number of location units.
+     * @param distance The distance to go to the right
+     */
+    public void moveRawRight(long distance) {
+        x += distance;
+        fixBorders();
+    }
+    
+    @Override
+    /**
+     * Moves down a raw number of location units.
+     * @param distance The distance to go down.
+     */
+    public void moveRawDown(long distance) {
+        y += distance;
+        fixBorders();
+    }
+    
+    @Override
+    /**
+     * Moves up a raw number of location units.
+     * @param distance The distance to go up.
+     */
+    public void moveRawUp(long distance) {
+        y -= distance;
+        fixBorders();
+    }
+    
+    @Override
+    /**
+     * Fixes all x and y coordinates of a BoundLocation to ensure that they
+     * remain within the bounds.
+     */
+    public void fixBorders() {
+        // Wrap around if necessary
+        x %= WorldConstants.WORLD_WIDTH * BLOCK_GRANULARITY;
+        // Correct for negative
+        while (x < 0) {
+            x += WorldConstants.WORLD_WIDTH * BLOCK_GRANULARITY;
+        }
+        
+        // If we're < min height, then set us to min height
+        if (y < 0) {
+            y = 0;
+        }
+        
+        // If we're > max height, then set to max height
+        long maxHeight = WorldConstants.WORLD_CHUNKS_TALL * (long)WorldConstants.WORLD_CHUNK_HEIGHT * BLOCK_GRANULARITY - 1;
+        if (y > maxHeight) {
+            y = maxHeight;
+        }
+        // Correct for negative
+        if (y < 0) {
+            y = maxHeight + 1 + y;
+        }
+    }
     
     @Override
     /**
@@ -120,105 +207,67 @@ public class BoundLocation extends Location implements Serializable {
      * @param distance number of pixels to move right
      */
     public void moveRight(float distance) {
-        xOffset += distance;
-        
-        x += ((int)xOffset) / WorldConstants.WORLD_BLOCK_WIDTH;
-        xOffset %= WorldConstants.WORLD_BLOCK_WIDTH;
-        
-        if (xOffset < 0) {
-            long deltaX = (long) (-xOffset / WorldConstants.WORLD_BLOCK_WIDTH) + 1;
-            x -= deltaX;
-            xOffset += deltaX * WorldConstants.WORLD_BLOCK_WIDTH;
+        if (distance == 0) {
+            return;
         }
         
-        // Wrap around if necessary
-        x %= WorldConstants.WORLD_WIDTH;
-        
-        // Correct for negative
-        if (x < 0) {
-            x = WorldConstants.WORLD_WIDTH + x;
-        }
-     }
-    
-    @Override
-    /**
-     * Move up some number of pixels
-     * @param distance number of pixels to move up
-     */
-    public void moveUp(float distance) {
-        yOffset -= distance;
-        
-        y += ((int)yOffset) / WorldConstants.WORLD_BLOCK_HEIGHT;
-        yOffset %= WorldConstants.WORLD_BLOCK_HEIGHT;
-        
-        if (yOffset < 0) {
-            long deltaY = (long) (-yOffset / WorldConstants.WORLD_BLOCK_HEIGHT) + 1;
-            y -= deltaY;
-            yOffset += deltaY * WorldConstants.WORLD_BLOCK_HEIGHT;
+        if (distance < 0) {
+            moveLeft(-distance);
+        } else {
+            x += distance / WorldConstants.WORLD_BLOCK_WIDTH * BLOCK_GRANULARITY;
         }
         
-        // If we're < min height, then set us to min height
-        if (y < 0) {
-            y = 0;
-            yOffset = 0;
-        }
-        
-        // If we're > max height, then set to max height
-        long maxHeight = WorldConstants.WORLD_CHUNKS_TALL * (long)WorldConstants.WORLD_CHUNK_HEIGHT;
-        if (y > maxHeight || (y == maxHeight && yOffset > 0)) {
-            y = maxHeight;
-            yOffset = 0;
-        }
-        // Correct for negative
-        if (y < 0) {
-            y = WorldConstants.WORLD_CHUNKS_TALL * (long)WorldConstants.WORLD_CHUNK_HEIGHT + y;
-        }
-    }
-    
-    @Override
-    /**
-     * Move up some number of pixels
-     * @param distance number of pixels to move up
-     */
-    public void moveDown(float distance) {
-        yOffset += distance;
-        
-        y += ((int)yOffset) / WorldConstants.WORLD_BLOCK_HEIGHT;
-        yOffset %= WorldConstants.WORLD_BLOCK_HEIGHT;
-        
-        if (yOffset < 0) {
-            long deltaY = (long) (-yOffset / WorldConstants.WORLD_BLOCK_HEIGHT) + 1;
-            y -= deltaY;
-            yOffset += deltaY * WorldConstants.WORLD_BLOCK_HEIGHT;
-        }
-        
-        // If we're < min height, then set us to min height
-        if (y < 0) {
-            y = 0;
-            yOffset = 0;
-        }
-        
-        // If we're > max height, then set to max height
-        long maxHeight = WorldConstants.WORLD_CHUNKS_TALL * (long)WorldConstants.WORLD_CHUNK_HEIGHT;
-        if (y > maxHeight || (y == maxHeight && yOffset > 0)) {
-            y = maxHeight;
-            yOffset = 0;
-        }
-        // Correct for negative
-        if (y < 0) {
-            y = WorldConstants.WORLD_CHUNKS_TALL * (long)WorldConstants.WORLD_CHUNK_HEIGHT + y;
-        }
+        fixBorders();
     }
     
     public static BoundLocation getLocation(SeekableLittleEndianAccessor slea) {
-        if (slea == null || slea.available() < 24) {
+        // Guard
+        if (slea == null || slea.available() < 16) {
             return null;
         }
         
-        long x = slea.readLong();
-        long y = slea.readLong();
-        float xOffset = slea.readFloat();
-        float yOffset = slea.readFloat();
-        return new BoundLocation(x, y, xOffset, yOffset);
+        BoundLocation result = new BoundLocation(0, 0);
+        result.x = slea.readLong();
+        result.y = slea.readLong();
+        result.fixBorders();
+        return result;
+    }
+    
+    @Override
+    /**
+     * Moves x by the smallest possible amount to the right.
+     */
+    public void incrementX() {
+        ++x;
+        fixBorders();
+    }
+    
+    @Override
+    /**
+     * Moves x by the smallest possible amount to the left.
+     */
+    public void decrementX() {
+        --x;
+        fixBorders();
+    }
+    
+    @Override
+    /**
+     * Sets the raw x value.  Use this when you need subpixel-perfect changes.
+     * @param x The raw x value
+     */
+    public void setRawX(long x) {
+        this.x = x;
+        fixBorders();
+    }
+    
+    @Override
+    /**
+     * Sets the raw y value.  Use this when you need subpixel-perfect changes.
+     * @param y The raw y value
+     */
+    public void setRawY(long y) {
+        this.y = y;
+        fixBorders();
     }
 }

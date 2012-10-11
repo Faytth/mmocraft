@@ -194,4 +194,12 @@ public class TerrainChunk {
             needsRefresh = true;
         }
     }
+    
+    /**
+     * Retrieves the chunk ID for this chunk.
+     * @return chunkId
+     */
+    public long getId() {
+        return chunkId;
+    }
 }

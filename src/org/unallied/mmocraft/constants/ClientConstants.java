@@ -38,13 +38,22 @@ public abstract class ClientConstants {
      * movement key is pressed (in milliseconds) in which a roll should be 
      * performed.
      */
-    public static final long SHIELD_ROLL_DELAY = 50;
+    public static final long SHIELD_ROLL_DELAY = 5000;
     
     /**
      * The maximum stack size of an item.
      */
     public static final long MAX_ITEM_STACK = Long.MAX_VALUE;
     
-    /** The delay in milliseconds between movement and when the player moves.  Used for smash effects. */
-    public static final int MOVEMENT_DELAY = 40;
+    /** The number of milliseconds that can elapse in which a smash effect can occur. */
+    public static final int SMASH_DELAY = 150;
+    
+    /** 
+     * The time in milliseconds that must pass before a roll can be started again.
+     * This value is only checked in the shield animation states, which means that
+     * it's possible to cancel out of the cooldown by performing any action between
+     * consecutive rolls and shield states.  (A good example would be roll, idle, 
+     * shield, roll).
+     */
+    public static final long ROLL_COOLDOWN = 330;
 }
