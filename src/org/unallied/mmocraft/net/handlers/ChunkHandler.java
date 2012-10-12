@@ -31,33 +31,8 @@ public class ChunkHandler extends AbstractPacketHandler {
             for (int j=0; j < y; ++j) {
                 BlockType type = BlockType.fromValue(blocks[i*y+j]);
                 
-                // TODO:  Get rid of this stupid switch statement and use a map
-                switch (type) {
-                case AIR:
-                    chunkBlocks[i][j] = new AirBlock();
-                    break;
-                case DIRT:
-                    chunkBlocks[i][j] = new DirtBlock();
-                    break;
-                case STONE:
-                    chunkBlocks[i][j] = new StoneBlock();
-                    break;
-                case IRON:
-                    chunkBlocks[i][j] = new IronBlock();
-                    break;
-                case CLAY:
-                    chunkBlocks[i][j] = new ClayBlock();
-                    break;
-                case GRAVEL:
-                    chunkBlocks[i][j] = new GravelBlock();
-                    break;
-                case SANDSTONE:
-                    chunkBlocks[i][j] = new SandstoneBlock();
-                    break;
-                case SAND:
-                    chunkBlocks[i][j] = new SandBlock();
-                    break;
-                default:
+                chunkBlocks[i][j] = type.getBlock();
+                if (chunkBlocks[i][j] == null) {
                     chunkBlocks[i][j] = new AirBlock();
                 }
             }

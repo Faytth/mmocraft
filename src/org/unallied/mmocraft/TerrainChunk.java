@@ -119,13 +119,30 @@ public class TerrainChunk {
         if (image != null && blocks != null) {
             try {
                 Graphics g = image.getGraphics();
-                g.drawImage(ImageHandler.getInstance().getImage(ImageID.BACKGROUND_SKY.toString()), 0, 0);
+                // Render background
+                if (getY() < 19) {
+                    g.drawImage(ImageHandler.getInstance().getImage(ImageID.BACKGROUND_SKY.toString()), 0, 0);
+                } else if (getY() == 19) {
+                    g.drawImage(ImageHandler.getInstance().getImage(ImageID.BACKGROUND_SKY_DIRT_INTERSECT.toString()), 0, 0);
+                } else {
+                    g.drawImage(ImageHandler.getInstance().getImage(ImageID.BACKGROUND_DIRT.toString()), 0, 0);
+                }
+                // Render blocks
                 for (int xPos=0; xPos < WorldConstants.WORLD_CHUNK_WIDTH; ++xPos) {
                     for (int yPos=0; yPos < WorldConstants.WORLD_CHUNK_HEIGHT; ++yPos) {
                         Block b = blocks[xPos][yPos];
+                        Block aboveBlock = Game.getInstance().getClient().getTerrainSession().getBlock(
+                                xPos + getX() * WorldConstants.WORLD_CHUNK_WIDTH, 
+                                yPos + getY() * WorldConstants.WORLD_CHUNK_HEIGHT - 1);
                         if (b != null) {
-                            b.render(g, xPos * WorldConstants.WORLD_BLOCK_WIDTH, 
-                                    yPos * WorldConstants.WORLD_BLOCK_HEIGHT);
+                            if (getY() <= 19 && (b instanceof DirtBlock) && aboveBlock != null && !aboveBlock.isCollidable()) {
+                                // We should render grass instead of the dirt
+                                // TODO:  Instead of using this kludge, implement REAL grass blocks.
+                                new GrassBlock().render(g, xPos * WorldConstants.WORLD_BLOCK_WIDTH, yPos * WorldConstants.WORLD_BLOCK_HEIGHT);
+                            } else {
+                                b.render(g, xPos * WorldConstants.WORLD_BLOCK_WIDTH, 
+                                        yPos * WorldConstants.WORLD_BLOCK_HEIGHT);
+                            }
                         }
                     }
                 }
@@ -201,5 +218,23 @@ public class TerrainChunk {
      */
     public long getId() {
         return chunkId;
+    }
+    
+    /**
+     * Retrieves the x coordinate of this chunk ID.  A chunk has a width of 1.
+     * Coordinates start at the top left from (0,0).
+     * @return x
+     */
+    public long getX() {
+        return chunkId & 0x00000000FFFFFFFFL;
+    }
+    
+    /**
+     * Retrieves the y coordinate of this chunk ID.  A chunk has a height of 1.
+     * Coordinates start from the top-left at (0,0).
+     * @return y
+     */
+    public long getY() {
+        return (chunkId >> 32) & 0x00000000FFFFFFFFL;
     }
 }

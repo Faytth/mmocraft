@@ -195,7 +195,7 @@ public class MMOClient {
             cameraLocation = camera.getLocation();
             
             // Render the background
-            ImageHandler.getInstance().draw(ImageID.BACKGROUND_SKY.toString(), 0, 0);
+            //ImageHandler.getInstance().draw(ImageID.BACKGROUND_SKY.toString(), 0, 0);
             
             if (cameraLocation != null) {
                 // Render the "back" blocks of the world

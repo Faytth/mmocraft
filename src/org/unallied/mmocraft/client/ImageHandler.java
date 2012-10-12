@@ -67,10 +67,13 @@ public class ImageHandler {
 
             // Backgrounds
             images.put( ImageID.BACKGROUND_SKY.toString(), new Image("resources/images/backgrounds/sky.png") );
+            images.put( ImageID.BACKGROUND_SKY_DIRT_INTERSECT.toString(), new Image("resources/images/backgrounds/sky_dirt_intersect.png") );
+            images.put( ImageID.BACKGROUND_DIRT.toString(), new Image("resources/images/backgrounds/dirt.png") );
             
             // Blocks
             images.put( ImageID.BLOCK_AIR.toString(),       new Image("resources/images/blocks/air.png"));
             images.put( ImageID.BLOCK_DIRT.toString(),      new Image("resources/images/blocks/dirt.png"));
+            images.put( ImageID.BLOCK_GRASS.toString(),     new Image("resources/images/blocks/grass.png"));
             images.put( ImageID.BLOCK_STONE.toString(),     new Image("resources/images/blocks/stone.png"));
             images.put( ImageID.BLOCK_IRON.toString(),      new Image("resources/images/blocks/iron.png"));
             images.put( ImageID.BLOCK_CLAY.toString(),      new Image("resources/images/blocks/clay.png"));

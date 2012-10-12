@@ -118,7 +118,6 @@ public class TerrainSession {
         yBase *= WorldConstants.WORLD_BLOCK_HEIGHT;
         xBase += location.getXOffset();
         yBase += location.getYOffset();
-
         
         for (int i=0; i < chunksAcross; ++i) { // columns
             for (int j=0; j < chunksHigh; ++j) { // rows

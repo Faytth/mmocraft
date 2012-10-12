@@ -22,7 +22,8 @@ public enum BlockType {
     CLAY(0x05, new ClayBlock()),
     GRAVEL(0x06, new GravelBlock()),
     SANDSTONE(0x07, new SandstoneBlock()),
-    SAND(0x08, new SandBlock());
+    SAND(0x08, new SandBlock()),
+    GRASS(0x09, new GrassBlock());
     int value = 0;
     Block block;
     

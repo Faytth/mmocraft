@@ -25,13 +25,13 @@ public class SwordRoll extends Roll {
     /**
      * The amount of time (in milliseconds) that the player rolls for.
      */
-    private static final transient int MAX_ROLL_TIME = 380;
+    private static final transient int MAX_ROLL_TIME = 200;
     
     /** The start of invincibility in milliseconds. */
-    private static final transient int MIN_INVINCIBLE_TIME = 50;
+    private static final transient int MIN_INVINCIBLE_TIME = 40;
     
     /** The end of invincibility in milliseconds. */
-    private static final transient int MAX_INVINCIBLE_TIME = 250;
+    private static final transient int MAX_INVINCIBLE_TIME = 210;
     
     /**
      * The amount of time (in milliseconds) that the player has been rolling.
@@ -162,5 +162,19 @@ public class SwordRoll extends Roll {
     @Override
     public boolean isInvincible() {
         return rollTime >= MIN_INVINCIBLE_TIME && rollTime <= MAX_INVINCIBLE_TIME;
+    }
+    
+    @Override
+    /**
+     * Renders the animation to the screen
+     * @param x The x location from the left side of the screen to draw at
+     * @param y The y location from the top of the screen to draw at
+     */
+    public void render(float x, float y, boolean flipped) {
+        if (animation != null) {
+            animation.getCurrentFrame().getFlippedCopy(flipped, false).draw(
+                    flipped ? x - (animation.getWidth()-horizontalOffset-player.getWidth()) : x - horizontalOffset,
+                    y - verticalOffset);
+        }
     }
 }
