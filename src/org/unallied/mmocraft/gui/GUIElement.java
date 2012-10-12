@@ -225,7 +225,7 @@ public abstract class GUIElement implements InputListener {
         float realX = getAbsoluteWidth();
         float realY = getAbsoluteHeight();
 
-        return (x >= realX && x <= realX + width && y >= realY && y <= realY + height);
+        return (x >= realX && x <= realX + getWidth() && y >= realY && y <= realY + getHeight());
     }
     
     /**
@@ -383,9 +383,14 @@ public abstract class GUIElement implements InputListener {
     
     /**
      * Returns whether the GUI element is being shown (rendered).
+     * This also checks its parent.
      * @return shown: true if being rendered, else false
      */
     public boolean isShown() {
+        if (parent != null) {
+            return !hidden && parent.isShown();
+        }
+        
     	return !hidden;
     }
 }

@@ -35,10 +35,15 @@ public class GUIUtility {
     }
     
     /**
-     * Returns the active GUI element
+     * Returns the active GUI element.
      * @return the active GUI element or null if none
      */
     public GUIElement getActiveElement() {
+        // Guard against broken input
+        if (activeElement != null && !activeElement.isShown()) {
+            activeElement = null;
+        }
+        
         return activeElement;
     }
     

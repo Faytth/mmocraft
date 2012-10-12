@@ -241,22 +241,28 @@ public class Player extends Living implements Serializable {
             location.decrementY();
         }*/
     }
+        
+    /**
+     * Attempts to move left if the animation allows it.
+     * @param delta The time in milliseconds since the last update
+     */
+    public void tryMoveLeft(int delta) {
+        current.moveLeft(movementSpeed > 0.2f); // any slower movement than this means walk
+        if (current.canMoveLeft()) {
+            velocity.setX(-movementSpeed);
+            moveHorizontal(delta);
+            velocity.setX(0);
+        }
+    }
     
     /**
-     * Moves character to the left.  Distance is determined by:
+     * Moves character horizontally (left / right).  Distance is determined by:
      * (deltaTime) * (velocity.x), where deltaTime is the difference in time
-     * in milliseconds between the last and current input poll (typically a single frame)
-     * TODO:  This needs to be refactored along with moveRight.
+     * between the last and current input poll (typically a single frame)
      * 
      * @param delta The time in milliseconds since the last update
      */
-    public void moveLeft(int delta) {
-        // Guard
-        if (velocity.getX() >= 0) {
-            moveRight(delta);
-            return;
-        }
-
+    public void moveHorizontal(int delta) {
         // TODO:  Break this into several steps.  We must pass in a Location for each pixel.
         //        We pass in the modified location to the next Location, and "daisy chain"
         //        them all together.  Our end result is the farthest we can move.
@@ -265,7 +271,7 @@ public class Player extends Living implements Serializable {
         
         // Make sure player can move left
         RawPoint distance = new RawPoint();
-        distance.setLocation((long) (-velocity.getX() * delta * -1.0 * Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_WIDTH), 0);
+        distance.setLocation((long) (velocity.getX() * delta * Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_WIDTH), 0);
         RawPoint startingDistance = new RawPoint(distance.getX(), distance.getY());
         // At this point, end is where we are trying to move to
                     
@@ -318,142 +324,16 @@ public class Player extends Living implements Serializable {
                 }
                 
                 // If we were able to move, then keep it.  Otherwise use the old distance
-                if (newDistance.getX() < distance.getX()) {
-                    distance = newDistance;
-                    location.moveRawUp(Location.BLOCK_GRANULARITY);
-                }
-            } else { // air
-                /*
-                 *  We want to see if we can move down exactly one block without colliding.
-                 *  If we can, then we want to move a little bit more and see if we collide.
-                 *  If we do, then we know we can move down one block.
-                 */
-                BoundLocation newLocation = new BoundLocation(location);
-                newLocation.moveRawRight(distance.getX());
-                newLocation.moveRawDown(distance.getY());
-                RawPoint newDistance = new RawPoint(0, Location.BLOCK_GRANULARITY + 1);
-                RawPoint startingNewDistance = new RawPoint(newDistance.getX(), newDistance.getY());
-                for (RawPoint p : hitbox) {
-                    // our location should be the top-left corner.  Fix offsets as needed for start / end
-                    Location start = new BoundLocation(newLocation);
-                    start.moveRawRight(p.getX());
-                    start.moveRawDown(p.getY());
-                    Location end = new BoundLocation(start);
-                    end.moveRawRight(newDistance.getX());
-                    end.moveRawDown(newDistance.getY());
-                    
-                    // Get our new location
-                    Location newEnd = collide(start, end, fallSpeed);
-                    
-                    // We now need to fix our distance based on our new end
-                    newDistance.setLocation(newEnd.getRawDeltaX(start), newEnd.getRawDeltaY(start));
-                }
-                if (!startingNewDistance.equals(newDistance)) { // if there was a collision
-                    // We can move down
-                    distance.setLocation(distance.getX()+newDistance.getX(),
-                            distance.getY()+newDistance.getY());
-                }
-            }
-        }
-        
-        // Our distance is now the farthest we can travel
-        location.moveRawRight(distance.getX());
-        location.moveRawDown(distance.getY());
-    }
-    
-    /**
-     * Attempts to move left if the animation allows it.
-     * @param delta The time in milliseconds since the last update
-     */
-    public void tryMoveLeft(int delta) {
-        current.moveLeft(movementSpeed > 0.2f); // any slower movement than this means walk
-        if (current.canMoveLeft()) {
-            velocity.setX(-movementSpeed);
-            moveLeft(delta);
-            velocity.setX(0);
-        }
-    }
-    
-    /**
-     * Moves character to the right.  Distance is determined by:
-     * (deltaTime) * (velocity.x), where deltaTime is the difference in time
-     * between the last and current input poll (typically a single frame)
-     * TODO:  This needs to be refactored along with moveLeft.
-     * 
-     * @param delta The time in milliseconds since the last update
-     */
-    public void moveRight(int delta) {
-        // Guard
-        if (velocity.getX() < 0) {
-            moveLeft(delta);
-            return;
-        }
-        
-        // TODO:  Break this into several steps.  We must pass in a Location for each pixel.
-        //        We pass in the modified location to the next Location, and "daisy chain"
-        //        them all together.  Our end result is the farthest we can move.
-        
-        // Get new end location
-        
-        // Make sure player can move left
-        RawPoint distance = new RawPoint(); // distance contains the distance that all points are supposed to move
-        distance.setLocation((long) (velocity.getX() * delta / WorldConstants.WORLD_BLOCK_WIDTH * Location.BLOCK_GRANULARITY), 0);
-        RawPoint startingDistance = new RawPoint(distance.getX(), distance.getY());
-        
-        // At this point, end is where we are trying to move to
-        
-        // Iterate over all points in our hit box, and fix our end location as needed.
-        for (RawPoint p : hitbox) {
-            // our location should be the top-left corner.  Fix offsets as needed for start / end
-            Location start = new BoundLocation(location);
-            start.moveRawRight(p.getX());
-            start.moveRawDown(p.getY());
-            Location end = new BoundLocation(start);
-            end.moveRawRight(distance.getX());
-            end.moveRawDown(distance.getY());
-            
-            // Get our new location
-            Location newEnd = collide(start, end, fallSpeed);
-            
-            // We now need to fix our distance based on our new end
-            distance.setLocation(newEnd.getRawDeltaX(start), newEnd.getRawDeltaY(start));
-        }
-        
-        if (!current.isInAir()) {
-            // At this point, distance is the farthest to the right we can move
-            if (!distance.equals(startingDistance)) { // We must have collided with the ground
-                /*
-                 *  Try to move up by a block and see if we can go any farther.
-                 *  If we can, then we want to use the new distance
-                 */
-                Location newLocation = new BoundLocation(location);
-                newLocation.moveRawRight(distance.getX());
-                newLocation.moveRawDown(distance.getY());
-                newLocation.moveRawUp(Location.BLOCK_GRANULARITY);
-                RawPoint newDistance = new RawPoint(startingDistance.getX()-distance.getX(),
-                        startingDistance.getY()-distance.getY()); // remaining distance to travel
-                
-                // Cycle through all points to see if we can go right now
-                for (RawPoint p : hitbox) {
-                    // our location should be the top-left corner.  Fix offsets as needed for start / end
-                    Location start = new BoundLocation(newLocation);
-                    start.moveRawRight(p.getX());
-                    start.moveRawDown(p.getY());
-                    Location end = new BoundLocation(start);
-                    end.moveRawRight(newDistance.getX());
-                    end.moveRawDown(newDistance.getY());
-                    
-                    // Get our new location
-                    Location newEnd = collide(start, end, fallSpeed);
-                    
-                    // We now need to fix our distance based on our new end
-                    newDistance.setLocation(newEnd.getRawDeltaX(start), newEnd.getRawDeltaY(start));
-                }
-                
-                // If we were able to move, then keep it.  Otherwise use the old distance
-                if (newDistance.getX() > distance.getX()) {
-                    distance = newDistance;
-                    location.moveRawUp(Location.BLOCK_GRANULARITY);
+                if (velocity.getX() < 0) {
+                    if (newDistance.getX() < distance.getX()) {
+                        distance = newDistance;
+                        location.moveRawUp(Location.BLOCK_GRANULARITY);
+                    }
+                } else {
+                    if (newDistance.getX() > distance.getX()) {
+                        distance = newDistance;
+                        location.moveRawUp(Location.BLOCK_GRANULARITY);
+                    }
                 }
             } else { // air
                 /*
@@ -502,7 +382,7 @@ public class Player extends Living implements Serializable {
         current.moveRight(movementSpeed > 0.2f); // any slower movement than this means walk
         if (current.canMoveRight()) {
             velocity.setX(movementSpeed);
-            moveRight(delta);
+            moveHorizontal(delta);
             velocity.setX(0);
         }
     }

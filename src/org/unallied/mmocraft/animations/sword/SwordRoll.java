@@ -81,10 +81,10 @@ public class SwordRoll extends Roll {
         }
         switch (player.getDirection()) {
         case LEFT:
-            player.moveLeft((int) (delta));
+            player.moveHorizontal((int) (delta));
             break;
         case RIGHT:
-            player.moveRight((int) (delta));
+            player.moveHorizontal((int) (delta));
             break;
         }
         

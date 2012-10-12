@@ -17,13 +17,13 @@ public abstract class WorldConstants {
     public static final int WORLD_CHUNK_HEIGHT = 64;
     
     /**
-     *  The height (in blocks) of a block "region."  Regions contain names,
+     *  The width (in blocks) of a block "region."  Regions contain names,
      *  weather effects, terrain style, unique enemies, and so on.
      */
     public static final long WORLD_REGION_WIDTH = 20 * WORLD_CHUNK_WIDTH;
     
     /** 
-     * Width (in blocks) of a block "region"
+     * Height (in blocks) of a block "region"
      */
     public static final long WORLD_REGION_HEIGHT = 100 * WORLD_CHUNK_HEIGHT;
     
@@ -31,7 +31,7 @@ public abstract class WorldConstants {
      *  Width of the game world in blocks.  Use 250 for production for a
      *  world size of about 2 GB.
      */
-    public static final long WORLD_WIDTH = 50 * WORLD_REGION_WIDTH;
+    public static final long WORLD_WIDTH = 65 * WORLD_REGION_WIDTH;
     
     /**
      *  Height of the game world in blocks.  Leave this at 1 for now.

@@ -86,7 +86,7 @@ public class Button extends Control {
         try {
             if (image != null) {
                 Graphics g = image.getGraphics();
-                            
+                g.clear();
                 // Draw background
                 if( activated ) {
                     g.drawImage(handler.getImage(background_selected), 0, 0);

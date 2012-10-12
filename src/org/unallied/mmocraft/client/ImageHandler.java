@@ -58,6 +58,9 @@ public class ImageHandler {
             images.put( ImageID.BUTTON_BACK_NORMAL.toString(), new Image("resources/images/button_back_normal.png"));
             images.put( ImageID.BUTTON_BACK_HIGHLIGHTED.toString(), new Image("resources/images/button_back_highlighted.png"));
             images.put( ImageID.BUTTON_BACK_SELECTED.toString(), new Image("resources/images/button_back_selected.png"));
+            images.put( ImageID.BUTTON_CLOSE_NORMAL.toString(), new Image("resources/images/button_close_normal.png"));
+            images.put( ImageID.BUTTON_CLOSE_HIGHLIGHTED.toString(), new Image("resources/images/button_close_highlighted.png"));
+            images.put( ImageID.BUTTON_CLOSE_SELECTED.toString(), new Image("resources/images/button_close_selected.png"));
             images.put( ImageID.BUTTON_LOGIN_NORMAL.toString(), new Image("resources/images/button_login_normal.png"));
             images.put( ImageID.BUTTON_LOGIN_HIGHLIGHTED.toString(), new Image("resources/images/button_login_highlighted.png"));
             images.put( ImageID.BUTTON_LOGIN_SELECTED.toString(), new Image("resources/images/button_login_selected.png"));

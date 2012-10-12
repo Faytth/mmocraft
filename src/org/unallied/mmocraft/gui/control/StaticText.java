@@ -26,11 +26,13 @@ public class StaticText extends GUIElement {
     
     /**
      * Creates a static text control, which displays a text message.
+     * @param parent The parent control to this.  (Usually it's "this")
+     * @param intf The event interface to use for event callbacks.
+     * @param label The message to display
      * @param x The x offset for this control (from the parent GUI element)
      * @param y The y offset for this control (from the parent GUI element)
      * @param width The width for this control
      * @param height The height for this control
-     * @param label The message to display
      * @param fontID The font ID of the font to use
      */
     public StaticText(final GUIElement parent, EventIntf intf,GameContainer container
@@ -44,11 +46,13 @@ public class StaticText extends GUIElement {
     
     /**
      * Creates a static text control, which displays a text message.
+     * @param parent The parent control to this.  (Usually it's "this")
+     * @param intf The event interface to use for event callbacks.
+     * @param label The message to display
      * @param x The x offset for this control (from the parent GUI element)
      * @param y The y offset for this control (from the parent GUI element)
      * @param width The width for this control
      * @param height The height for this control
-     * @param label The message to display
      * @param fontID The font ID of the font to use
      * @param color The color to make the text
      */

@@ -16,6 +16,7 @@ import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.gui.frame.InventoryFrame;
+import org.unallied.mmocraft.gui.frame.MiniMapFrame;
 import org.unallied.mmocraft.net.PacketCreator;
 
 public class IngameState extends AbstractState {
@@ -29,6 +30,9 @@ public class IngameState extends AbstractState {
     
     /** The inventory frame that contains all of a player's items. */
     private InventoryFrame inventoryFrame = null;
+    
+    /** A frame containing the player's location information. */
+    private MiniMapFrame miniMapFrame = null;
     
     public IngameState() {
         super(null, null, null, 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
@@ -235,6 +239,16 @@ public class IngameState extends AbstractState {
             this.elements.add(inventoryFrame);
             this.elements.add(chatFrame);
         }
+        
+        miniMapFrame = new MiniMapFrame(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {}
+        }, container, Game.SCREEN_WIDTH - 180, 10, -1, -1);
+        // Controls
+        this.elements.add(inventoryFrame);
+        this.elements.add(chatFrame);
+        this.elements.add(miniMapFrame);
+
         // Start off with the game focused
         GUIUtility.getInstance().setActiveElement(null);
         container.getInput().isKeyPressed(Input.KEY_ENTER);

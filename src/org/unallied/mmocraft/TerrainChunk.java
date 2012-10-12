@@ -120,6 +120,7 @@ public class TerrainChunk {
             try {
                 Graphics g = image.getGraphics();
                 // Render background
+                // 19 is a magic number which is the "average" chunk in which land appears.
                 if (getY() < 19) {
                     g.drawImage(ImageHandler.getInstance().getImage(ImageID.BACKGROUND_SKY.toString()), 0, 0);
                 } else if (getY() == 19) {
@@ -135,7 +136,8 @@ public class TerrainChunk {
                                 xPos + getX() * WorldConstants.WORLD_CHUNK_WIDTH, 
                                 yPos + getY() * WorldConstants.WORLD_CHUNK_HEIGHT - 1);
                         if (b != null) {
-                            if (getY() <= 19 && (b instanceof DirtBlock) && aboveBlock != null && !aboveBlock.isCollidable()) {
+                            // These magic numbers are determined experimentally.  It might be a good idea to make them constants.
+                            if ((getY() < 19 || (getY() == 19 && yPos < 47)) && (b instanceof DirtBlock) && aboveBlock != null && !aboveBlock.isCollidable()) {
                                 // We should render grass instead of the dirt
                                 // TODO:  Instead of using this kludge, implement REAL grass blocks.
                                 new GrassBlock().render(g, xPos * WorldConstants.WORLD_BLOCK_WIDTH, yPos * WorldConstants.WORLD_BLOCK_HEIGHT);

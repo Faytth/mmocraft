@@ -18,8 +18,14 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
+import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.GUIUtility;
+import org.unallied.mmocraft.gui.StringNode;
+import org.unallied.mmocraft.gui.control.Button;
+import org.unallied.mmocraft.gui.control.StaticText;
 import org.unallied.mmocraft.gui.tooltips.ItemToolTip;
+import org.unallied.mmocraft.gui.tooltips.ToolTip;
 import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.items.Item;
 import org.unallied.mmocraft.items.ItemData;
@@ -99,6 +105,16 @@ public class InventoryFrame extends Frame {
 	private int startingIndex = 0;
 	private int maxIndex = 0;
 	
+	/** 
+	 * A static text to store the string: "104k", where 104k is the
+	 * amount of gold that the player has.  This appears in the top right
+	 * corner of the inventory frame.
+	 */
+	private StaticText moneyValueStaticText;
+	
+	/** The button to close this frame.  Appears in the top-right corner. */
+	private Button closeButton;
+	
     /**
      * Initializes a LoginFrame with its elements (e.g. Username, Password fields)
      * @param x The x offset for this frame (from the parent GUI element)
@@ -110,6 +126,36 @@ public class InventoryFrame extends Frame {
 
         this.width  = 280;
         this.height = 400;
+        
+        long playerGold = getPlayerGold();
+        
+        closeButton = new Button(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case BUTTON:
+                    hide();
+                    GUIUtility.getInstance().setActiveElement(null);
+                }
+            }
+        }, container, "", this.width - 18, 2, 16, 16, ImageID.BUTTON_CLOSE_NORMAL.toString(),
+                ImageID.BUTTON_CLOSE_HIGHLIGHTED.toString(),
+                ImageID.BUTTON_CLOSE_SELECTED.toString(), 0);
+        
+        moneyValueStaticText = new StaticText(this, null, container, 
+                "" + playerGold, 145, 3, 100, 14, 
+                FontID.STATIC_TEXT_MEDIUM, Item.getQuantityColor(playerGold));
+        ToolTip moneyTip = new ToolTip();
+        moneyTip.addNode(new StringNode(String.format("%,d", playerGold), 
+                Item.getQuantityColor(playerGold), 
+                FontHandler.getInstance().getFont(FontID.STATIC_TEXT_MEDIUM.toString()), 
+                moneyTip.getMaxWidth()));
+        moneyValueStaticText.setToolTip(moneyTip);
+        
+        elements.add(closeButton);
+        elements.add(new StaticText(this, null, container, "Gold:", 100, 3, -1, -1,
+                FontID.STATIC_TEXT_MEDIUM, new Color(186, 147, 18)));
+        elements.add(moneyValueStaticText);
     }
     
     @Override
@@ -118,8 +164,35 @@ public class InventoryFrame extends Frame {
         for( GUIElement element : elements ) {
             element.update(container);
         }
+        
+        long playerGold = getPlayerGold();
+        moneyValueStaticText.setLabel("" + Item.getShortQuantityName(playerGold));
+        moneyValueStaticText.setColor(Item.getQuantityColor(playerGold));
+        ToolTip moneyTip = new ToolTip();
+        moneyTip.addNode(new StringNode(String.format("%,d", playerGold), 
+                Item.getQuantityColor(playerGold), 
+                FontHandler.getInstance().getFont(FontID.STATIC_TEXT_MEDIUM.toString()), 
+                moneyTip.getMaxWidth()));
+        moneyValueStaticText.setToolTip(moneyTip);
     }
 
+    /**
+     * Returns the amount of gold that the player has.  This is a safer
+     * alternative to attempting to get it directly from the player.
+     * @return playerGold or 0 if the player's gold could not be obtained.
+     */
+    private long getPlayerGold() {
+        long result = 0;
+        
+        try {
+            result = Game.getInstance().getClient().getPlayer().getInventory().getGold();
+        } catch (NullPointerException e) {
+            // We failed.  Do nothing.
+        }
+        
+        return result;
+    }
+    
     @Override
     public boolean isAcceptingTab() {
         return false;

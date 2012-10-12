@@ -11,6 +11,10 @@ import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
 /** Inventory for the player.  Contains all items and inventory categories. */
 public class Inventory {
+    /** The player's gold. */
+    private volatile long gold = 0;
+    
+    /** All of the items in the inventory. */
     protected volatile Map<Integer, Item> items = new HashMap<Integer, Item>();
 
     public Inventory() {
@@ -61,12 +65,14 @@ public class Inventory {
      * stuff that isn't particularly useful in this case.
      * 
      * This class serializes as follows:
-     * [itemCount(4)] [item] [item]...
+     * [gold(8)] [itemCount(4)] [item] [item]...
      * 
      * @return byteArray
      */
     public byte[] getBytes() {
         GenericLittleEndianWriter writer = new GenericLittleEndianWriter();
+        
+        writer.writeLong(gold);
         
         writer.writeInt(items.size());
         for (final Item item : items.values()) {
@@ -85,6 +91,8 @@ public class Inventory {
      */
     public static Inventory fromBytes(SeekableLittleEndianAccessor slea) {
         Inventory result = new Inventory();
+        
+        result.gold = slea.readLong();
         
         int count = slea.readInt();
         for (int i=0; i < count; ++i) {
@@ -108,6 +116,76 @@ public class Inventory {
             if (data != null) {
                 result.add(data);
             }
+        }
+        
+        return result;
+    }
+
+    /**
+     * Returns the amount of gold in the inventory.  This is the total amount
+     * of gold that a player would have.
+     * @return gold
+     */
+    public long getGold() {
+        return gold;
+    }
+    
+    /**
+     * Sets the player's gold.  This should only be used when loading a character.
+     * Use of this function for purposes of adding or removing gold constitutes
+     * a security risk.
+     * @param gold The new amount of gold.
+     */
+    public void setGold(long gold) {
+        this.gold = gold;
+    }
+    
+    /**
+     * Adds an amount of gold to the player's inventory.  If gold is negative,
+     * nothing will happen.  Returns the amount of gold that was unable to be
+     * added (due to overflow).
+     * @param gold The gold to add.  Must be > 0.
+     * @return The amount of gold that must still be added, or -1 on failure.
+     */
+    public long addGold(long gold) {
+        // Guard
+        if (gold <= 0) {
+            return -1;
+        }
+        
+        long result = 0;
+        
+        if (this.gold + gold < 0) {
+            result = this.gold + gold - Long.MAX_VALUE;
+            this.gold = Long.MAX_VALUE;
+        } else {
+            this.gold += gold;
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Removes an amount of gold from the player's inventory.  If gold is
+     * negative, nothing will happen.  Returns the amount of gold that was
+     * unable to be subtracted from the player's gold (due to underflow).
+     * @param gold The gold to subtract.  Must be > 0.
+     * @return The amount of gold that must still be subtracted, or -1 on
+     * failure.
+     */
+    public long removeGold(long gold) {
+        // Guard
+        if (gold <= 0) {
+            return -1;
+        }
+        
+        long result = 0;
+        
+        if (this.gold - gold < 0) {
+            result = gold - this.gold;
+            this.gold = 0;
+        } else {
+            this.gold -= gold;
         }
         
         return result;

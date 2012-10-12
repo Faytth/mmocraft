@@ -108,7 +108,7 @@ public abstract class Control extends GUIElement {
         // Check if selected / deselected
         if( mouseDown && !newMouseDown && this.isAcceptingInput() ) {
             GUIUtility util = GUIUtility.getInstance();
-            if( containsPoint(mouseX, mouseY) ) {
+            if( containsPoint(mouseX, mouseY) && isShown() ) {
                 util.setActiveElement(this);
                 newActiveState = true;
             } else if( util.isActiveElement(this)) {

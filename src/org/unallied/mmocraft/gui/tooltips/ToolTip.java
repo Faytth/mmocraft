@@ -142,4 +142,12 @@ public class ToolTip {
             heightNodeOffset += lineOffset;
         }
     }
+    
+    /**
+     * Retrieves the maximum width of this tooltip.
+     * @return maxWidth
+     */
+    public int getMaxWidth() {
+        return maxWidth;
+    }
 }
