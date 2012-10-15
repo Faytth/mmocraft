@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Location;
@@ -22,10 +24,12 @@ public class TerrainSession {
     
     /**
      *  Contains all terrain chunks in the world.  These are culled from time to time.
-     *  The key is a unique
+     *  The key is a unique to the chunk and is based on the x and y coords of the chunk.
      */
     private Map<Long, TerrainChunk> chunks = new HashMap<Long, TerrainChunk>();
-        
+    
+    private Image buffer = null;
+    
     /**
      * Culls terrain that is no longer needed
      */
@@ -76,7 +80,7 @@ public class TerrainSession {
     }
     
     /**
-     * Render the blocks of the world.  This should probably be the first thing rendered.
+     * Render the blocks of the world.
      * @param container
      * @param game
      * @param g
@@ -111,14 +115,18 @@ public class TerrainSession {
         
         // x and y now define a chunk
         
-        // Render the frame
-        float xBase = location.getX() - (x - (chunksAcross-1)/2) * WorldConstants.WORLD_CHUNK_WIDTH;
-        float yBase = location.getY() - (y - (chunksHigh-1)/2) * WorldConstants.WORLD_CHUNK_HEIGHT;
+        // Render the frame to the offscreen buffer
+        int xBase = (int) (location.getX() - (x - (chunksAcross-1)/2) * WorldConstants.WORLD_CHUNK_WIDTH);
+        int yBase = (int) (location.getY() - (y - (chunksHigh-1)/2) * WorldConstants.WORLD_CHUNK_HEIGHT);
         xBase *= WorldConstants.WORLD_BLOCK_WIDTH;
         yBase *= WorldConstants.WORLD_BLOCK_HEIGHT;
         xBase += location.getXOffset();
         yBase += location.getYOffset();
         
+        // Subtract 1 to account for offsets
+        --xBase;
+        --yBase;
+
         for (int i=0; i < chunksAcross; ++i) { // columns
             for (int j=0; j < chunksHigh; ++j) { // rows
                 // (y << 32) | x

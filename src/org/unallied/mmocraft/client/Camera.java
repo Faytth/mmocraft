@@ -56,6 +56,7 @@ public class Camera {
                 // We have a "hard cap" which prevents the player from flying off-screen.
                 float maxDeltaX = Game.getInstance().getContainer().getWidth() / 3;
                 float maxDeltaY = Game.getInstance().getContainer().getHeight() / 3;
+                
                 if (deltaX > maxDeltaX) {
                     currentLocation.moveRight(deltaX - maxDeltaX);
                     deltaX = maxDeltaX;
@@ -79,6 +80,9 @@ public class Camera {
                 float percentChange = 1.0f * delta / CAMERA_CHANGE_RATE;
                 percentChange = percentChange < 0 ? 0 : percentChange;
                 percentChange = percentChange > 1f ? 1f : percentChange;
+                
+                // TODO:  Set a minimum speed
+                
                 currentLocation.moveRight(deltaX * percentChange);
                 currentLocation.moveDown(deltaY * percentChange);
             }

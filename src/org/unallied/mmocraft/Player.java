@@ -63,7 +63,6 @@ public class Player extends Living implements Serializable {
     protected float movementSpeed = 0.400f; // Determines the rate of movement for this player
     protected float fallSpeed = 0.0f; // The rate that the player is currently falling
     protected int playerId; // The unique ID of this player
-    protected int delay = (int) (20 / movementSpeed); // delay between animation frames
     
     protected Direction direction = Direction.RIGHT; // direction that the player is facing
     
@@ -501,15 +500,6 @@ public class Player extends Living implements Serializable {
     }
 
     /**
-     * Returns delay (in milliseconds) for each frame of animation.  This value
-     * is increased based on the weight of the player's equipped shield.
-     * @return delay
-     */
-    public int getDelay() {
-        return delay;
-    }
-
-    /**
      * Accelerates player downwards.
      * @param delta The time in milliseconds to accelerate downwards
      * @param acceleration The acceleration rate of the fall in pixels
@@ -616,14 +606,6 @@ public class Player extends Living implements Serializable {
      */
     public boolean isShielding() {
         return shielding;
-    }
-
-    /**
-     * Sets the player's animation delay in milliseconds.
-     * @param delay the delay in milliseconds
-     */
-    public void setDelay(int delay) {
-        this.delay = delay;
     }
 
     /**

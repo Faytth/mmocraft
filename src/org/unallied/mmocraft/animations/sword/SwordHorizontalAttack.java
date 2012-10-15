@@ -2,6 +2,7 @@ package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.SpriteSheet;
+import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
@@ -36,7 +37,7 @@ public class SwordHorizontalAttack extends Rollable {
         animation.setAutoUpdate(false);
         animation.setLooping(false);
         SpriteSheet ss = SpriteHandler.getInstance().get(SpriteID.SWORD_HORIZONTAL_ATTACK.toString());
-        generateCollisionArc(SpriteHandler.getInstance().get(SpriteID.SWORD_HORIZONTAL_ATTACK_ARC.toString()));
+        this.collision = Collision.SWORD_HORIZONTAL_ATTACK;
         setAnimation(ss);
         animation.start();
         horizontalOffset = 53;

@@ -41,12 +41,12 @@ public abstract class WorldConstants {
     /**
      *  The width (in pixels) of a block.
      */
-    public static final int WORLD_BLOCK_WIDTH = 15;
+    public static final int WORLD_BLOCK_WIDTH = 16;
     
     /**
      *  The height (in pixels) of a block.
      */
-    public static final int WORLD_BLOCK_HEIGHT = 15;
+    public static final int WORLD_BLOCK_HEIGHT = 16;
     
     /**
      *  The number of chunks, lined from end to end, that it takes to span 

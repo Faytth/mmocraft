@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SpriteSheet;
 
 /**
  * A class that can be used for determining collision between two blobs (amorphous shapes).
@@ -249,5 +250,28 @@ public class CollisionBlob {
      */
     public CollisionBlob getFlipped() {
         return flippedBlob;
+    }
+    
+    /**
+     * Generates an array of collisions from a sprite sheet.  This should be
+     * used when you need all of the collision blobs for an animation (for
+     * example, SwordHorizontalAttack).
+     * 
+     * Note:  The spritesheet must be horizontal ONLY.
+     * @param ss The spritesheet to generate the collision blobs from
+     * @return collisionArc.  If SpriteSheet is null, an empty array is returned.
+     */
+    public static CollisionBlob[] generateCollisionArc(SpriteSheet ss) {
+        // Guard
+        if (ss == null) {
+            return new CollisionBlob[0];
+        }
+        
+        CollisionBlob[] collisionArc = new CollisionBlob[ss.getHorizontalCount()];
+        for (int x=0; x < ss.getHorizontalCount(); ++x) {
+            collisionArc[x] = new CollisionBlob(ss.getSprite(x, 0));
+        }
+        
+        return collisionArc;
     }
 }

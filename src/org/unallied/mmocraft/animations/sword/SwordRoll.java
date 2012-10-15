@@ -22,21 +22,11 @@ public class SwordRoll extends Roll {
      */
     private static final transient float ROLL_SPEED = 1.0f;
     
-    /**
-     * The amount of time (in milliseconds) that the player rolls for.
-     */
-    private static final transient int MAX_ROLL_TIME = 200;
-    
     /** The start of invincibility in milliseconds. */
-    private static final transient int MIN_INVINCIBLE_TIME = 40;
+    private static final transient int MIN_INVINCIBLE_TIME = 30;
     
     /** The end of invincibility in milliseconds. */
-    private static final transient int MAX_INVINCIBLE_TIME = 210;
-    
-    /**
-     * The amount of time (in milliseconds) that the player has been rolling.
-     */
-    private transient int rollTime = 0;
+    private static final transient int MAX_INVINCIBLE_TIME = 130;
 
     public SwordRoll(Player player, AnimationState last) {
         super(player, last);
@@ -48,6 +38,7 @@ public class SwordRoll extends Roll {
         animation.start();
         horizontalOffset = 21;
         verticalOffset = 3;
+        duration = 200;
         
         switch (player.getDirection()) {
         case LEFT:
@@ -71,9 +62,9 @@ public class SwordRoll extends Roll {
     @Override
     public void update(long delta) {
         // Fix the amount of distance to roll
-        rollTime += delta;
-        if (rollTime > MAX_ROLL_TIME) {
-            delta -= rollTime - MAX_ROLL_TIME;
+        elapsedTime += delta;
+        if (elapsedTime > duration) {
+            delta -= elapsedTime - duration;
         }
         
         if (animation != null) {
@@ -89,7 +80,7 @@ public class SwordRoll extends Roll {
         }
         
         // The player has exceeded their rolling time, so reset their state
-        if (rollTime > MAX_ROLL_TIME) {
+        if (elapsedTime > duration) {
             if (player.isShielding()) {
                 player.setState(new SwordShield(player, this));
             } else {
@@ -161,7 +152,7 @@ public class SwordRoll extends Roll {
 
     @Override
     public boolean isInvincible() {
-        return rollTime >= MIN_INVINCIBLE_TIME && rollTime <= MAX_INVINCIBLE_TIME;
+        return elapsedTime >= MIN_INVINCIBLE_TIME && elapsedTime <= MAX_INVINCIBLE_TIME;
     }
     
     @Override

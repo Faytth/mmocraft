@@ -45,7 +45,7 @@ public class ImageHandler {
      */
     private void init() {
         try {
-            images.put( ImageID.LOGIN_SCREEN.toString(), new Image("resources/images/login_screen.png") );
+            images.put( ImageID.LOGIN_SCREEN.toString(), new Image("resources/images/backgrounds/sky.png") );
             images.put( ImageID.TEXTCTRL_CHAT_NORMAL.toString(), new Image("resources/images/textctrl_chat_normal.png"));
             images.put( ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_chat_highlighted.png"));
             images.put( ImageID.TEXTCTRL_CHAT_SELECTED.toString(), new Image("resources/images/textctrl_chat_selected.png"));

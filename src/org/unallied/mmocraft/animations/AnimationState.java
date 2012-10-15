@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.SpriteSheet;
+import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.CollisionBlob;
 import org.unallied.mmocraft.Player;
 
@@ -23,14 +24,36 @@ public abstract class AnimationState implements Serializable {
     /** The max number of animation states chained together by last. */
     private static final int MAX_CHAIN = 10;
     
-    protected transient Animation animation = null; // the animation to play for this state
-    protected transient Player player; // the player attached to this animation
-    protected transient AnimationState last; // the last animation state
-    protected transient long entryTime; // the time (in millis since 1970) that this state was entered
-    protected transient float horizontalOffset = 0.0f; // Offset from the left.  +1 moves player LEFT 1 pixel.
-    protected transient float verticalOffset = 0.0f; // Offset from the top.  +1 moves player UP 1 pixel.
+    /** The number of milliseconds that this animation lasts. */
+    protected transient int duration = 0;
+
+    /** 
+     * The number of milliseconds that have elapsed.  When this reaches
+     * animationSpeed, the animation is suspended.
+     */
+    protected transient int elapsedTime = 0;
+    
+    /** The animation to play for this state. */
+    protected transient Animation animation = null;
+    
+    /** The player attached to this animation. */
+    protected transient Player player;
+    
+    /** The last animation state. */
+    protected transient AnimationState last;
+    
+    /** The time (in milliseconds since 1970) that this state was entered. */
+    protected transient long entryTime;
+    
+    /** Offset from the left.  +1 moves player LEFT 1 pixel. */
+    protected transient float horizontalOffset = 0.0f;
+    
+    /** Offset from the top.  +1 moves player UP 1 pixel. */
+    protected transient float verticalOffset = 0.0f;
+    
     /** The collision data for this animation.  Used to determine attack arcs. */
-    protected transient CollisionBlob[] collisionArc = null;
+    protected transient Collision collision = null;
+    
     /** 
      * The collision body for this animation.  Used to determine what counts as
      * a "hit" on this animation.
@@ -150,12 +173,14 @@ public abstract class AnimationState implements Serializable {
      * @param delta time since last update in milliseconds
      */
     public void update(long delta) {
+        elapsedTime += delta;
+        
         if (animation != null) {
             int startingIndex = animation.getFrame();
             animation.update(delta);
             int endingIndex = animation.getFrame();
-            if (startingIndex != endingIndex && collisionArc != null) {
-                player.doCollisionChecks(collisionArc, startingIndex+1, 
+            if (startingIndex != endingIndex && collision != null) {
+                player.doCollisionChecks(collision.getCollisionArc(), startingIndex+1, 
                         endingIndex, -horizontalOffset, -verticalOffset);
             }
         }
@@ -170,9 +195,17 @@ public abstract class AnimationState implements Serializable {
      */
     public void setAnimation(SpriteSheet ss) {
         if (ss != null) {
-            for (int i=0; i < ss.getVerticalCount(); ++i) {
-                for (int j=0; j < ss.getHorizontalCount(); ++j) {
-                    animation.addFrame(ss.getSprite(j, i), this.player.getDelay());
+            int verticalCount = ss.getVerticalCount();
+            int horizontalCount = ss.getHorizontalCount();
+            
+            // Guard against 0 duration.
+            if (duration == 0) {
+                duration = verticalCount * horizontalCount * 50;
+            }
+            
+            for (int i=0; i < verticalCount; ++i) {
+                for (int j=0; j < horizontalCount; ++j) {
+                    animation.addFrame(ss.getSprite(j, i), duration / (verticalCount * horizontalCount));
                 }
             }
         }
@@ -232,29 +265,7 @@ public abstract class AnimationState implements Serializable {
      * @return id
      */
     public abstract AnimationType getId();
-    
-    /**
-     * Generates a collision arc from the sprite sheet.  This arc is needed for
-     * all animations that perform an attack.
-     * 
-     * The sprite sheet that is used must have all of its images on a single,
-     * horizontal line.  All other lines will be ignored.
-     * 
-     * The sprite sheet should have the same number of images as the animation.
-     * @param ss The sprite sheet to generate the arc from.
-     */
-    public void generateCollisionArc(SpriteSheet ss) {
-        // Guard
-        if (ss == null || collisionArc != null) {
-            return;
-        }
         
-        collisionArc = new CollisionBlob[ss.getHorizontalCount()];
-        for (int x=0; x < ss.getHorizontalCount(); ++x) {
-            collisionArc[x] = new CollisionBlob(ss.getSprite(x, 0));
-        }
-    }
-    
     /**
      * Generates a collision body from the sprite sheet.  This body is needed for
      * all animations that are hit by attacks.
@@ -284,7 +295,7 @@ public abstract class AnimationState implements Serializable {
      * @return collisionArc
      */
     public CollisionBlob[] getCollisionArc() {
-        return collisionArc;
+        return collision.getCollisionArc();
     }
     
     /**
