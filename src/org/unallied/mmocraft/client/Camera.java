@@ -21,6 +21,9 @@ public class Camera {
      */
     public static final long CAMERA_CHANGE_RATE = 300;
     
+    /** The minimum number of pixels / second that the camera should move at. */
+    public static final long CAMERA_MIN_CHANGE_RATE = 50;
+    
     /** The time in milliseconds (from {@link System#currentTimeMillis()}). */
     private long lastUpdateTime = 0;
     
@@ -42,13 +45,13 @@ public class Camera {
      */
     public BoundLocation getLocation() {
         
+        long delta = System.currentTimeMillis() - lastUpdateTime;
+        
         // Update currentLocation if needed
         if (destination != null && currentLocation != destination) {
             if (currentLocation == null) {
                 currentLocation = destination;
-            } else {
-                long delta = System.currentTimeMillis() - lastUpdateTime;
-                delta = delta < 0 ? 0 : delta; // This should never happen, but just in case...
+            } else if (delta > 0) {
                 // At this point, higher delta means faster movement towards the destination
                 float deltaX = (float) (destination.getDeltaX(currentLocation));
                 float deltaY = (float) (destination.getDeltaY(currentLocation));
@@ -80,11 +83,19 @@ public class Camera {
                 float percentChange = 1.0f * delta / CAMERA_CHANGE_RATE;
                 percentChange = percentChange < 0 ? 0 : percentChange;
                 percentChange = percentChange > 1f ? 1f : percentChange;
+                                // Check for minimum change (prevents jitter)
+                if (deltaX > -0.1f && deltaX < 0.1f) {
+                    currentLocation.setRawX(destination.getRawX());
+                    deltaX = 0;
+                }
+                if (deltaY > -0.1f && deltaY < 0.1f) {
+                    currentLocation.setRawY(destination.getRawY());
+                    deltaY = 0;
+                }
                 
-                // TODO:  Set a minimum speed
-                
-                currentLocation.moveRight(deltaX * percentChange);
-                currentLocation.moveDown(deltaY * percentChange);
+                // Check for minimum speed and adjust as necessary.                if (deltaX != 0 && ((Math.abs(deltaX) * percentChange * (1000.0 / delta)) < CAMERA_MIN_CHANGE_RATE)) {                    deltaX = deltaX < 0 ? -1.0f : 1.0f;                    deltaX = deltaX * CAMERA_MIN_CHANGE_RATE * delta / 1000;                } else {                    deltaX *= percentChange;
+                }                                 if (deltaY != 0 && ((Math.abs(deltaY) * percentChange * (1000.0 / delta)) < CAMERA_MIN_CHANGE_RATE)) {                    deltaY = deltaY < 0 ? -1.0f : 1.0f;                    deltaY = deltaY * CAMERA_MIN_CHANGE_RATE * delta / 1000;                } else {                    deltaY *= percentChange;                }                                currentLocation.moveRight(deltaX);                currentLocation.moveDown(deltaY);
+
             }
         }
         
