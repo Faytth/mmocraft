@@ -26,7 +26,7 @@ public class MiniMapFrame extends Frame {
         
         this.container = container;
 
-        coordValueStaticText = new StaticText(this, null, container, "(0,0)", 80, 0, -1, -1, FontID.STATIC_TEXT_MEDIUM);
+        coordValueStaticText = new StaticText(this, null, container, "(0,0)", 80, 0, -1, -1, FontID.STATIC_TEXT_MEDIUM_BOLD);
         elements.add(coordValueStaticText);
     }
     

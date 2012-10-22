@@ -79,7 +79,7 @@ public class InventoryFrame extends Frame {
 	private static final int scrollbarWidth = 15;
 	
 	/** The font that item categories, such as Equipment, should be displayed in. */
-	private static final String CATEGORY_FONT = FontID.STATIC_TEXT_LARGE.toString();
+	private static final String CATEGORY_FONT = FontID.STATIC_TEXT_LARGE_BOLD.toString();
 	
 	/** The color that categories, such as Equipment, should be displayed in. */
 	private static final Color CATEGORY_COLOR = new Color(222, 222, 222);
@@ -143,8 +143,8 @@ public class InventoryFrame extends Frame {
                 ImageID.BUTTON_CLOSE_SELECTED.toString(), 0);
         
         moneyValueStaticText = new StaticText(this, null, container, 
-                "" + playerGold, 145, 3, 100, 14, 
-                FontID.STATIC_TEXT_MEDIUM, Item.getQuantityColor(playerGold));
+                "" + playerGold, 145, 1, 100, 14, 
+                FontID.STATIC_TEXT_LARGE_BOLD, Item.getQuantityColor(playerGold));
         ToolTip moneyTip = new ToolTip();
         moneyTip.addNode(new StringNode(String.format("%,d", playerGold), 
                 Item.getQuantityColor(playerGold), 
@@ -152,9 +152,12 @@ public class InventoryFrame extends Frame {
                 moneyTip.getMaxWidth()));
         moneyValueStaticText.setToolTip(moneyTip);
         
+        elements.add(new StaticText(this, null, container, "Inventory", 2, 1, 
+                width - 16 - 2, height - categoryYOffset, FontID.STATIC_TEXT_LARGE_BOLD, 
+                CATEGORY_COLOR));
         elements.add(closeButton);
-        elements.add(new StaticText(this, null, container, "Gold:", 100, 3, -1, -1,
-                FontID.STATIC_TEXT_MEDIUM, new Color(186, 147, 18)));
+        elements.add(new StaticText(this, null, container, "Gold:", 100, 1, -1, -1,
+                FontID.STATIC_TEXT_LARGE_BOLD, new Color(186, 147, 18)));
         elements.add(moneyValueStaticText);
     }
     
@@ -242,10 +245,6 @@ public class InventoryFrame extends Frame {
         		new GradientFill(0, 0, new Color(17, 17, 15, 166), 
         				width, height, new Color(57, 57, 55, 166), true));
         
-        // Render Inventory title
-        FontHandler.getInstance().draw(CATEGORY_FONT, "Inventory", offX + 2, 
-                offY, CATEGORY_COLOR, width - 16 - 2, // Leave room for the close button
-                height - categoryYOffset, false);
         int underlineOffset = categoryFont.getHeight("Inventory");
         // Left half
         GradientFill gFill = new GradientFill(0, 0, new Color(0, 255, 255, 0),

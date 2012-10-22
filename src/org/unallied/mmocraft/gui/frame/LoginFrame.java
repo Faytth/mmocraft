@@ -87,9 +87,9 @@ public class LoginFrame extends Frame {
         
         registerButton.setToolTip(new ToolTip("If you don't have an account, you can register for one here."));
         
-        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE));
+        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(userTextCtrl);
-        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE));
+        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(passTextCtrl);
         elements.add(loginButton);
         elements.add(registerButton);

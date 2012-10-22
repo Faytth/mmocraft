@@ -60,7 +60,7 @@ public class Player extends Living implements Serializable {
      */
     protected transient List<RawPoint> hitbox = null;
     
-    protected float movementSpeed = 0.400f; // Determines the rate of movement for this player
+    protected float movementSpeed = 400f; // Determines the rate of movement for this player pixels / second)
     protected float fallSpeed = 0.0f; // The rate that the player is currently falling
     protected int playerId; // The unique ID of this player
     
@@ -105,11 +105,11 @@ public class Player extends Living implements Serializable {
     
     /**
      * Sets the animation state to a new state.
-     * @param current the new animation state
+     * @param newState the new animation state
      */
-    public void setState(AnimationState current) {
-        if (this.current != current) {
-            this.current = current;
+    public void setState(AnimationState newState) {
+        if (this.current != newState) {
+            this.current = newState;
             if (this == Game.getInstance().getClient().getPlayer()) {
                 Game.getInstance().getClient().announce(
                         PacketCreator.getMovement(this) );
@@ -144,10 +144,12 @@ public class Player extends Living implements Serializable {
     public void update(long delta) {
         Controls controls = Game.getInstance().getControls();
         Input input = Game.getInstance().getContainer().getInput();
-                
+        
         // Perform gravity checks
-        accelerateDown((int)delta, ClientConstants.FALL_ACCELERATION, 
-                ClientConstants.FALL_TERMINAL_VELOCITY);
+        accelerateDown((int)delta, ClientConstants.FALL_ACCELERATION * current.moveDownMultiplier(), 
+                ClientConstants.FALL_TERMINAL_VELOCITY * current.moveDownMultiplier());
+        moveHorizontal((int)delta);
+        
         
         // Perform shielding
         shieldUpdate(controls.isShielding(input));
@@ -165,6 +167,47 @@ public class Player extends Living implements Serializable {
      * @return
      */
     public Location collide(Location start, Location end, float vf) {
+        Location result = new BoundLocation(start);
+        try {
+            TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
+            
+            // If air
+            Location horizontalCollide = new BoundLocation(ts.collideWithBlock(start, end));
+            result.setRawX(horizontalCollide.getRawX());
+            
+            // Vertical testing
+            if (end.getRawY() != start.getRawY()) {
+                Location verticalEnd = new BoundLocation(result);
+                verticalEnd.setRawY(horizontalCollide.getRawY());
+                boolean hitCeiling;
+                boolean hitGround;
+                
+                verticalEnd.decrementY();
+                hitCeiling = new BoundLocation(ts.collideWithBlock(horizontalCollide, verticalEnd)).getRawY() != verticalEnd.getRawY();
+                verticalEnd.setRawY(verticalEnd.getRawY()+2);
+                hitGround = new BoundLocation(ts.collideWithBlock(horizontalCollide, verticalEnd)).getRawY() != verticalEnd.getRawY();
+                
+                // If we didn't hit anything
+                if (hitCeiling) {
+                    fallSpeed = 0.0f;
+                } else if (hitGround) {
+                    current.land(); // tell our state that our player has landed on the ground
+                    fallSpeed = 0.0f;                    
+                } else {
+                    fallSpeed = vf;
+                    if (fallSpeed > 0.0f) { // tell our state that our player is falling
+                        current.fall();
+                    }
+                }
+                result = horizontalCollide;
+            }
+        } catch (NullPointerException e) {
+            
+        }
+        return result;
+    }
+    /*
+     public Location collide(Location start, Location end, float vf) {
         Location result = new BoundLocation(start);
         try {
             TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
@@ -203,6 +246,7 @@ public class Player extends Living implements Serializable {
         }
         return result;
     }
+     */
     
     /**
      * Returns whether or not the player's hitbox is currently overlapping with
@@ -235,10 +279,10 @@ public class Player extends Living implements Serializable {
      * This continues until the player is no longer colliding with a block.
      */
     public void unstuck() {
-/*        while (isStuck()) {
-            location.decrementX();
-            location.decrementY();
-        }*/
+        while (isStuck()) {
+            location.moveLeft(1);
+            location.moveUp(1);
+        }
     }
         
     /**
@@ -249,8 +293,11 @@ public class Player extends Living implements Serializable {
         current.moveLeft(movementSpeed > 0.2f); // any slower movement than this means walk
         if (current.canMoveLeft()) {
             velocity.setX(-movementSpeed);
+            float yVelocity = velocity.getY();
+            velocity.setY(0);
             moveHorizontal(delta);
             velocity.setX(0);
+            velocity.setY(yVelocity);
         }
     }
     
@@ -270,7 +317,8 @@ public class Player extends Living implements Serializable {
         
         // Make sure player can move left
         RawPoint distance = new RawPoint();
-        distance.setLocation((long) (velocity.getX() * delta * Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_WIDTH), 0);
+        distance.setLocation((long) (velocity.getX() * delta / 1000 * Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_WIDTH), 
+                (long) (velocity.getY() * delta / 1000 * Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_HEIGHT));
         RawPoint startingDistance = new RawPoint(distance.getX(), distance.getY());
         // At this point, end is where we are trying to move to
                     
@@ -381,8 +429,11 @@ public class Player extends Living implements Serializable {
         current.moveRight(movementSpeed > 0.2f); // any slower movement than this means walk
         if (current.canMoveRight()) {
             velocity.setX(movementSpeed);
+            float yVelocity = velocity.getY();
+            velocity.setY(0);
             moveHorizontal(delta);
             velocity.setX(0);
+            velocity.setY(yVelocity);
         }
     }
 
@@ -395,7 +446,7 @@ public class Player extends Living implements Serializable {
      */
     public void moveUp(int delta) {
         // these constants are determined experimentally
-        velocity.setY( -300.0f - movementSpeed * 251.0f );
+        velocity.setY( -300.0f - movementSpeed * 0.251f );
     }
     
     /**
@@ -411,13 +462,14 @@ public class Player extends Living implements Serializable {
     
     /**
      * Moves character down.  Distance is determined by:
-     * (deltaTime) * (movementSpeed), where deltaTime is the difference in time
+     * (deltaTime) * (movementSpeed * downMultiplier), where deltaTime is the difference in time
      * between the last and current input poll (typically a single frame)
      * 
      * @param delta The time in milliseconds since the last update
+     * @param downMultiplier The multiplier to multiply the downward movement speed by
      */
-    public void moveDown(int delta) {
-        velocity.setY(velocity.getY() + (float) (delta) * movementSpeed * 3.0f);
+    public void moveDown(int delta, float downMultiplier) {
+        velocity.setY(velocity.getY() + (float) (delta) * movementSpeed * downMultiplier * .003f);
     }
 
     /**
@@ -426,8 +478,9 @@ public class Player extends Living implements Serializable {
      */
     public void tryMoveDown(int delta) {
         current.moveDown(true);
-        if (current.canMoveDown()) {
-            moveDown(delta);
+        float downMultiplier = current.moveDownMultiplier();
+        if (downMultiplier != 0) {
+            moveDown(delta, downMultiplier);
         }
     }
     
@@ -514,9 +567,12 @@ public class Player extends Living implements Serializable {
         // FIXME:  This is a bit incorrect
         boolean hitSomething = false;  // true if we hit something
         float t = delta / 1000.0f;
-        float vf = velocity.getY() + ((terminalVelocity - velocity.getY()) / terminalVelocity) * t * acceleration;
-        if (vf > terminalVelocity) {
-            vf = terminalVelocity;
+        float vf = velocity.getY() + t * ClientConstants.FALL_ACCELERATION;
+        if (terminalVelocity != 0) {
+            vf = velocity.getY() + ((terminalVelocity - velocity.getY()) / terminalVelocity) * t * acceleration;
+            if (vf > terminalVelocity) {
+                vf = terminalVelocity;
+            }
         }
         RawPoint distance = new RawPoint(0, (long) ((((velocity.getY() + vf) / 2.0f) * t) / WorldConstants.WORLD_BLOCK_HEIGHT * Location.BLOCK_GRANULARITY));
         
@@ -557,8 +613,8 @@ public class Player extends Living implements Serializable {
         }
         
         // Our distance is now the farthest we can travel
-        location.moveRawRight(distance.getX());
-        location.moveRawDown(distance.getY());
+//        location.moveRawRight(distance.getX());
+  //      location.moveRawDown(distance.getY());
     }
 
     /**
@@ -736,5 +792,13 @@ public class Player extends Living implements Serializable {
      */
     public float getMovementSpeed() {
         return movementSpeed;
+    }
+
+    /**
+     * Returns the player's current movement velocity.
+     * @return velocity
+     */
+    public Velocity getVelocity() {
+        return velocity;
     }
 }

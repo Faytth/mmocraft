@@ -241,7 +241,12 @@ public class RegisterState extends AbstractState {
         
         Image image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
         if( image != null) {
-            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
+            // Tile the login state across the game
+            for (int i = getAbsoluteWidth(); i < container.getWidth(); i += image.getWidth()) {
+                for (int j = getAbsoluteHeight(); j < container.getHeight(); j += image.getHeight()) {
+                    image.draw(i, j);
+                }
+            }
         }
         
         if (elements != null) {

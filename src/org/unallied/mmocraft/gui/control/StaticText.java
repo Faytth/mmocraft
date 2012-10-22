@@ -37,11 +37,7 @@ public class StaticText extends GUIElement {
      */
     public StaticText(final GUIElement parent, EventIntf intf,GameContainer container
             , String label, float x, float y, int width, int height, FontID fontID) {
-        super(parent, intf, container, x, y, width, height);
-        
-        this.font = FontHandler.getInstance().getFont(fontID.toString());
-        
-        this.label = label;
+        this(parent, intf, container, label, x, y, width, height, fontID, new Color(255, 255, 255));
     }
     
     /**
@@ -61,6 +57,7 @@ public class StaticText extends GUIElement {
             Color color) {
         super(parent, intf, container, x, y, width, height);
         
+        this.font = FontHandler.getInstance().getFont(fontID.toString());
         this.label = label;
         this.color = color;
     }
@@ -84,6 +81,7 @@ public class StaticText extends GUIElement {
         }
         g.drawString( label, absX, absY);
         g.setColor(oldColor);
+        g.flush();
     }
 
     @Override

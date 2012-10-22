@@ -11,7 +11,7 @@ import org.unallied.mmocraft.states.*;
 public class Game extends StateBasedGame {
     public static final int SCREEN_WIDTH = 1724;
     public static final int SCREEN_HEIGHT = 968;
-    protected static final int MAX_FPS = 6000;
+    protected static final int MAX_FPS = 60;
     
     /// We are not able to use the superior Singleton pattern for this due to applet complications
     protected static Game instance = null;
@@ -29,8 +29,6 @@ public class Game extends StateBasedGame {
     public Game() {
         super("MMOCraft");
         instance = this;
-        // Calling this causes our client's session to be set
-        //PacketSocket.getInstance().connect();
 
         this.addState(new LoginState());
         this.addState(new IngameState());

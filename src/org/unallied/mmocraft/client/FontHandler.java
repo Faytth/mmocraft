@@ -5,9 +5,7 @@ import java.util.Map;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
-import org.newdawn.slick.UnicodeFont;
-import org.newdawn.slick.font.effects.ColorEffect;
-import org.newdawn.slick.font.effects.ShadowEffect;
+import org.newdawn.slick.TrueTypeFont;
 
 /**
  * Stores all fonts in a map for easy access.  If the font requested is not
@@ -30,54 +28,47 @@ public class FontHandler {
         public static final FontHandler instance = new FontHandler();
     }
     
-    @SuppressWarnings("unchecked")
 	private void init() {
         try {
-            ShadowEffect shadow = new ShadowEffect();
-            shadow.setXDistance(1);
-            shadow.setYDistance(1);
-            shadow.setOpacity(1);
-            UnicodeFont uFont;
+            TrueTypeFont uFont;
             
             try {
-//                uFont = new TrueTypeFont(new java.awt.Font("Verdana", 0, 13), false);
-                uFont = new UnicodeFont("resources/fonts/verdana.ttf", 13, true, false);
-                uFont.addAsciiGlyphs();
-                uFont.getEffects().add(shadow);
-                uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
-                uFont.loadGlyphs();
+                uFont = new TrueTypeFont(new java.awt.Font("Tahoma", 0, 12), false);
                 fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
                 fonts.put( FontID.STATIC_TEXT_MEDIUM.toString(), uFont);
             } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
             }
+            try {
+                uFont = new TrueTypeFont(new java.awt.Font("Tahoma", java.awt.Font.BOLD, 12), false);
+                fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
+                fonts.put( FontID.STATIC_TEXT_MEDIUM_BOLD.toString(), uFont);
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
             
             try {
-//              uFont = new TrueTypeFont(new java.awt.Font("Verdana", 0, 13), false);
-              uFont = new UnicodeFont("resources/fonts/verdana.ttf", 14, true, false);
-              uFont.addAsciiGlyphs();
-              uFont.getEffects().add(shadow);
-              uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
-              uFont.loadGlyphs();
+              uFont = new TrueTypeFont(new java.awt.Font("Tahoma", 0, 13), false);
               fonts.put( FontID.STATIC_TEXT_MEDIUM_LARGE.toString(), uFont );
-          } catch (RuntimeException e) {
-              System.out.println(e.getMessage());
-          }
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
             
             try {
-//                uFont = new TrueTypeFont(new java.awt.Font("Verdana", 0, 13), false);
-                uFont = new UnicodeFont("resources/fonts/verdana.ttf", 16, false, false);
-                uFont.addAsciiGlyphs();
-                uFont.getEffects().add(shadow);
-                uFont.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
-                uFont.loadGlyphs();
+                uFont = new TrueTypeFont(new java.awt.Font("Tahoma", 0, 15), false);
                 fonts.put( FontID.STATIC_TEXT_LARGE.toString(), uFont );
             } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
             }
             
+            try {
+                uFont = new TrueTypeFont(new java.awt.Font("Tahoma", java.awt.Font.BOLD, 15), false);
+                fonts.put( FontID.STATIC_TEXT_LARGE_BOLD.toString(), uFont );
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
+            
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

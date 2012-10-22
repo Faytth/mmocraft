@@ -36,6 +36,7 @@ public class ChatFrame extends Frame {
 	private static final Color WORLD_COLOR = new Color(227, 115, 40);
 	
 	private static final String MESSAGE_FONT = FontID.STATIC_TEXT_MEDIUM.toString();
+	private static final String TITLE_FONT = FontID.STATIC_TEXT_MEDIUM_BOLD.toString();
 
 	/**
 	 * The distance from the top of the chat frame that messageTextCtrl is positioned.
@@ -157,9 +158,11 @@ public class ChatFrame extends Frame {
 	    	int messageCount = receivedMessages.size();
 	    	for (int i = this.receivedMessages.size()-1-lineIndex; i >= 0 && lineY >= 0 && i < messageCount; --i, lineY -= lineHeight) {
 	    		ChatMessage message = receivedMessages.get(i);
-	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), scrollBarWidth + 1, lineY, getTypeColor(message.getType()), width - scrollBarWidth - 1, height, false);
+	    		FontHandler.getInstance().draw(TITLE_FONT, message.getAuthor(), scrollBarWidth + 1, lineY, getTypeColor(message.getType()), width - scrollBarWidth - 1, height, false);
+	    		int widthOffset = FontHandler.getInstance().getFont(TITLE_FONT.toString()).getWidth(message.getAuthor());
+	    		FontHandler.getInstance().draw(MESSAGE_FONT, message.getBody(), scrollBarWidth + 1 + widthOffset, lineY, getTypeColor(message.getType()), width - scrollBarWidth - 1 - widthOffset, height, false);
 	    	}
-    	} catch (SlickException e) {
+    	} catch (Throwable t) {
     	}
     }
 
@@ -209,6 +212,10 @@ public class ChatFrame extends Frame {
                         g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight), 
                                 new GradientFill(0, 0, new Color(0, 0, 0, 150),
                                         0, chatHeight/2, new Color(0, 0, 0, 150)));
+                    } else {
+                        g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight),
+                                new GradientFill(0, 0, new Color(0, 0, 0, 100),
+                                        0, chatHeight/2, new Color(0, 0, 0, 100)));
                     }
                     image.draw(getAbsoluteWidth(), getAbsoluteHeight());
                     
@@ -286,9 +293,11 @@ public class ChatFrame extends Frame {
      * @param message
      */
     public void addMessage(ChatMessage message) {
+        Font titleFont = FontHandler.getInstance().getFont(TITLE_FONT);
     	Font font = FontHandler.getInstance().getFont(MESSAGE_FONT);
     	String[] words = message.getBody().split(" ");
-    	String line = "[" + message.getAuthor() + "]: ";
+    	String title = "[" + message.getAuthor() + "]: ";
+    	String line = "";
     	
     	/*
     	 *  Go through each character and separate the message into chunks.
@@ -296,7 +305,7 @@ public class ChatFrame extends Frame {
     	 *  without the message extending past the end of the frame.
     	 */
     	for (String word : words) {
-    		if (font.getWidth(line + word) < width - 5) { // The 5 here is for a border
+    		if (titleFont.getWidth(title) + font.getWidth(line + word) < width - 5) { // The 5 here is for a border
     			line += word + " ";
     		} else if (line.length() == 0) {
        			/*
@@ -306,17 +315,19 @@ public class ChatFrame extends Frame {
     			 *  TODO:  Display huge words on multiple lines.
     			 */
     			line += word;
-    			receivedMessages.add(new ChatMessage(message.getType(), line));
+    			receivedMessages.add(new ChatMessage(title, message.getType(), line));
     			lineIndex = lineIndex == 0 ? lineIndex : lineIndex + 1;
     			line = "";
+    			title = "";
     		} else {
-    			receivedMessages.add(new ChatMessage(message.getType(), line));
+    			receivedMessages.add(new ChatMessage(title, message.getType(), line));
     			lineIndex = lineIndex == 0 ? lineIndex : lineIndex + 1;
     			line = word + " ";
+    			title = "";
     		}
     	}
     	if (line.length() > 0) {
-    		receivedMessages.add(new ChatMessage(message.getType(), line));
+    		receivedMessages.add(new ChatMessage(title, message.getType(), line));
     		lineIndex = lineIndex == 0 ? lineIndex : lineIndex + 1;
     	}
     	needsRefresh = true;

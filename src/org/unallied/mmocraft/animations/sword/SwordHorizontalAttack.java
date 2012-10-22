@@ -78,11 +78,14 @@ public class SwordHorizontalAttack extends Rollable {
     
     @Override
     /**
-     * Returns whether or not this character is in a state which can move down
-     * @return
+     * Returns a multiplier for the movement speed downwards.  Default is 1.0.
+     * This should be multiplied by the player's movement speed to determine
+     * how fast they're moving.  A result of 0 signifies that the player is
+     * unable to move down.
+     * @return downMultiplier
      */
-    public boolean canMoveDown() {
-        return inAir;
+    public float moveDownMultiplier() {
+        return inAir ? 1.0f : 0;
     }
     
     @Override

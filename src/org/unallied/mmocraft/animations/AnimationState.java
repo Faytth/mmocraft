@@ -29,7 +29,7 @@ public abstract class AnimationState implements Serializable {
 
     /** 
      * The number of milliseconds that have elapsed.  When this reaches
-     * animationSpeed, the animation is suspended.
+     * duration, the animation is suspended.
      */
     protected transient int elapsedTime = 0;
     
@@ -236,11 +236,14 @@ public abstract class AnimationState implements Serializable {
     }
     
     /**
-     * Returns whether or not this character is in a state which can move down
-     * @return
+     * Returns a multiplier for the movement speed downwards.  Default is 1.0.
+     * This should be multiplied by the player's movement speed to determine
+     * how fast they're moving.  A result of 0 signifies that the player is
+     * unable to move down.
+     * @return downMultiplier
      */
-    public boolean canMoveDown() {
-        return false;
+    public float moveDownMultiplier() {
+        return 0f;
     }
 
     /**

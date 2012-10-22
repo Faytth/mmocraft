@@ -24,6 +24,15 @@ public class Camera {
     /** The minimum number of pixels / second that the camera should move at. */
     public static final long CAMERA_MIN_CHANGE_RATE = 50;
     
+    /** The time in milliseconds that must pass before the camera is allowed to snap again. */
+    public static final long SNAP_COOLDOWN_TIME = 50;
+    
+    /** 
+     * The time in milliseconds (from {@link System#currentTimeMillis()} that
+     * the camera last snapped to the player's location.  Used to prevent jitter.
+     */
+    private long lastSnap = 0;
+    
     /** The time in milliseconds (from {@link System#currentTimeMillis()}). */
     private long lastUpdateTime = 0;
     
@@ -83,14 +92,22 @@ public class Camera {
                 float percentChange = 1.0f * delta / CAMERA_CHANGE_RATE;
                 percentChange = percentChange < 0 ? 0 : percentChange;
                 percentChange = percentChange > 1f ? 1f : percentChange;
-                                // Check for minimum change (prevents jitter)
-                if (deltaX > -0.1f && deltaX < 0.1f) {
-                    currentLocation.setRawX(destination.getRawX());
-                    deltaX = 0;
-                }
-                if (deltaY > -0.1f && deltaY < 0.1f) {
-                    currentLocation.setRawY(destination.getRawY());
-                    deltaY = 0;
+                                /* Check for minimum change (prevents jitter).  
+                 * The "cooldown" here prevents the camera from snapping to the
+                 * player's location (in other words, prevents it from being
+                 * always on the character).
+                 */
+                if (System.currentTimeMillis() - lastSnap > SNAP_COOLDOWN_TIME) {
+                    if (deltaX > -1f && deltaX < 1f) {
+                        currentLocation.setRawX(destination.getRawX());
+                        deltaX = 0;
+                        lastSnap = System.currentTimeMillis();
+                    }
+                    if (deltaY > -1f && deltaY < 1f) {
+                        currentLocation.setRawY(destination.getRawY());
+                        deltaY = 0;
+                        lastSnap = System.currentTimeMillis();
+                    }
                 }
                 
                 // Check for minimum speed and adjust as necessary.                if (deltaX != 0 && ((Math.abs(deltaX) * percentChange * (1000.0 / delta)) < CAMERA_MIN_CHANGE_RATE)) {                    deltaX = deltaX < 0 ? -1.0f : 1.0f;                    deltaX = deltaX * CAMERA_MIN_CHANGE_RATE * delta / 1000;                } else {                    deltaX *= percentChange;

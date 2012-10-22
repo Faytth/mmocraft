@@ -10,7 +10,7 @@ public class ChatMessage {
 	private MessageType messageType;
 	private String messageBody;
 	/** The author of the message */
-	private String author = "NULL";
+	private String author = "";
 	
 	/**
 	 * Creates a new ChatMessage.
@@ -19,8 +19,7 @@ public class ChatMessage {
 	 *                    such as "Hello, my name is Alex."
 	 */
 	public ChatMessage(MessageType messageType, String messageBody) {
-		this.messageType = messageType;
-		this.messageBody = messageBody;
+		this("", messageType, messageBody);
 	}
 	
 	/**

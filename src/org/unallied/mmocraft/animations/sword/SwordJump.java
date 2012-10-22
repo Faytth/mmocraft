@@ -65,8 +65,7 @@ public class SwordJump extends AnimationState {
 
     @Override
     public void shield() {
-        // TODO Auto-generated method stub
-
+        player.setState(new SwordAirDodge(player, this));
     }
 
     /**
@@ -96,11 +95,14 @@ public class SwordJump extends AnimationState {
     
     @Override
     /**
-     * Returns whether or not this character is in a state which can move down
-     * @return
+     * Returns a multiplier for the movement speed downwards.  Default is 1.0.
+     * This should be multiplied by the player's movement speed to determine
+     * how fast they're moving.  A result of 0 signifies that the player is
+     * unable to move down.
+     * @return downMultiplier
      */
-    public boolean canMoveDown() {
-        return true;
+    public float moveDownMultiplier() {
+        return 1.0f;
     }
 
     @Override

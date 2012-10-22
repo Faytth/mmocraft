@@ -129,13 +129,13 @@ public class RegisterFrame extends Frame {
 
         successStaticText = new StaticText(this, null, container, "", 0, 160, -1, -1, FontID.STATIC_TEXT_MEDIUM, new Color(200, 0, 0));
         
-        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE));
+        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(userTextCtrl);
-        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE));
+        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(passTextCtrl);
-        elements.add(new StaticText(this, null, container, "Re-enter Pass:", 0, 60, -1, -1, FontID.STATIC_TEXT_LARGE));
+        elements.add(new StaticText(this, null, container, "Re-enter Pass:", 0, 60, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(pass2TextCtrl);
-        elements.add(new StaticText(this, null, container, "E-mail Address:", 0, 90, -1, -1, FontID.STATIC_TEXT_LARGE));
+        elements.add(new StaticText(this, null, container, "E-mail Address:", 0, 90, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(emailTextCtrl);
         elements.add(backButton);
         elements.add(registerButton);
