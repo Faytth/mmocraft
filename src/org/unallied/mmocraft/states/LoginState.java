@@ -214,7 +214,7 @@ public class LoginState extends AbstractState {
         SpriteHandler.getInstance(); // init
         if (container != null) {
             container.setVerbose(false);
-            container.setShowFPS(true);
+            container.setShowFPS(false);
             container.setAlwaysRender(true);
             container.setUpdateOnlyWhenVisible(false);
             container.setTargetFrameRate(Game.MAX_FPS);

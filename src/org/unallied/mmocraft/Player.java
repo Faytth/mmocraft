@@ -187,9 +187,15 @@ public class Player extends Living implements Serializable {
         velocity.setX(xVelocity);
         
         // Perform player-based controls
-        if (GUIUtility.getInstance().getActiveElement() == null) {
-            // Perform shielding
-            shieldUpdate(controls.isShielding(input));
+        try {
+            if (Game.getInstance().getClient().getPlayer() == this) {
+                if (GUIUtility.getInstance().getActiveElement() == null) {
+                    // Perform shielding
+                    shieldUpdate(controls.isShielding(input));
+                }
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
 
         current.update(delta);
