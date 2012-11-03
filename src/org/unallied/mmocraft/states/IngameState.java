@@ -7,7 +7,6 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.Controls;
-import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.MMOClient;
@@ -17,6 +16,8 @@ import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.gui.frame.InventoryFrame;
 import org.unallied.mmocraft.gui.frame.MiniMapFrame;
+import org.unallied.mmocraft.gui.frame.StatusFrame;
+import org.unallied.mmocraft.gui.frame.ToolbarFrame;
 import org.unallied.mmocraft.net.PacketCreator;
 
 public class IngameState extends AbstractState {
@@ -34,8 +35,13 @@ public class IngameState extends AbstractState {
     /** A frame containing the player's location information. */
     private MiniMapFrame miniMapFrame = null;
     
+    /** The player's status, such as current / maximum health, experience, name. */
+    private StatusFrame statusFrame = null;
+    
+    private ToolbarFrame toolbarFrame = null;
+    
     public IngameState() {
-        super(null, null, null, 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+        super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
     }
     
     @Override
@@ -203,12 +209,27 @@ public class IngameState extends AbstractState {
             throws SlickException {
         // Set GUI elements
         if( this.elements.size() == 0 ) {
+            toolbarFrame = new ToolbarFrame(this, new EventIntf() {
+                @Override
+                public void callback(Event event) {
+                    switch (event.getId()) {
+                    case INVENTORY_CLICKED:
+                        inventoryFrame.show(!inventoryFrame.isShown());
+                        break;
+                    }
+                }
+            }, container, 0, 0, -1, -1);
+            toolbarFrame.setX(Game.getInstance().getWidth() - toolbarFrame.getWidth() - 10);
+            toolbarFrame.setY(Game.getInstance().getHeight() - toolbarFrame.getHeight() - 10);
+            
         	inventoryFrame = new InventoryFrame(this, new EventIntf() {
         		@Override
         		public void callback(Event event) {
         			
         		}
-        	}, container, Game.SCREEN_WIDTH - 300, Game.SCREEN_HEIGHT-410, -1, -1);
+        	}, container, 0, 0, -1, -1);
+        	inventoryFrame.setX(Game.getInstance().getWidth() - inventoryFrame.getWidth() - 10);
+        	inventoryFrame.setY(toolbarFrame.getY() - inventoryFrame.getHeight() - 10);
         	inventoryFrame.hide();
         	
             chatFrame = new ChatFrame(this, new EventIntf() {
@@ -234,20 +255,27 @@ public class IngameState extends AbstractState {
                     }
                 }
                 
-            }, container, 10, Game.SCREEN_HEIGHT-210 + 60, -1, -1);
-            // Controls
-            this.elements.add(inventoryFrame);
+            }, container, 10, 0, -1, -1);
+            chatFrame.setY(Game.getInstance().getHeight() - chatFrame.getHeight() - 5);
+            
+            miniMapFrame = new MiniMapFrame(this, new EventIntf() {
+                @Override
+                public void callback(Event event) {}
+            }, container, Game.getInstance().getWidth() - 180, 10, -1, -1);
+
+            statusFrame = new StatusFrame(this, new EventIntf() {
+                @Override
+                public void callback(Event event) {}
+            }, container, 5, 5, -1, 1);
+            
+            // Controls.  Add these in the order you would like to see them appear.
             this.elements.add(chatFrame);
+            this.elements.add(miniMapFrame);
+            this.elements.add(statusFrame);
+            this.elements.add(toolbarFrame);
+            
+            this.elements.add(inventoryFrame);
         }
-        
-        miniMapFrame = new MiniMapFrame(this, new EventIntf() {
-            @Override
-            public void callback(Event event) {}
-        }, container, Game.SCREEN_WIDTH - 180, 10, -1, -1);
-        // Controls
-        this.elements.add(inventoryFrame);
-        this.elements.add(chatFrame);
-        this.elements.add(miniMapFrame);
 
         // Start off with the game focused
         GUIUtility.getInstance().setActiveElement(null);
@@ -264,7 +292,6 @@ public class IngameState extends AbstractState {
     @Override
     public void init(GameContainer container, StateBasedGame game)
             throws SlickException {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -288,17 +315,8 @@ public class IngameState extends AbstractState {
         client.render(container, game, g);
         
         // Now render the GUI
-        
-         // Get maximum width / height of the game
-        
-/*                long gameWidth  = gl.getWorld().getWidth();
-           long gameHeight = gl.getWorld().getHeight();
-           
-           // Get the terrain for easy reference and the player's location
-           Terrain  t  = gl.getWorld().getTerrain();
-           Location l  = gl.getCurrentPlayer().getLocation();*/
-                           
-           // Player is always at center, even at world's edge.
+                                   
+        // Player is always at center, even at world's edge.
         if (elements != null) {
             // Iterate over all GUI controls and inform them of input
             for( GUIElement element : elements ) {
@@ -319,48 +337,8 @@ public class IngameState extends AbstractState {
     public void update(GameContainer container, StateBasedGame game, int delta) {
         try {
             Input input = container.getInput();
-            Player player = Game.getInstance().getClient().getPlayer();
-            boolean idle = true; // determines whether player is moving
-    
-            /*
-             * The way movement works is a little tricky.  There is a movement delay
-             * which, if another button is pressed before that delay expires, a
-             * smash attack occurs.
-             */
-            
-            if (player != null) {
-            	Controls controls = Game.getInstance().getControls();
-                    
-                // These next checks are only if the main game is focused and not a GUI control
-                if (GUIUtility.getInstance().getActiveElement() == null) {
-                    // Perform movement
-                    if (controls.isMovingLeft(input)) {
-                    	player.tryMoveLeft(delta);
-                    	idle = false;
-                    }
-                    if (controls.isMovingRight(input)) {
-                        player.tryMoveRight(delta);
-                        idle = false;
-                    }
-                    if (controls.isMovingUp(input)) {
-                        player.tryMoveUp(delta);
-                        idle = false;
-                    }
-                    if (controls.isMovingDown(input)) {
-                        player.tryMoveDown(delta);
-                        idle = false;
-                    }
-                    
-                    // perform attacks
-                    player.attackUpdate(controls.isBasicAttack(input));
-                }
-                
-                if (idle) {
-                    player.idle();
-                }
-                player.update(delta);
-    
-            }
+
+            Game.getInstance().getClient().update(container, game, delta);
             
     /*        if (delta > 20) {
                 System.out.println(delta);
@@ -402,7 +380,7 @@ public class IngameState extends AbstractState {
     }
 
 	@Override
-	protected boolean isAcceptingFocus() {
+	public boolean isAcceptingFocus() {
 		return false;
 	}
 

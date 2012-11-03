@@ -104,8 +104,11 @@ public abstract class GUIElement implements InputListener {
      * as a listener.
      */
     public void destroy() {
-        if (isHandler) {
-            container.getInput().removeListener(this);
+        try {
+            if (isHandler) {
+                container.getInput().removeListener(this);
+            }
+        } catch (Throwable t) {
         }
     }
     
@@ -176,10 +179,6 @@ public abstract class GUIElement implements InputListener {
 	            for( GUIElement element : elements ) {
 	                element.render(container, game, g);
 	            }
-	            
-	            for( GUIElement element : elements ) {
-	                element.renderToolTip(container, game, g);
-	            }
 	        }
     	}
     }
@@ -190,18 +189,30 @@ public abstract class GUIElement implements InputListener {
      */
     public void renderToolTip(GameContainer container, StateBasedGame game
             , Graphics g) {
-        Input input = container.getInput();
+        // Guard
+        if (container == null || g == null) {
+            return;
+        }
         
-        int mouseX = input.getMouseX();
-        int mouseY = input.getMouseY();
-        
-        // Update tooltip if necessary
-        if( toolTip != null ) {
-            if( containsPoint(mouseX, mouseY) ) {
-                try {
-                    toolTip.render(container, game, g);
-                } catch (SlickException e) {
-                    // Failed to render tooltip.  Oh well.
+        if (!hidden) {
+            Input input = container.getInput();
+            
+            int mouseX = input.getMouseX();
+            int mouseY = input.getMouseY();
+            
+            // Update tooltip if necessary
+            if( toolTip != null ) {
+                if( containsPoint(mouseX, mouseY) ) {
+                    try {
+                        toolTip.render(container, game, g);
+                    } catch (SlickException e) {
+                        // Failed to render tooltip.  Oh well.
+                    }
+                }
+            }
+            if (elements != null) {
+                for( GUIElement element : elements ) {
+                    element.renderToolTip(container, game, g);
                 }
             }
         }
@@ -225,7 +236,7 @@ public abstract class GUIElement implements InputListener {
         float realX = getAbsoluteWidth();
         float realY = getAbsoluteHeight();
 
-        return (x >= realX && x <= realX + getWidth() && y >= realY && y <= realY + getHeight());
+        return (x >= realX && x < realX + getWidth() && y >= realY && y < realY + getHeight());
     }
     
     /**
@@ -240,9 +251,15 @@ public abstract class GUIElement implements InputListener {
     
     /**
      * True if this control should accept tab events
-     * @return
+     * @return acceptingTab True if the control can be focused by tab, else false.
      */
     public abstract boolean isAcceptingTab();
+    
+    /**
+     * True if this control should accept focus (keyboard input).
+     * @return acceptingFocus True if the control accepts focus, else false.
+     */
+    public abstract boolean isAcceptingFocus();
     
     public void mouseClicked(int button, int x, int y, int clickCount) {
         // TODO Auto-generated method stub
@@ -371,14 +388,22 @@ public abstract class GUIElement implements InputListener {
      * Shows the element.  When an element is showing, it will be rendered.
      */
     public void show() {
-    	hidden = false;
+    	show(true);
+    }
+    
+    /**
+     * Shows or hides the element.  When an element is showing, it will be rendered.
+     * @param show True if the element should be shown, else false.
+     */
+    public void show(boolean show) {
+        hidden = !show;
     }
     
     /**
      * Hides the element.  When an element is hidden, it will not be rendered.
      */
     public void hide() {
-    	hidden = true;
+    	show(false);
     }
     
     /**
@@ -392,5 +417,37 @@ public abstract class GUIElement implements InputListener {
         }
         
     	return !hidden;
+    }
+    
+    /**
+     * Retrieves the x coordinate of this frame's position.
+     * @return x
+     */
+    public int getX() {
+        return (int) x;
+    }
+    
+    /**
+     * Retrieves the y coordinate of this frame's position.
+     * @return y
+     */
+    public int getY() {
+        return (int) y;
+    }
+    
+    /**
+     * Sets this GUI element's x position.
+     * @param x The new x position.
+     */
+    public void setX(int x) {
+        this.x = x;
+    }
+    
+    /**
+     * Sets this GUI element's y position.
+     * @param y The new y position.
+     */
+    public void setY(int y) {
+        this.y = y;
     }
 }

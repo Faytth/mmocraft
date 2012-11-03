@@ -3,13 +3,17 @@ package org.unallied.mmocraft.animations.sword;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SpriteSheet;
+import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Controls;
+import org.unallied.mmocraft.Location;
 import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.RawPoint;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
+import org.unallied.mmocraft.constants.WorldConstants;
 
 public class SwordAirDodge extends AnimationState {
 
@@ -46,18 +50,20 @@ public class SwordAirDodge extends AnimationState {
             float xVelocity = 0;
             float yVelocity = 0;
             if (controls.isMovingLeft(input)) {
-                xVelocity = -MOVE_DISTANCE * 10;
+                xVelocity = -MOVE_DISTANCE;
             }
             else if (controls.isMovingRight(input)) {
-                xVelocity = MOVE_DISTANCE * 10;
+                xVelocity = MOVE_DISTANCE;
             }
             if (controls.isMovingUp(input)) {
-                yVelocity = -MOVE_DISTANCE * 4;
+                yVelocity = -MOVE_DISTANCE;
             } else if (controls.isMovingDown(input)) {
-                yVelocity = MOVE_DISTANCE * 4;
+                yVelocity = MOVE_DISTANCE;
             }
             player.setVelocity(xVelocity, yVelocity);
-            player.moveHorizontal(1000); // Using 1 for milliseconds so that MOVE_DISTANCE is pixels
+            player.setFallSpeed(0);
+            
+            player.move(1000); // Using 1 for milliseconds so that MOVE_DISTANCE is pixels
             player.setVelocity(0, 0);
         } catch (NullPointerException e) {
         }
@@ -105,6 +111,7 @@ public class SwordAirDodge extends AnimationState {
 
     }
 
+    @Override
     /**
      * Returns whether or not this character is in a state which can move left
      * @return
@@ -113,6 +120,7 @@ public class SwordAirDodge extends AnimationState {
         return false;
     }
     
+    @Override
     /**
      * Returns whether or not this character is in a state which can move right
      * @return

@@ -124,8 +124,8 @@ public class InventoryFrame extends Frame {
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
 
-        this.width  = 280;
-        this.height = 400;
+        this.width  = 280 > container.getWidth() - 20 ? container.getWidth() - 20 : 280;
+        this.height = 400 > container.getHeight() - 20 ? container.getHeight() - 20 : 400;
         
         long playerGold = getPlayerGold();
         
@@ -416,6 +416,12 @@ public class InventoryFrame extends Frame {
     	if (!hidden) {
         	try {
         		renderBackground(g);
+                if (elements != null) {
+                    // Iterate over all GUI controls and inform them of input
+                    for( GUIElement element : elements ) {
+                        element.render(container, game, g);
+                    }
+                }
         		Inventory inventory = Game.getInstance().getClient().getPlayer().getInventory();
         		renderInventory(inventory, g);
         	} catch (Exception e) {
@@ -423,11 +429,6 @@ public class InventoryFrame extends Frame {
     		}
         	
 	        if (elements != null) {
-	            // Iterate over all GUI controls and inform them of input
-	            for( GUIElement element : elements ) {
-	                element.render(container, game, g);
-	            }
-	            
 	            for( GUIElement element : elements ) {
 	                element.renderToolTip(container, game, g);
 	            }
@@ -442,8 +443,8 @@ public class InventoryFrame extends Frame {
     }
     
 	@Override
-	protected boolean isAcceptingFocus() {
-		return true;
+	public boolean isAcceptingFocus() {
+		return false;
 	}
 	
 	/**

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
 
 /**
  * Stores all images in a map for easy access.  If the image requested is not
@@ -67,6 +66,12 @@ public class ImageHandler {
             images.put( ImageID.BUTTON_REGISTER_NORMAL.toString(), new Image("resources/images/button_register_normal.png"));
             images.put( ImageID.BUTTON_REGISTER_HIGHLIGHTED.toString(), new Image("resources/images/button_register_highlighted.png"));
             images.put( ImageID.BUTTON_REGISTER_SELECTED.toString(), new Image("resources/images/button_register_selected.png"));
+            images.put( ImageID.TOGGLEBUTTON_TOOLBARCHARACTER_NORMAL.toString(), new Image("resources/images/togglebutton_toolbarcharacter_normal.png"));
+            images.put( ImageID.TOGGLEBUTTON_TOOLBARCHARACTER_HIGHLIGHTED.toString(), new Image("resources/images/togglebutton_toolbarcharacter_highlighted.png"));
+            images.put( ImageID.TOGGLEBUTTON_TOOLBARCHARACTER_SELECTED.toString(), new Image("resources/images/togglebutton_toolbarcharacter_selected.png"));
+            images.put( ImageID.TOGGLEBUTTON_TOOLBARINVENTORY_NORMAL.toString(), new Image("resources/images/togglebutton_toolbarinventory_normal.png"));
+            images.put( ImageID.TOGGLEBUTTON_TOOLBARINVENTORY_HIGHLIGHTED.toString(), new Image("resources/images/togglebutton_toolbarinventory_highlighted.png"));
+            images.put( ImageID.TOGGLEBUTTON_TOOLBARINVENTORY_SELECTED.toString(), new Image("resources/images/togglebutton_toolbarinventory_selected.png"));
 
             // Backgrounds
             images.put( ImageID.BACKGROUND_SKY.toString(), new Image("resources/images/backgrounds/sky.png") );
@@ -84,11 +89,8 @@ public class ImageHandler {
             images.put( ImageID.BLOCK_SANDSTONE.toString(), new Image("resources/images/blocks/sandstone.png"));
             images.put( ImageID.BLOCK_SAND.toString(),      new Image("resources/images/blocks/sand.png"));
             
-        } catch (SlickException e) {
-            // There was an error loading the default images
-            //e.printStackTrace();
-        } catch (RuntimeException e) {
-            // Do nothing
+        } catch (Throwable t) {
+            
         }
     }
     

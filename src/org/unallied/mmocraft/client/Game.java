@@ -9,9 +9,9 @@ import org.unallied.mmocraft.net.PacketSocket;
 import org.unallied.mmocraft.states.*;
 
 public class Game extends StateBasedGame {
-    public static final int SCREEN_WIDTH = 1724;
-    public static final int SCREEN_HEIGHT = 968;
-    protected static final int MAX_FPS = 60;
+    private static final int SCREEN_WIDTH = 800;
+    private static final int SCREEN_HEIGHT = 600;
+    public static final int MAX_FPS = 60000;
     
     /// We are not able to use the superior Singleton pattern for this due to applet complications
     protected static Game instance = null;
@@ -36,20 +36,13 @@ public class Game extends StateBasedGame {
     }
     
     public static void main( String[] args ) {
-    	
+    	// NOTE:  Most of the container initialization is performed in LoginState.init()
         try {
             AppGameContainer app = new AppGameContainer( getInstance() );
-            app.setVerbose(false); // you might want to disable this for production release
             app.setDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, false);
-            app.setShowFPS(true);
-            app.setAlwaysRender(true);
-            app.setUpdateOnlyWhenVisible(false);
-            app.setTargetFrameRate(MAX_FPS);
-            app.setClearEachFrame(false);
             app.start();
         } catch (Throwable e) {
             e.printStackTrace();
-            //JOptionPane.showMessageDialog(null, e.getMessage());
         }
         
         // Cleanup
@@ -59,7 +52,7 @@ public class Game extends StateBasedGame {
             // don't care.  We're closing.
         }
     }
-
+    
     @Override
     public void initStatesList(GameContainer gameContainer) throws SlickException {
     }
@@ -87,5 +80,25 @@ public class Game extends StateBasedGame {
      */
     public Controls getControls() {
     	return controls;
+    }
+    
+    /**
+     * Retrieves the width of the container that this game is in.  Returns 0 if
+     * the container doesn't exist.
+     * @return width
+     */
+    public int getWidth() {
+        GameContainer container = getContainer();
+        return container == null ? 0 : container.getWidth();
+    }
+    
+    /**
+     * Retrieves the height of the container that this game is in.  Returns 0 if
+     * the container doesn't exist.
+     * @return height
+     */
+    public int getHeight() {
+        GameContainer container = getContainer();
+        return container == null ? 0 : container.getHeight();
     }
 }

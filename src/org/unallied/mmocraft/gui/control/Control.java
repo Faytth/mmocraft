@@ -88,7 +88,7 @@ public abstract class Control extends GUIElement {
 	            }
 	            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
 	        }
-	        renderToolTip(container, game, g);
+//	        renderToolTip(container, game, g);
     	}
     }
     
@@ -102,22 +102,23 @@ public abstract class Control extends GUIElement {
         int mouseX = input.getMouseX();
         int mouseY = input.getMouseY();
         boolean newMouseDown = input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON);
-        boolean newHighlighted;
-        boolean newActiveState = false;
+        boolean newHighlighted = highlighted;
+        boolean newActiveState = activeState;
         
         // Check if selected / deselected
-        if( mouseDown && !newMouseDown && this.isAcceptingInput() ) {
-            GUIUtility util = GUIUtility.getInstance();
-            if( containsPoint(mouseX, mouseY) && isShown() ) {
-                util.setActiveElement(this);
-                newActiveState = true;
-            } else if( util.isActiveElement(this)) {
-                util.setActiveElement(null);
-                newActiveState = false;
+        if (this.isAcceptingInput()) {
+            if (mouseDown && !newMouseDown) {
+                GUIUtility util = GUIUtility.getInstance();
+                if (containsPoint(mouseX, mouseY) && isShown() && isAcceptingFocus()) {
+                    util.setActiveElement(this);
+                    newActiveState = true;
+                } else if (util.isActiveElement(this)) {
+                    util.setActiveElement(null);
+                    newActiveState = false;
+                }
             }
+            newHighlighted = containsPoint(mouseX, mouseY);
         }
-        
-        newHighlighted = containsPoint(mouseX, mouseY);
         
         needsRefresh |= ( highlighted != newHighlighted || newActiveState != activeState);
         highlighted = newHighlighted;

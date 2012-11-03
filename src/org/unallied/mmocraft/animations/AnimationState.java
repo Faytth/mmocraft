@@ -212,6 +212,15 @@ public abstract class AnimationState implements Serializable {
     }
 
     /**
+     * Retrieves whether or not this character is in a state which can change its movement speed.
+     * A good example of a state that CAN'T change its velocity is during a roll.
+     * @return changeVelocity
+     */
+    public boolean canChangeVelocity() {
+        return true;
+    }
+    
+    /**
      * Returns whether or not this character is in a state which can move left
      * @return
      */

@@ -1,5 +1,8 @@
 package org.unallied.mmocraft;
 
+import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
+import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
+
 /**
  * A class used in player movement among other things.  Contains an x and y
  * element of speed.  This is the number of pixels / millisecond.
@@ -56,5 +59,40 @@ public class Velocity {
      */
     public void setY(float y) {
         this.y = y;
+    }
+
+    /**
+     * Serializes the bytes for this class.  This is used in place of
+     * writeObject / readObject because Java adds a lot of "extra" 
+     * stuff that isn't particularly useful in this case.
+     * @return objectBytes
+     */
+    public byte[] getBytes() {
+        GenericLittleEndianWriter writer = new GenericLittleEndianWriter();
+        
+        writer.writeFloat(x);
+        writer.writeFloat(y);
+        
+        return writer.toByteArray();
+    }
+    
+    /**
+     * Retrieves this class from an SLEA, which contains the raw bytes of this class
+     * obtained from the getBytes() method.
+     * @param slea A seekable little endian accessor that is currently at the position containing
+     *             the bytes of a Velocity object.
+     * @return velocity
+     */
+    public static Velocity fromBytes(SeekableLittleEndianAccessor slea) {
+        // Guard
+        if (slea == null || slea.available() < 8) {
+            return null;
+        }
+        
+        Velocity result = new Velocity(0, 0);
+        result.x = slea.readFloat();
+        result.y = slea.readFloat();
+        
+        return result;
     }
 }

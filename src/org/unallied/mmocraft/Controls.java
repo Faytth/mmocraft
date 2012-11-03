@@ -33,6 +33,7 @@ public class Controls {
 		controls.put(ControlType.BASIC_ATTACK, new Integer[] {Input.KEY_LSHIFT});
 		controls.put(ControlType.SHIELD, new Integer[] {Input.KEY_SPACE});
 		controls.put(ControlType.OPEN_INVENTORY, new Integer[] {Input.KEY_I, Input.KEY_B});
+		controls.put(ControlType.OPEN_CHARACTER_INFO, new Integer[] {Input.KEY_C});
 	}
 	
 	/**

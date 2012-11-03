@@ -39,7 +39,7 @@ public abstract class Frame extends GUIElement {
     
     @Override
     public void mousePressed(int button, int x, int y) {
-        if (isAcceptingFocus() && this.containsPoint(x, y)) {
+        if (this.containsPoint(x, y)) {
             int i = zIndex.indexOf(this);
             if (i >= 0) {
             	zIndex.remove(i);
@@ -47,8 +47,6 @@ public abstract class Frame extends GUIElement {
             }
         }
     }
-
-    protected abstract boolean isAcceptingFocus();
     
     @Override
     public void destroy() {

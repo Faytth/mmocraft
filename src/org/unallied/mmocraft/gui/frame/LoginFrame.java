@@ -95,6 +95,9 @@ public class LoginFrame extends Frame {
         elements.add(registerButton);
         
         GUIUtility.getInstance().setActiveElement(userTextCtrl);
+        
+        this.width = passTextCtrl.getWidth() + passTextCtrl.getX();
+        this.height = registerButton.getHeight() + registerButton.getY();
     }
     
     @Override
@@ -135,7 +138,7 @@ public class LoginFrame extends Frame {
     }
 
 	@Override
-	protected boolean isAcceptingFocus() {
+	public boolean isAcceptingFocus() {
 		return true;
 	}
 }

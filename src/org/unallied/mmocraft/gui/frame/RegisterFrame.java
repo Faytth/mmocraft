@@ -142,6 +142,9 @@ public class RegisterFrame extends Frame {
         elements.add(successStaticText);
         
         GUIUtility.getInstance().setActiveElement(userTextCtrl);
+        
+        this.width = passTextCtrl.getWidth() + passTextCtrl.getX();
+        this.height = registerButton.getHeight() + registerButton.getY();
     }
     
     @Override
@@ -223,7 +226,7 @@ public class RegisterFrame extends Frame {
     }
 
 	@Override
-	protected boolean isAcceptingFocus() {
+	public boolean isAcceptingFocus() {
 		return true;
 	}
 }

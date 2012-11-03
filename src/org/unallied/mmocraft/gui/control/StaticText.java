@@ -63,6 +63,16 @@ public class StaticText extends GUIElement {
     }
     
     @Override
+    public int getWidth() {
+        return font == null || label == null ? 0 : font.getWidth(label);
+    }
+    
+    @Override
+    public int getHeight() {
+        return font == null ? 0 : font.getLineHeight();
+    }
+    
+    @Override
     public void update(GameContainer container) {
         // Static text does not respond to events (except tooltips)
     }
@@ -124,5 +134,10 @@ public class StaticText extends GUIElement {
      */
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    @Override
+    public boolean isAcceptingFocus() {
+        return false;
     }
 }

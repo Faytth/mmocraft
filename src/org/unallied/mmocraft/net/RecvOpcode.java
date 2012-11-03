@@ -18,7 +18,8 @@ public enum RecvOpcode {
     PLAYER_DISCONNECT(0x08), 
     REGISTRATION_ACK(0x09), 
     CHAT_MESSAGE(0x0A), 
-    ITEM_DATA(0x0B);
+    ITEM_DATA(0x0B),
+    PLAYER_INFO(0x0C);
     private int code = 0;
     
     private RecvOpcode(int code) {

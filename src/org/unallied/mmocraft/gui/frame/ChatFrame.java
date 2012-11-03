@@ -111,6 +111,11 @@ public class ChatFrame extends Frame {
         setType(MessageType.SAY);
         this.width  = messageTextCtrl.getWidth();
         this.height = chatHeight + messageTextCtrl.getHeight();
+        if (this.height > container.getHeight() / 4) {
+            chatHeight = container.getHeight() / 4 - messageTextCtrl.getHeight();
+            this.height = chatHeight + messageTextCtrl.getHeight();
+        }
+        messageTextCtrl.setY(chatHeight);
     }
     
     @Override
@@ -334,7 +339,7 @@ public class ChatFrame extends Frame {
     }
     
 	@Override
-	protected boolean isAcceptingFocus() {
+	public boolean isAcceptingFocus() {
 		return true;
 	}
 

@@ -24,8 +24,6 @@ public class MiniMapFrame extends Frame {
             float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
         
-        this.container = container;
-
         coordValueStaticText = new StaticText(this, null, container, "(0,0)", 80, 0, -1, -1, FontID.STATIC_TEXT_MEDIUM_BOLD);
         elements.add(coordValueStaticText);
     }
@@ -50,7 +48,7 @@ public class MiniMapFrame extends Frame {
     }
 
     @Override
-    protected boolean isAcceptingFocus() {
+    public boolean isAcceptingFocus() {
         return false;
     }
 

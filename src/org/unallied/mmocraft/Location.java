@@ -99,7 +99,7 @@ public class Location implements Serializable {
      * @return the x coordinate of a specific block
      */
     public long getX() {
-        return x / BLOCK_GRANULARITY;
+        return x >= 0 ? x / BLOCK_GRANULARITY : x / BLOCK_GRANULARITY - 1;
     }
     
     /**
@@ -124,6 +124,24 @@ public class Location implements Serializable {
      */
     public float getYOffset() {
         return (float) (1.0 * (y % BLOCK_GRANULARITY) / BLOCK_GRANULARITY * WorldConstants.WORLD_BLOCK_HEIGHT);
+    }
+    
+    /**
+     * Retrieves the raw x offset from the block at (x,y).
+     * This value is between 0 and BLOCK_GRANULARITY - 1.
+     * @return rawXOffset
+     */
+    public long getRawXOffset() {
+        return x % BLOCK_GRANULARITY;
+    }
+    
+    /**
+     * Retrieves the raw y offset from the block at (x,y).
+     * This value is between 0 and BLOCK_GRANULARITY - 1.
+     * @return rawYOffset
+     */
+    public long getRawYOffset() {
+        return y % BLOCK_GRANULARITY;
     }
     
     /**
@@ -400,7 +418,7 @@ public class Location implements Serializable {
      * Serializes the bytes for this class.  This is used in place of
      * writeObject / readObject because Java adds a lot of "extra"
      * stuff that isn't particularly useful in this case.
-     * @return
+     * @return objectBytes
      */
     public byte[] getBytes() {
         GenericLittleEndianWriter writer = new GenericLittleEndianWriter();

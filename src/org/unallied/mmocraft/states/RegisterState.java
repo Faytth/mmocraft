@@ -22,7 +22,7 @@ public class RegisterState extends AbstractState {
     private RegisterFrame registerFrame = null;
     
     public RegisterState() {
-        super(null, null, null, 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+        super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
     }
 
     @Override
@@ -181,8 +181,10 @@ public class RegisterState extends AbstractState {
                     }
                 }
                 
-            }, container, Game.SCREEN_WIDTH/3
-                    , Game.SCREEN_HEIGHT/3 + 60, -1, -1);
+            }, container, 0, 0, -1, -1);
+            registerFrame.setX( (Game.getInstance().getWidth() - registerFrame.getWidth()) / 2);
+            registerFrame.setY( (Game.getInstance().getHeight()- registerFrame.getHeight()) / 2);
+            
             // Controls
             this.elements.add(registerFrame);
         }
@@ -268,7 +270,7 @@ public class RegisterState extends AbstractState {
     }
 
 	@Override
-	protected boolean isAcceptingFocus() {
+	public boolean isAcceptingFocus() {
 		return false;
 	}
 }

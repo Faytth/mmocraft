@@ -28,6 +28,7 @@ public class SwordShield extends AnimationState {
         animation.start();
         horizontalOffset = 21;
         verticalOffset = 0;
+        player.setVelocity(0, player.getVelocity().getY());
     }
 
     @Override
@@ -102,6 +103,24 @@ public class SwordShield extends AnimationState {
         
     }
 
+    @Override
+    /**
+     * Returns whether or not this character is in a state which can move left
+     * @return
+     */
+    public boolean canMoveLeft() {
+        return false;
+    }
+    
+    @Override
+    /**
+     * Returns whether or not this character is in a state which can move right
+     * @return
+     */
+    public boolean canMoveRight() {
+        return false;
+    }
+    
     @Override
     /**
      * Returns whether or not this character is in a state which can move up

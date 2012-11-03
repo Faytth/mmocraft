@@ -126,8 +126,8 @@ public class SpriteHandler {
     private void init() {
         try {
             putSwords();
-        } catch (RuntimeException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            
         }
     }
     

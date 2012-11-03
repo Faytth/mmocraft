@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.newdawn.slick.tools.hiero.truetype.IOUtils;
 import org.newdawn.slick.util.ResourceLoader;
 import org.unallied.mmocraft.constants.ServerConstants;
+import org.unallied.mmocraft.tools.IOUtils;
 import org.unallied.mmocraft.tools.input.ByteArrayByteStream;
 import org.unallied.mmocraft.tools.input.GenericSeekableLittleEndianAccessor;
 

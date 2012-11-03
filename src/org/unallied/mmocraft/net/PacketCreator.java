@@ -73,18 +73,19 @@ public class PacketCreator {
      * @return packet
      */
     public static Packet getMovement(Player player) {
+        // Guard
+        if (player == null) {
+            return null;
+        }
+        
         PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
         
         writer.write(SendOpcode.MOVEMENT);
-        /* TODO:  Reduce the size of the location serialization.
-         *        We only need to know the x, y, and offsets. 
-         */
         writer.write(player.getLocation().getBytes());
-        /* TODO:  Reduce size of the AnimationState serialization.
-         *        We only need to know the ID.
-         */
         writer.writeShort(player.getState().getId().getValue());
         writer.write((byte)player.getDirection().ordinal()); // right is 0, left is 1
+        writer.write(player.getVelocity().getBytes());
+        writer.writeFloat(player.getFallSpeed());
 
         return writer.getPacket();
     }
@@ -138,6 +139,22 @@ public class PacketCreator {
         writer.writeInt(endingIndex);
         writer.writeFloat(horizontalOffset);
         writer.writeFloat(verticalOffset);
-        return null;
+        
+        return writer.getPacket();
+    }
+
+    /**
+     * Returns a player info packet, which asks the server to give the player name
+     * and other trivial information for a player with the given id.
+     * @param playerId The player id that information is being requested from.
+     * @return packet
+     */
+    public static Packet getPlayerInfo(int playerId) {
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.PLAYER_INFO);
+        writer.writeInt(playerId);
+        
+        return writer.getPacket();
     }
 }

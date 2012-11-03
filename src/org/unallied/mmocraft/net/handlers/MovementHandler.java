@@ -3,9 +3,11 @@ package org.unallied.mmocraft.net.handlers;
 import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Direction;
 import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Velocity;
 import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
+import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 
 /**
@@ -31,11 +33,17 @@ public class MovementHandler extends AbstractPacketHandler {
                 p.setState(AnimationType.getState(p, null, slea.readShort()));
                 p.setDirection(slea.readByte() == 0 ? Direction.RIGHT : Direction.LEFT);
                 p.init();
+                p.setVelocity(Velocity.fromBytes(slea));
+                p.setFallSpeed(slea.readFloat());
                 client.playerPoolSession.addPlayer(p);
+                // Request player info from server
+                client.announce(PacketCreator.getPlayerInfo(playerId));
             } else { // not a new player, so just update it
                 p.setLocation(BoundLocation.getLocation(slea));
                 p.setState(AnimationType.getState(p, p.getState(), slea.readShort()));
                 p.setDirection(slea.readByte() == 0 ? Direction.RIGHT : Direction.LEFT);
+                p.setVelocity(Velocity.fromBytes(slea));
+                p.setFallSpeed(slea.readFloat());
             }
         } catch (Throwable t) {
             t.printStackTrace();

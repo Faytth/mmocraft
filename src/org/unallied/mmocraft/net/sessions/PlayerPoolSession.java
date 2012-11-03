@@ -49,6 +49,23 @@ public class PlayerPoolSession {
             readLock.unlock();
         }
     }
+    
+    /**
+     * Updates all players in the player pool.
+     * @param container
+     * @param game
+     * @param delta
+     */
+    public void update(GameContainer container, StateBasedGame game, int delta) {
+        readLock.lock();
+        try {
+            for (Player p : pool.values()) {
+                p.update(delta);
+            }
+        } finally {
+            readLock.unlock();
+        }
+    }
 
     /**
      * Retrieve a player from the player pool if it exists.

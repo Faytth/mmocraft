@@ -317,4 +317,9 @@ public class TextCtrl extends Control {
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
 	}
+
+    @Override
+    public boolean isAcceptingFocus() {
+        return true;
+    }
 }

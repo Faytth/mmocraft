@@ -6,6 +6,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.ImageHandler;
@@ -23,7 +24,7 @@ public class LoginState extends AbstractState {
     private LoginFrame loginFrame = null;
     
     public LoginState() {
-        super(null, null, null, 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
+        super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
     }
 
     @Override
@@ -191,8 +192,10 @@ public class LoginState extends AbstractState {
                     }
                 }
                 
-            }, container, Game.SCREEN_WIDTH/3
-                    , Game.SCREEN_HEIGHT/3 + 60, -1, -1);
+            }, container, 0, 0, -1, -1);
+            loginFrame.setX( (Game.getInstance().getWidth() - loginFrame.getWidth()) / 2);
+            loginFrame.setY( (Game.getInstance().getHeight() - loginFrame.getHeight()) / 2);
+            
             // Controls
             this.elements.add(loginFrame);
         }
@@ -209,6 +212,24 @@ public class LoginState extends AbstractState {
     public void init(GameContainer container, StateBasedGame game)
             throws SlickException {
         SpriteHandler.getInstance(); // init
+        if (container != null) {
+            container.setVerbose(false);
+            container.setShowFPS(true);
+            container.setAlwaysRender(true);
+            container.setUpdateOnlyWhenVisible(false);
+            container.setTargetFrameRate(Game.MAX_FPS);
+            container.setClearEachFrame(false);
+        }
+        
+        /*
+         * Initialize the Collision enum.  This MUST be done in the same thread.
+         * If initialization is left until later, then it's possible for
+         * Collision to be initialized in another thread, which will cause all
+         * Collisions to fail until the game is restarted.
+         */
+        Collision c = Collision.SWORD_BACK_AIR;
+        Collision d = c;
+        c = d;
     }
 
     @Override
@@ -277,7 +298,7 @@ public class LoginState extends AbstractState {
     }
 
 	@Override
-	protected boolean isAcceptingFocus() {
+	public boolean isAcceptingFocus() {
 		return false;
 	}
 }

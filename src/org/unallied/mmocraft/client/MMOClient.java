@@ -2,9 +2,12 @@ package org.unallied.mmocraft.client;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
+import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.PacketSocket;
@@ -228,5 +231,62 @@ public class MMOClient {
      */
     public TerrainSession getTerrainSession() {
         return terrainSession;
+    }
+    
+    /**
+     * Updates the player and anything else contained in the client, such as
+     * other players.
+     * @param container The container holding the game.
+     * @param game The game holding this state.
+     * @param delta The amount of time that passed in milliseconds since the last update.
+     */
+    public void update(GameContainer container, StateBasedGame game, int delta) {
+        Input input = container.getInput();
+        boolean idle = true; // determines whether player is moving
+        /*
+         * The way movement works is a little tricky.  There is a movement delay
+         * which, if another button is pressed before that delay expires, a
+         * smash attack occurs.
+         */
+        
+        if (player != null) {
+            Controls controls = Game.getInstance().getControls();
+                
+            // These next checks are only if the main game is focused and not a GUI control
+            if (GUIUtility.getInstance().getActiveElement() == null) {
+                // Perform movement
+                if (controls.isMovingLeft(input)) {
+                    idle &= !player.tryMoveLeft(delta);
+                }
+                if (controls.isMovingRight(input)) {
+                    idle &= !player.tryMoveRight(delta);
+                }
+                if (idle && player.getState().canChangeVelocity()) {
+                    player.setVelocity(0, player.getVelocity().getY());
+                }
+                if (controls.isMovingUp(input)) {
+                    player.tryMoveUp(delta);
+                    idle = false;
+                }
+                if (controls.isMovingDown(input)) {
+                    player.tryMoveDown(delta);
+                    idle = false;
+                }
+                if (!controls.isMovingUp(input) && !controls.isMovingDown(input)) {
+                    if (player.getState().canChangeVelocity()) {
+                        player.setVelocity(player.getVelocity().getX(), 0);
+                    }
+                }
+                
+                // perform attacks
+                player.attackUpdate(controls.isBasicAttack(input));
+            }
+            
+            if (idle) {
+                player.idle();
+            }
+            player.update(delta);
+        }
+        playerPoolSession.update(container,  game, delta);
     }
 }

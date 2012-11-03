@@ -106,4 +106,9 @@ public class Button extends Control {
         
     }
 
+    @Override
+    public boolean isAcceptingFocus() {
+        return false;
+    }
+
 }

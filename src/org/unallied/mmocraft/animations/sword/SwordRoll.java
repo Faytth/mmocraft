@@ -52,7 +52,6 @@ public class SwordRoll extends Roll {
     
     @Override
     public void idle() {
-        // We're already idle, so do nothing
     }
 
     /**
@@ -70,17 +69,10 @@ public class SwordRoll extends Roll {
         if (animation != null) {
             animation.update(delta);
         }
-        switch (player.getDirection()) {
-        case LEFT:
-            player.moveHorizontal((int) (delta));
-            break;
-        case RIGHT:
-            player.moveHorizontal((int) (delta));
-            break;
-        }
         
         // The player has exceeded their rolling time, so reset their state
         if (elapsedTime > duration) {
+            player.setVelocity(0, player.getVelocity().getY());
             if (player.isShielding()) {
                 player.setState(new SwordShield(player, this));
             } else {
@@ -107,6 +99,29 @@ public class SwordRoll extends Roll {
         
     }
 
+    @Override
+    public boolean canChangeVelocity() {
+        return false;
+    }
+    
+    @Override
+    /**
+     * Returns whether or not this character is in a state which can move left
+     * @return
+     */
+    public boolean canMoveLeft() {
+        return false;
+    }
+    
+    @Override
+    /**
+     * Returns whether or not this character is in a state which can move right
+     * @return
+     */
+    public boolean canMoveRight() {
+        return false;
+    }
+    
     @Override
     /**
      * Returns whether or not this character is in a state which can move up

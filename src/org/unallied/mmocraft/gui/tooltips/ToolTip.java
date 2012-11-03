@@ -117,6 +117,12 @@ public class ToolTip {
         int offX = mouseX > container.getWidth()/2 ? mouseX - toolWidth - rectOffX : rectOffX + mouseX;
         int offY = mouseY > container.getHeight()/2 ? mouseY - toolHeight - rectOffY : rectOffY + mouseY;
         
+        offX = offX < 0 ? 0 : offX;
+        offX = offX + toolWidth >= container.getWidth() ? container.getWidth() - toolWidth - 1 : offX;
+        offY = offY < 0 ? 0 : offY;
+        offY = offY + toolHeight >= container.getHeight() ? container.getHeight() - toolHeight - 1 : offY;
+        
+        
         // Render background
         g.fill(new Rectangle(offX, offY, toolWidth, toolHeight), 
         		new GradientFill(0, 0, new Color(0, 10, 46, 206), 
