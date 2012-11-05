@@ -3,6 +3,8 @@ package org.unallied.mmocraft.tools;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unallied.mmocraft.chat.ChatCommand;
+
 /**
  * The authenticator class is used to test whether something is valid or invalid.
  * An example usage would be to test whether a player's name is valid.  This class
@@ -80,11 +82,11 @@ public class Authenticator {
 
     /**
      * Returns whether this string is a valid chat message.  This includes
-     * checking its length.
+     * checking its length and whether it's a command.
      * @param message The message to check for validity.
      * @return valid true if valid, else false
      */
     public static boolean isValidChatMessage(String message) {
-    	return message.length() <= MAX_MESSAGE_LENGTH;
+    	return message.length() <= MAX_MESSAGE_LENGTH && !ChatCommand.isCommand(message);
     }
 }

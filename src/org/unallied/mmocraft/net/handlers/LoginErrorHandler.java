@@ -2,7 +2,6 @@ package org.unallied.mmocraft.net.handlers;
 
 import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
-import org.unallied.mmocraft.tools.PrintError;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 
 /**
@@ -14,9 +13,23 @@ import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
  */
 public class LoginErrorHandler extends AbstractPacketHandler {
 
+    private static int lastError = 0;
+    
     @Override
     public void handlePacket(SeekableLittleEndianAccessor slea, MMOClient client) {
-        PrintError.print(PrintError.ERROR_MESSAGE, slea.readPrefixedAsciiString());
+        try {
+            lastError = slea.readInt();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            client.disconnect(); // Our login was corrupted, so we should log out and try again.
+        }
     }
 
+    /**
+     * Returns the last error message received for logging in.
+     * @return lastError
+     */
+    public static int getLastError() {
+        return lastError;
+    }
 }

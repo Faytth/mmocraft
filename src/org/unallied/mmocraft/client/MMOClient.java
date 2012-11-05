@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.client;
 
+import org.apache.mina.core.session.IoSession;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -10,14 +11,12 @@ import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketCreator;
-import org.unallied.mmocraft.net.PacketSocket;
+import org.unallied.mmocraft.net.PacketSender;
 import org.unallied.mmocraft.net.sessions.LoginSession;
 import org.unallied.mmocraft.net.sessions.NPCSession;
 import org.unallied.mmocraft.net.sessions.ObjectSession;
 import org.unallied.mmocraft.net.sessions.PlayerPoolSession;
 import org.unallied.mmocraft.net.sessions.TerrainSession;
-
-import org.apache.mina.core.session.IoSession;
 
 /**
  * This class houses the Player as well as some important account information.
@@ -159,16 +158,7 @@ public class MMOClient {
     }
     
     public void announce(Packet packet) {
-        try {
-            // Reconnect if needed
-            if (session == null || !session.isConnected()) {
-                session = PacketSocket.getInstance().getSession();
-            }
-            session.write(packet);
-        } catch (Throwable t) {
-            // Error sending packet.  This can be caused by a connection failure.
-            session = PacketSocket.getInstance().getSession();
-        }
+        PacketSender.addPacket(packet);
     }
 
     /**
@@ -284,6 +274,9 @@ public class MMOClient {
             
             if (idle) {
                 player.idle();
+                if (player.getState().canChangeVelocity()) {
+                    player.setVelocity(0, player.getVelocity().getY());
+                }
             }
             player.update(delta);
         }

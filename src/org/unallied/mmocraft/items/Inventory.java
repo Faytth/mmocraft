@@ -35,6 +35,9 @@ public class Inventory {
      * @param quantity The number of items to add.  Negative values do nothing.
      */
     public void addItem(Item item, long quantity) {
+        if (item == null || quantity < 0 || item.getQuantity() + quantity <= 0) { // Guard
+            return;
+        }
         if (items.containsKey(item.getId())) {
             Item categoryItem = items.get(item.getId());
             categoryItem.addQuantity(quantity);
@@ -50,6 +53,9 @@ public class Inventory {
      * @param quantity The number of items to remove.  Negative values do nothing.
      */
     public void removeItem(Item item, long quantity) {
+        if (item == null || quantity <= 0) { // Guard
+            return;
+        }
         if (items.containsKey(item.getId())) {
             Item categoryItem = items.get(item.getId());
             categoryItem.removeQuantity(quantity);

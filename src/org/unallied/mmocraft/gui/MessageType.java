@@ -8,14 +8,16 @@ package org.unallied.mmocraft.gui;
  *
  */
 public enum MessageType {
-	WORLD(0x00),
-	SAY(0x01),
-	PARTY(0x02),
-	GUILD(0x03);
+	WORLD(0x00, "World"),
+	SAY(0x01, "Say"),
+	PARTY(0x02, "Party"),
+	GUILD(0x03, "Guild");
 	byte value = 0;
+	String name;
 	
-	MessageType(int value) {
+	MessageType(int value, String name) {
 		this.value = (byte) value;
+		this.name = name;
 	}
 	
 	public byte getValue() {
@@ -30,5 +32,10 @@ public enum MessageType {
 		}
 		
 		return null; // not found
+	}
+	
+	@Override
+	public String toString() {
+	    return name;
 	}
 }

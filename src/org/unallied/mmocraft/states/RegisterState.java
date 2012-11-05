@@ -264,9 +264,7 @@ public class RegisterState extends AbstractState {
     }
         
     @Override
-    public void renderImage(Image image) {
-        // Set background
-        image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
+    public void renderImage(Graphics g) {
     }
 
 	@Override

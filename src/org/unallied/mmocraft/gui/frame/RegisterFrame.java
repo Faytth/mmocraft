@@ -3,7 +3,7 @@ package org.unallied.mmocraft.gui.frame;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Image;
+import org.newdawn.slick.Graphics;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.constants.DatabaseConstants;
@@ -15,6 +15,8 @@ import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.StaticText;
 import org.unallied.mmocraft.gui.control.TextCtrl;
 import org.unallied.mmocraft.gui.tooltips.ToolTip;
+import org.unallied.mmocraft.net.ConnectionStatus;
+import org.unallied.mmocraft.net.PacketSocket;
 import org.unallied.mmocraft.net.handlers.RegistrationAckHandler;
 import org.unallied.mmocraft.tools.Authenticator;
 
@@ -53,9 +55,7 @@ public class RegisterFrame extends Frame {
                     break;
                 }
             }
-        }, container, "", 140, 90, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
+        }, container, "", 140, 90, 140, 21, TextCtrl.NORMAL);
         emailTextCtrl.setToolTip(new ToolTip("Must be unique.  E-mail addresses are used for password recovery."));
         
         pass2TextCtrl = new TextCtrl(this, new EventIntf() {
@@ -67,9 +67,7 @@ public class RegisterFrame extends Frame {
                     break;
                 }
             }
-        }, container, "", 140, 60, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.PASSWORD);
+        }, container, "", 140, 60, 140, 21, TextCtrl.PASSWORD);
         
         passTextCtrl = new TextCtrl(this, new EventIntf() {
             @Override
@@ -80,9 +78,7 @@ public class RegisterFrame extends Frame {
                     break;
                 }
             }
-        }, container, "", 140, 30, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.PASSWORD);
+        }, container, "", 140, 30, 140, 21, TextCtrl.PASSWORD);
         passTextCtrl.setToolTip(new ToolTip("Must be between 6 and 50 characters."));
                 
         userTextCtrl = new TextCtrl(this, new EventIntf() {
@@ -94,9 +90,7 @@ public class RegisterFrame extends Frame {
                     break;
                 }
             }
-        }, container, "", 140, 0, -1, -1, ImageID.TEXTCTRL_LOGIN_NORMAL.toString()
-                , ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), TextCtrl.NORMAL);
+        }, container, "", 140, 0, 140, 21, TextCtrl.NORMAL);
         userTextCtrl.setToolTip(new ToolTip("Must be between 6 and 14 characters.  Must be unique.  May only contain a-z, A-Z, and/or 0-9."));
         
         backButton = new Button(this, new EventIntf() {
@@ -127,15 +121,20 @@ public class RegisterFrame extends Frame {
         ImageID.BUTTON_REGISTER_HIGHLIGHTED.toString(),
         ImageID.BUTTON_REGISTER_SELECTED.toString(), 0);
 
-        successStaticText = new StaticText(this, null, container, "", 0, 160, -1, -1, FontID.STATIC_TEXT_MEDIUM, new Color(200, 0, 0));
+        successStaticText = new StaticText(this, null, container, "", 0, 160, 
+                -1, -1, FontID.STATIC_TEXT_MEDIUM, new Color(200, 0, 0));
         
-        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
+        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, 
+                FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(userTextCtrl);
-        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
+        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, 
+                FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(passTextCtrl);
-        elements.add(new StaticText(this, null, container, "Re-enter Pass:", 0, 60, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
+        elements.add(new StaticText(this, null, container, "Re-enter Pass:", 0, 60, -1, -1, 
+                FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(pass2TextCtrl);
-        elements.add(new StaticText(this, null, container, "E-mail Address:", 0, 90, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
+        elements.add(new StaticText(this, null, container, "E-mail Address:", 0, 90, -1, -1, 
+                FontID.STATIC_TEXT_LARGE_BOLD));
         elements.add(emailTextCtrl);
         elements.add(backButton);
         elements.add(registerButton);
@@ -151,9 +150,12 @@ public class RegisterFrame extends Frame {
     public void update(GameContainer container) {
 
         // Check to see if there's an error message for registration
-        if (RegistrationAckHandler.getLastError() != 0) {
-            // TODO:  Make some sort of error class with a list of error strings
-            successStaticText.setLabel("Error creating account.  Try a different name / email.");
+        if (PacketSocket.getConnectionStatus() == ConnectionStatus.CONTACTING_SERVER) {
+            successStaticText.setLabel(StringConstants.CONTACTING_SERVER);
+        } else if (RegistrationAckHandler.getLastError() != 0) {
+            successStaticText.setLabel(StringConstants.REGISTER_ERROR);
+        } else if (PacketSocket.getConnectionStatus() == ConnectionStatus.FAILED_TO_CONNECT) {
+            successStaticText.setLabel(StringConstants.CONNECTION_ERROR);
         }
         
         // Iterate over all GUI controls and inform them of input
@@ -169,9 +171,7 @@ public class RegisterFrame extends Frame {
     }
 
     @Override
-    public void renderImage(Image image) {
-        // TODO Auto-generated method stub
-        
+    public void renderImage(Graphics g) {
     }
 
     /**

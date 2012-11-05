@@ -45,21 +45,18 @@ public class ImageHandler {
     private void init() {
         try {
             images.put( ImageID.LOGIN_SCREEN.toString(), new Image("resources/images/backgrounds/sky.png") );
-            images.put( ImageID.TEXTCTRL_CHAT_NORMAL.toString(), new Image("resources/images/textctrl_chat_normal.png"));
-            images.put( ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_chat_highlighted.png"));
-            images.put( ImageID.TEXTCTRL_CHAT_SELECTED.toString(), new Image("resources/images/textctrl_chat_selected.png"));
-            images.put( ImageID.TEXTCTRL_LOGIN_NORMAL.toString(), new Image("resources/images/textctrl_login_normal.png"));
-            images.put( ImageID.TEXTCTRL_LOGIN_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_login_highlighted.png"));
-            images.put( ImageID.TEXTCTRL_LOGIN_SELECTED.toString(), new Image("resources/images/textctrl_login_selected.png"));
-            images.put( ImageID.TEXTCTRL_CHAT_NORMAL.toString(), new Image("resources/images/textctrl_chat_normal.png"));
-            images.put( ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_chat_highlighted.png"));
-            images.put( ImageID.TEXTCTRL_CHAT_SELECTED.toString(), new Image("resources/images/textctrl_chat_selected.png"));
+            images.put( ImageID.TEXTCTRL_DEFAULT_NORMAL.toString(), new Image("resources/images/textctrl_default_normal.png"));
+            images.put( ImageID.TEXTCTRL_DEFAULT_HIGHLIGHTED.toString(), new Image("resources/images/textctrl_default_highlighted.png"));
+            images.put( ImageID.TEXTCTRL_DEFAULT_SELECTED.toString(), new Image("resources/images/textctrl_default_selected.png"));
             images.put( ImageID.BUTTON_BACK_NORMAL.toString(), new Image("resources/images/button_back_normal.png"));
             images.put( ImageID.BUTTON_BACK_HIGHLIGHTED.toString(), new Image("resources/images/button_back_highlighted.png"));
             images.put( ImageID.BUTTON_BACK_SELECTED.toString(), new Image("resources/images/button_back_selected.png"));
             images.put( ImageID.BUTTON_CLOSE_NORMAL.toString(), new Image("resources/images/button_close_normal.png"));
             images.put( ImageID.BUTTON_CLOSE_HIGHLIGHTED.toString(), new Image("resources/images/button_close_highlighted.png"));
             images.put( ImageID.BUTTON_CLOSE_SELECTED.toString(), new Image("resources/images/button_close_selected.png"));
+            images.put( ImageID.BUTTON_DEFAULT_NORMAL.toString(), new Image("resources/images/button_default_normal.png"));
+            images.put( ImageID.BUTTON_DEFAULT_HIGHLIGHTED.toString(), new Image("resources/images/button_default_highlighted.png"));
+            images.put( ImageID.BUTTON_DEFAULT_SELECTED.toString(), new Image("resources/images/button_default_selected.png"));
             images.put( ImageID.BUTTON_LOGIN_NORMAL.toString(), new Image("resources/images/button_login_normal.png"));
             images.put( ImageID.BUTTON_LOGIN_HIGHLIGHTED.toString(), new Image("resources/images/button_login_highlighted.png"));
             images.put( ImageID.BUTTON_LOGIN_SELECTED.toString(), new Image("resources/images/button_login_selected.png"));

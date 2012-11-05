@@ -3,6 +3,7 @@ package org.unallied.mmocraft.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.unallied.mmocraft.constants.ClientConstants;
@@ -44,6 +45,9 @@ public class ImagePool {
     
     // The pool of images
     private Map<Integer, ImageNode[]> images = new HashMap<Integer, ImageNode[]>();
+    
+    /** An offscreen buffer of 1024 x 1024 pixels. */
+    private Image offscreenBuffer;
     
     /**
      * Initializes all image nodes of a given width and height if they are
@@ -88,6 +92,12 @@ public class ImagePool {
         int width = WorldConstants.WORLD_CHUNK_WIDTH * WorldConstants.WORLD_BLOCK_WIDTH;
         int height = WorldConstants.WORLD_CHUNK_HEIGHT * WorldConstants.WORLD_BLOCK_HEIGHT;
         initImageNodes(width, height);
+        try {
+            offscreenBuffer = new Image(1024, 1024);
+        } catch (SlickException e) { // Unable to use offscreen buffer
+            offscreenBuffer = null;
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -162,7 +172,7 @@ public class ImagePool {
         refreshNeeded = false;
         return null;
     }
-
+    
     /**
      * Returns whether the last call to getImage() requires a refresh
      * of the image.  DOES NOT WORK WITH MULTITHREADING.
@@ -189,5 +199,18 @@ public class ImagePool {
                 }
             }
         }
+    }
+    
+    public Image getOffscreenBuffer() {
+        if (offscreenBuffer != null) {
+            try {
+                Graphics g = offscreenBuffer.getGraphics();
+                g.clear();
+                g.flush();
+            } catch (SlickException e) {
+            }
+            
+        }
+        return offscreenBuffer;
     }
 }

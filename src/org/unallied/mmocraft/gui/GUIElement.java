@@ -5,12 +5,10 @@ import java.util.List;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.InputListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.tooltips.ToolTip;
 
 /**
@@ -105,6 +103,10 @@ public abstract class GUIElement implements InputListener {
      */
     public void destroy() {
         try {
+            // Destroy our children
+            for(GUIElement element : elements) {
+                element.destroy();
+            }
             if (isHandler) {
                 container.getInput().removeListener(this);
             }
@@ -159,19 +161,12 @@ public abstract class GUIElement implements InputListener {
         
     	if (!hidden) {
 	        if (width > 0 && height > 0) {
-	            Image image = ImagePool.getInstance().getImage(this, width, height);
-	            if( image != null) {
-	                if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
-	                    renderImage(image);
-	                    // We need to flush the data to prevent graphical errors
-	                    try {
-	                    	image.getGraphics().flush();
-	                    } catch (SlickException e) {
-	                    }
-	                    needsRefresh = false;
-	                }
-	                image.draw(getAbsoluteWidth(), getAbsoluteHeight());
-	            }
+	            int offX = getAbsoluteWidth();
+	            int offY = getAbsoluteHeight();
+                g.translate(offX, offY);
+                renderImage(g);
+                g.flush();
+                g.resetTransform();
 	        }
 	        
 	        if (elements != null) {
@@ -220,9 +215,9 @@ public abstract class GUIElement implements InputListener {
     
     /**
      * Updates the image to reflect the current state of the element
-     * @param image The image to update
+     * @param g The image to update
      */
-    public abstract void renderImage(Image image);
+    public abstract void renderImage(Graphics g);
     
     /**
      * True if this element contains the given point on the screen.  Else false

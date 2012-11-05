@@ -7,22 +7,20 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.chat.ChatCommand;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
-import org.unallied.mmocraft.client.ImageID;
-import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.MessageType;
+import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.TextCtrl;
 import org.unallied.mmocraft.net.handlers.ChatMessageHandler;
 import org.unallied.mmocraft.tools.Authenticator;
@@ -35,8 +33,8 @@ public class ChatFrame extends Frame {
 	/** The color of "world" messages. */
 	private static final Color WORLD_COLOR = new Color(227, 115, 40);
 	
-	private static final String MESSAGE_FONT = FontID.STATIC_TEXT_MEDIUM.toString();
-	private static final String TITLE_FONT = FontID.STATIC_TEXT_MEDIUM_BOLD.toString();
+	private static final String MESSAGE_FONT = FontID.STATIC_TEXT_MEDIUM_SMALL.toString();
+	private static final String TITLE_FONT = FontID.STATIC_TEXT_MEDIUM_SMALL_BOLD.toString();
 
 	/**
 	 * The distance from the top of the chat frame that messageTextCtrl is positioned.
@@ -52,9 +50,9 @@ public class ChatFrame extends Frame {
 	
 	/** Stores the message that the player is typing. */
 	private TextCtrl messageTextCtrl;
-	
+		
 	/** The width in pixels of the scroll bar. */
-	private int scrollBarWidth = 4;
+	private int scrollBarWidth = 5;
 	
 	/**
 	 * Index from the bottom of the chat frame.  In a way, this is a "reverse" index.
@@ -64,7 +62,6 @@ public class ChatFrame extends Frame {
 	 */
 	private int lineIndex = 0;
 
-//TODO:  Add these buttons.
     /**
      * When clicked, this button will expand to offer multiple types / colors<br />
      * of chat.  For example:<br />
@@ -73,12 +70,15 @@ public class ChatFrame extends Frame {
      * <green>Guild</green><br />
      * <blue>Party</blue>
      */
-/*    private Button chatTypeButton;
+    private Button chatTypeButton;
     
     private Button worldButton;
     private Button sayButton;
-*/    
+    /** The width of the worldButton, sayButton, etc. */
+    private static final int BUTTON_WIDTH = 60;
+    
     private List<ChatMessage> receivedMessages = new ArrayList<ChatMessage>();
+    private List<Button> changeChatTypeButtons = new ArrayList<Button>();
     
     /**
      * Initializes a LoginFrame with its elements (e.g. Username, Password fields)
@@ -89,6 +89,48 @@ public class ChatFrame extends Frame {
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
 
+        int buttonY = chatHeight;
+        chatTypeButton = new Button(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                for (Button button : changeChatTypeButtons) {
+                    button.show(!button.isShown());
+                }
+            }
+        }, container, "Say", 0, buttonY, BUTTON_WIDTH, -1, 0);
+        chatTypeButton.setColor(SAY_COLOR);
+        
+        worldButton = new Button(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                for (Button button : changeChatTypeButtons) {
+                    button.hide();
+                    setType(MessageType.WORLD);
+                }
+            }
+        }, container, "World", 0, buttonY -= 21, BUTTON_WIDTH, -1, 0);
+        worldButton.setColor(WORLD_COLOR);
+        
+        sayButton = new Button(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                for (Button button : changeChatTypeButtons) {
+                    button.hide();
+                    setType(MessageType.SAY);
+                }
+            }
+        }, container, "Say", 0, buttonY -= 21, BUTTON_WIDTH, -1, 0);
+        sayButton.setColor(SAY_COLOR);
+        
+        // Add all of the chat type buttons to the changeChatTypeButtons list.
+        changeChatTypeButtons.add(worldButton);
+        changeChatTypeButtons.add(sayButton);
+        
+        // Hide all of the buttons for changing the chat type.
+        for (Button button : changeChatTypeButtons) {
+            button.hide();
+        }
+        
         messageTextCtrl = new TextCtrl(this, new EventIntf() {
             @Override
             public void callback(Event event) {
@@ -101,15 +143,17 @@ public class ChatFrame extends Frame {
                     break;
                 }
             }
-        }, container, "", 0, chatHeight, -1, -1, ImageID.TEXTCTRL_CHAT_NORMAL.toString()
-                , ImageID.TEXTCTRL_CHAT_HIGHLIGHTED.toString()
-                , ImageID.TEXTCTRL_CHAT_SELECTED.toString(), 0);
+        }, container, "", chatTypeButton.getWidth(), chatHeight, 370, 21, 0);
         messageTextCtrl.setMaxLength(Authenticator.MAX_MESSAGE_LENGTH);
+        messageTextCtrl.setFontKey(FontID.STATIC_TEXT_MEDIUM_SMALL.toString());
 
+        elements.add(chatTypeButton);
+        elements.add(worldButton);
+        elements.add(sayButton);
         elements.add(messageTextCtrl);
         
         setType(MessageType.SAY);
-        this.width  = messageTextCtrl.getWidth();
+        this.width  = messageTextCtrl.getX() + messageTextCtrl.getWidth();
         this.height = chatHeight + messageTextCtrl.getHeight();
         if (this.height > container.getHeight() / 4) {
             chatHeight = container.getHeight() / 4 - messageTextCtrl.getHeight();
@@ -138,12 +182,19 @@ public class ChatFrame extends Frame {
          * accordingly.
          */
         String message = messageTextCtrl.getLabel();
-        if (message.startsWith("/s ")) {
-        	setType(MessageType.SAY);
-        	messageTextCtrl.setLabel("");
-        } else if (message.startsWith("/w ")) {
-        	setType(MessageType.WORLD);
-        	messageTextCtrl.setLabel("");
+        int index = message.indexOf(' ');
+        if (index > 0) {
+            message = message.substring(0, index);
+            switch (ChatCommand.getCommand(message)) {
+            case SELECT_SAY:
+                setType(MessageType.SAY);
+                messageTextCtrl.setLabel("");
+                break;
+            case SELECT_WORLD:
+                setType(MessageType.WORLD);
+                messageTextCtrl.setLabel("");
+                break;
+            }
         }
     }
 
@@ -153,11 +204,8 @@ public class ChatFrame extends Frame {
     }
     
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics g) {
     	try {
-    		image.setAlpha(1);
-    		Graphics g = image.getGraphics();
-    		g.clear();
 	    	int lineHeight = FontHandler.getInstance().getFont(MESSAGE_FONT).getLineHeight();
 	    	int lineY = this.chatHeight - lineHeight;
 	    	int messageCount = receivedMessages.size();
@@ -187,12 +235,15 @@ public class ChatFrame extends Frame {
             scrollBarLength = scrollBarLength < 20 ? 20 : scrollBarLength; // minimum length
             int scrollYOffset = chatHeight - scrollBarLength - ((int)(1.0 * lineIndex / (receivedMessages.size()-1) * (chatHeight - scrollBarLength)));
             scrollYOffset = (scrollYOffset + scrollBarLength) > height ? (height - scrollBarLength) : scrollYOffset;
-            GradientFill scrollFill = new GradientFill(0, 0, new Color(120, 160, 160, 50),
+            GradientFill scrollFill = new GradientFill(0, 0, new Color(255, 250, 250),
                     0, scrollBarLength/4, new Color(220, 220, 220), true);
-            g.fill(new Rectangle(offX, scrollYOffset + offY, 
+            g.fill(new Rectangle(offX + 1, scrollYOffset + offY, 
                     4, scrollBarLength/2), scrollFill);
-            g.fill(new Rectangle(offX, scrollYOffset + offY + scrollBarLength/2, 
+            g.fill(new Rectangle(offX + 1, scrollYOffset + offY + scrollBarLength/2, 
                     4, scrollBarLength-scrollBarLength/2), scrollFill.getInvertedCopy());
+            g.setColor(new Color(0, 78, 100));
+            g.drawRect(offX + 1, scrollYOffset + offY, 4, scrollBarLength);
+            g.setColor(new Color(255, 255, 255, 255));
         }
     }
     
@@ -202,31 +253,23 @@ public class ChatFrame extends Frame {
         
         if (!hidden) {
             if (width > 0 && height > 0) {
-                Image image = ImagePool.getInstance().getImage(this, width, height);
-                if( image != null) {
-                    if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
-                        renderImage(image);
-                        // We need to flush the data to prevent graphical errors
-                        try {
-                            image.getGraphics().flush();
-                        } catch (SlickException e) {
-                        }
-                        needsRefresh = false;
-                    }
-                    if (isActive()) { // Show background
-                        g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight), 
-                                new GradientFill(0, 0, new Color(0, 0, 0, 150),
-                                        0, chatHeight/2, new Color(0, 0, 0, 150)));
-                    } else {
-                        g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight),
-                                new GradientFill(0, 0, new Color(0, 0, 0, 100),
-                                        0, chatHeight/2, new Color(0, 0, 0, 100)));
-                    }
-                    image.draw(getAbsoluteWidth(), getAbsoluteHeight());
-                    
-                    // Render scrollbar
-                    renderScrollBar(g);
+                if (isActive()) { // Show background
+                    g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight), 
+                            new GradientFill(0, 0, new Color(0, 0, 0, 150),
+                                    0, chatHeight/2, new Color(0, 0, 0, 150)));
+                } else {
+                    g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight),
+                            new GradientFill(0, 0, new Color(0, 0, 0, 100),
+                                    0, chatHeight/2, new Color(0, 0, 0, 100)));
+                    messageTextCtrl.setLabel("");
                 }
+                g.translate(getAbsoluteWidth(), getAbsoluteHeight());
+                renderImage(g);
+                g.flush();
+                g.translate(-getAbsoluteWidth(), -getAbsoluteHeight());
+                
+                // Render scrollbar
+                renderScrollBar(g);
             }
             
             if (elements != null) {
@@ -240,6 +283,14 @@ public class ChatFrame extends Frame {
                 }
             }
         }
+        // Render border
+        if (isActive()) {
+            g.setColor(new Color(0, 128, 210));
+        } else {
+            g.setColor(new Color(0, 0, 0));
+        }
+        g.drawRect(getAbsoluteWidth(), getAbsoluteHeight(), width, height);
+        g.setColor(new Color(255, 255, 255));
     }
     
     /**
@@ -290,6 +341,8 @@ public class ChatFrame extends Frame {
     public void setType(MessageType type) {
     	this.messageType = type;
     	messageTextCtrl.setColor(getTypeColor(type));
+    	chatTypeButton.setLabel(type.toString());
+    	chatTypeButton.setColor(getTypeColor(type));
     }
     
     /**
@@ -358,7 +411,7 @@ public class ChatFrame extends Frame {
             GUIUtility.getInstance().setActiveElement(null);
         }
     }
-
+    
     /**
      * Returns whether or not this frame is active (meaning that the user can
      * enter a chat message).
@@ -382,22 +435,24 @@ public class ChatFrame extends Frame {
         }
         
         // "Wiggle room" 
-        final float BORDER = 10f;
-        
+        final float BORDER = 1f;
+                
         // We need to see if our scroll bar was pressed
-        if (y >= this.y &&
-            y <= this.y + chatHeight) {
+        if ((y >= this.y &&
+            y <= this.y + chatHeight) || scrollBarIsDragging) {
             // Get the percentage from 0 to 1 of the index
             float offset = this.y + chatHeight - y;
             // Give the user some "wiggle room" for going to the top / bottom
             if (offset < BORDER) {
-                offset = BORDER;
-            } else if (offset > chatHeight - BORDER) {
-                offset = chatHeight - BORDER;
+                offset = 0;
+            } else if (offset > chatHeight - BORDER && offset < chatHeight) {
+                offset = chatHeight;
             }
             
             double index = 1.0 * offset / (chatHeight - BORDER*2);
             int newIndex = (int)((receivedMessages.size()-1) * index);
+            newIndex = newIndex > receivedMessages.size()-1 ? receivedMessages.size()-1 : newIndex;
+            newIndex = newIndex < 0 ? 0 : newIndex;
             if (newIndex != lineIndex) {
                 lineIndex = newIndex;
                 needsRefresh = true;
@@ -414,7 +469,7 @@ public class ChatFrame extends Frame {
         
         // We need to see if our scroll bar was pressed
         if (x >= this.x &&
-            x <= this.x + scrollBarWidth &&
+            x <= this.x + scrollBarWidth + 1 &&
             y >= this.y &&
             y <= this.y + chatHeight) {
             updateScrollBarPosition(y);

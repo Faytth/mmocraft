@@ -7,12 +7,14 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.Controls;
+import org.unallied.mmocraft.chat.ChatCommand;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
+import org.unallied.mmocraft.gui.frame.CharacterFrame;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.gui.frame.InventoryFrame;
 import org.unallied.mmocraft.gui.frame.MiniMapFrame;
@@ -38,7 +40,17 @@ public class IngameState extends AbstractState {
     /** The player's status, such as current / maximum health, experience, name. */
     private StatusFrame statusFrame = null;
     
+    /** 
+     * The toolbar frame.  Contains important buttons for navigating around the
+     * GUI, such as a button to open / close the inventory.
+     */
     private ToolbarFrame toolbarFrame = null;
+    
+    /**
+     * A frame containing other frames inside of it that contain character information,
+     * such as the player's equipment and skills.
+     */
+    private CharacterFrame characterFrame = null;
     
     public IngameState() {
         super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
@@ -117,21 +129,27 @@ public class IngameState extends AbstractState {
         	if (inventoryFrame != null) {
         		inventoryFrame.hide();
         	}
+        	if (characterFrame != null) {
+        	    characterFrame.hide();
+        	}
         }
         
         GUIElement activeElement = GUIUtility.getInstance().getActiveElement();
         
         try {
 	        switch (controls.getKeyType(key)) {
-		        case OPEN_INVENTORY:
-		        	if (inventoryFrame != null && (activeElement == null || activeElement == inventoryFrame)) {
-		        		if (inventoryFrame.isShown()) {
-		        			inventoryFrame.hide();
-		        		} else {
-		        			inventoryFrame.show();
-		        		}
+		        case TOGGLE_INVENTORY:
+		        	if (inventoryFrame != null && 
+		        	        (activeElement == null || activeElement == inventoryFrame)) {
+		        	    inventoryFrame.show(!inventoryFrame.isShown());
 		        	}
 		        	break;
+		        case TOGGLE_CHARACTER_INFO:
+		            if (characterFrame != null && 
+		                    (activeElement == null || activeElement == characterFrame)) {
+		                characterFrame.show(!characterFrame.isShown());
+		            }
+		            break;
 		        }
         } catch (NullPointerException e) {
         	// Don't do anything, because all it means is the key wasn't found
@@ -204,83 +222,120 @@ public class IngameState extends AbstractState {
 
     }
 
-    @Override
-    public void enter(GameContainer container, StateBasedGame game)
-            throws SlickException {
+    /**
+     * Resets the GUI elements of this state by destroying and re-initializing them.
+     */
+    public void resetGUI(GameContainer container, StateBasedGame game) {
         // Set GUI elements
-        if( this.elements.size() == 0 ) {
-            toolbarFrame = new ToolbarFrame(this, new EventIntf() {
-                @Override
-                public void callback(Event event) {
-                    switch (event.getId()) {
-                    case INVENTORY_CLICKED:
-                        inventoryFrame.show(!inventoryFrame.isShown());
-                        break;
-                    }
-                }
-            }, container, 0, 0, -1, -1);
-            toolbarFrame.setX(Game.getInstance().getWidth() - toolbarFrame.getWidth() - 10);
-            toolbarFrame.setY(Game.getInstance().getHeight() - toolbarFrame.getHeight() - 10);
-            
-        	inventoryFrame = new InventoryFrame(this, new EventIntf() {
-        		@Override
-        		public void callback(Event event) {
-        			
-        		}
-        	}, container, 0, 0, -1, -1);
-        	inventoryFrame.setX(Game.getInstance().getWidth() - inventoryFrame.getWidth() - 10);
-        	inventoryFrame.setY(toolbarFrame.getY() - inventoryFrame.getHeight() - 10);
-        	inventoryFrame.hide();
-        	
-            chatFrame = new ChatFrame(this, new EventIntf() {
-
-                @Override
-                public void callback(Event event) {
-                    switch( event.getId() ) {
-                    case SEND_CHAT_MESSAGE:
-                    	ChatMessage message = chatFrame.getMessage();
-                    	if (!message.getBody().isEmpty()) {
-                        	// Send the message to the server
-                        	Game.getInstance().getClient().announce(
-                        			PacketCreator.getChatMessage(message));
-                        	// Clear the message from the chat frame
-                        	message.setBody("");
-                        	chatFrame.setMessage(message);
-                    	}
-                    	chatFrame.deactivate();
-                    	// Needed to stop any other enter / return events
-                    	Game.getInstance().getContainer().getInput().isKeyPressed(Input.KEY_ENTER);
-                    	Game.getInstance().getContainer().getInput().isKeyPressed(Input.KEY_RETURN);
-                        break;
-                    }
-                }
-                
-            }, container, 10, 0, -1, -1);
-            chatFrame.setY(Game.getInstance().getHeight() - chatFrame.getHeight() - 5);
-            
-            miniMapFrame = new MiniMapFrame(this, new EventIntf() {
-                @Override
-                public void callback(Event event) {}
-            }, container, Game.getInstance().getWidth() - 180, 10, -1, -1);
-
-            statusFrame = new StatusFrame(this, new EventIntf() {
-                @Override
-                public void callback(Event event) {}
-            }, container, 5, 5, -1, 1);
-            
-            // Controls.  Add these in the order you would like to see them appear.
-            this.elements.add(chatFrame);
-            this.elements.add(miniMapFrame);
-            this.elements.add(statusFrame);
-            this.elements.add(toolbarFrame);
-            
-            this.elements.add(inventoryFrame);
+        if( this.elements.size() > 0 ) {
+            // Controls
+            this.destroy();
+            this.elements.clear();
         }
+        toolbarFrame = new ToolbarFrame(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                switch (event.getId()) {
+                case INVENTORY_CLICKED:
+                    inventoryFrame.show(!inventoryFrame.isShown());
+                    break;
+                case CHARACTER_CLICKED:
+                    characterFrame.show(!characterFrame.isShown());
+                    break;
+                }
+            }
+        }, container, 0, 0, -1, -1);
+        toolbarFrame.setX(Game.getInstance().getWidth() - toolbarFrame.getWidth() - 10);
+        toolbarFrame.setY(Game.getInstance().getHeight() - toolbarFrame.getHeight() - 10);
+        
+        inventoryFrame = new InventoryFrame(this, new EventIntf() {
+            @Override
+            public void callback(Event event) {
+                
+            }
+        }, container, 0, 0, -1, -1);
+        inventoryFrame.setX(Game.getInstance().getWidth() - inventoryFrame.getWidth() - 10);
+        inventoryFrame.setY(toolbarFrame.getY() - inventoryFrame.getHeight() - 10);
+        inventoryFrame.hide();
+        
+        chatFrame = new ChatFrame(this, new EventIntf() {
+
+            @Override
+            public void callback(Event event) {
+                switch( event.getId() ) {
+                case SEND_CHAT_MESSAGE:
+                    ChatMessage message = chatFrame.getMessage();
+                    if (!message.getBody().isEmpty()) {
+                        if (ChatCommand.isCommand(message.getBody())) {
+                            handleChatCommand(message.getBody());
+                        } else {
+                            // Send the message to the server
+                            Game.getInstance().getClient().announce(
+                                    PacketCreator.getChatMessage(message));
+                            // Clear the message from the chat frame
+                            message.setBody("");
+                            chatFrame.setMessage(message);
+                        }
+                    }
+                    chatFrame.deactivate();
+                    // Needed to stop any other enter / return events
+                    Game.getInstance().getContainer().getInput().isKeyPressed(Input.KEY_ENTER);
+                    Game.getInstance().getContainer().getInput().isKeyPressed(Input.KEY_RETURN);
+                    break;
+                }
+            }
+            
+        }, container, 5, 0, -1, -1);
+        chatFrame.setY(Game.getInstance().getHeight() - chatFrame.getHeight() - 5);
+        
+        miniMapFrame = new MiniMapFrame(this, null, container, 
+                Game.getInstance().getWidth() - 180, 10, -1, -1);
+
+        statusFrame = new StatusFrame(this, null, container, 5, 5, -1, 1);
+        
+        characterFrame = new CharacterFrame(this, null, container, 5, chatFrame.getY() - 5, -1, -1);
+        characterFrame.setY(chatFrame.getY() - characterFrame.getHeight() - 5);
+        characterFrame.hide();
+        
+        // Controls.  Add these in the order you would like to see them appear.
+        this.elements.add(chatFrame);
+        this.elements.add(miniMapFrame);
+        this.elements.add(statusFrame);
+        this.elements.add(toolbarFrame);
+ 
+        this.elements.add(characterFrame);
+        this.elements.add(inventoryFrame);
 
         // Start off with the game focused
         GUIUtility.getInstance().setActiveElement(null);
         container.getInput().isKeyPressed(Input.KEY_ENTER);
         container.getInput().isKeyPressed(Input.KEY_RETURN);
+    }
+    
+    /**
+     * Handles chat commands.  These commands cause the client to respond in
+     * some way, such as reloading the GUI.
+     * @param message
+     */
+    protected void handleChatCommand(String message) {
+        switch (ChatCommand.getCommand(message)) {
+        case HELP:
+            
+            break;
+        case RELOAD_GUI:
+            Game game = Game.getInstance();
+            org.newdawn.slick.state.GameState state = game.getCurrentState();
+            if (state instanceof IngameState) {
+                ((IngameState)state).resetGUI(game.getContainer(), game);
+            }
+            break;
+        }
+    }
+
+    @Override
+    public void enter(GameContainer container, StateBasedGame game)
+            throws SlickException {
+        resetGUI(container, game);
     }
 
     @Override
@@ -374,7 +429,7 @@ public class IngameState extends AbstractState {
     }
 
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics g) {
         // TODO Auto-generated method stub
         
     }

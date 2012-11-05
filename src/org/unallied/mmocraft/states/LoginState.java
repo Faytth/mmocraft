@@ -15,6 +15,7 @@ import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.frame.LoginFrame;
 import org.unallied.mmocraft.net.PacketCreator;
+import org.unallied.mmocraft.net.PacketSender;
 import org.unallied.mmocraft.net.sessions.LoginSession;
 
 public class LoginState extends AbstractState {
@@ -179,11 +180,9 @@ public class LoginState extends AbstractState {
                         loginSession.setPassword(loginFrame.getPassword());
                         
                         // Initiate communication to the server for the login
-                        Game.getInstance().getClient().announce(
-                                PacketCreator.getLogon(loginSession.getUsername()));
-                        try {
-                            Thread.sleep(500); // This is needed to allow time to connect
-                        } catch (InterruptedException e) {
+                        if (loginFrame.getUsername().length() > 0 && loginFrame.getPassword().length() > 0) {
+                            Game.getInstance().getClient().announce(
+                                    PacketCreator.getLogon(loginSession.getUsername()));
                         }
                         break;
                     case REGISTER_CLICKED:
@@ -211,6 +210,8 @@ public class LoginState extends AbstractState {
     @Override
     public void init(GameContainer container, StateBasedGame game)
             throws SlickException {
+        // Initialize the packet sending thread
+        (new Thread(new PacketSender())).start();
         SpriteHandler.getInstance(); // init
         if (container != null) {
             container.setVerbose(false);
@@ -294,7 +295,7 @@ public class LoginState extends AbstractState {
     }
     
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics g) {
     }
 
 	@Override

@@ -19,7 +19,8 @@ public enum RecvOpcode {
     REGISTRATION_ACK(0x09), 
     CHAT_MESSAGE(0x0A), 
     ITEM_DATA(0x0B),
-    PLAYER_INFO(0x0C);
+    PLAYER_INFO(0x0C), 
+    SKILL_EXPERIENCE(0x0D);
     private int code = 0;
     
     private RecvOpcode(int code) {

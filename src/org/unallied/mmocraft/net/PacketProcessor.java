@@ -69,5 +69,6 @@ public class PacketProcessor {
         registerHandler(RecvOpcode.CHAT_MESSAGE, new ChatMessageHandler());
         registerHandler(RecvOpcode.ITEM_DATA, new ItemDataHandler());
         registerHandler(RecvOpcode.PLAYER_INFO, new PlayerInfoHandler());
+        registerHandler(RecvOpcode.SKILL_EXPERIENCE, new SkillExperienceHandler());
     }
 }

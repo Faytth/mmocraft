@@ -23,6 +23,7 @@ import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.items.ItemRequirement;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.sessions.TerrainSession;
+import org.unallied.mmocraft.skills.Skills;
 
 /**
  * Contains all information for a given player.
@@ -64,7 +65,7 @@ public class Player extends Living implements Serializable {
      */
     protected transient List<RawPoint> hitbox = null;
     
-    protected float movementSpeed = 400f; // Determines the rate of movement for this player pixels / second)
+    protected float movementSpeed = 300f; // Determines the rate of movement for this player pixels / second)
     protected float fallSpeed = 0.0f; // The rate that the player is currently falling
     protected int playerId; // The unique ID of this player
     
@@ -75,8 +76,11 @@ public class Player extends Living implements Serializable {
      */
     protected transient Velocity velocity = new Velocity(0, 0);
     
-    /** The inventory of the player */
+    /** The inventory of the player. */
     protected transient Inventory inventory = new Inventory();
+    
+    /** The player's skills. */
+    protected transient Skills skills = new Skills();
     
     public Player() {
         super();
@@ -712,6 +716,24 @@ public class Player extends Living implements Serializable {
         }
     }
 
+    /**
+     * Retrieves the player's skills, which contains all of the experience that the player has.
+     * @return skills The player's skills.
+     */
+    public Skills getSkills() {
+        return skills;
+    }
+    
+    /**
+     * Sets the player's skills to the new skills if the new skills list is not null.
+     * @param skills The player's new skills.
+     */
+    public void setSkills(Skills skills) {
+        if (skills != null) {
+            this.skills = skills;
+        }
+    }
+    
     /**
      * Returns whether the player meets the requirement.  This is based on the
      * player's skill levels.  To meet a requirement, a player's skill level

@@ -58,4 +58,9 @@ public class ItemRequirement {
         
         return new ItemRequirement(type, value);
     }
+    
+    @Override
+    public String toString() {
+        return "Requires " + this.type + ": " + this.value;
+    }
 }

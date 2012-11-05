@@ -10,7 +10,6 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
@@ -124,8 +123,8 @@ public class InventoryFrame extends Frame {
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
 
-        this.width  = 280 > container.getWidth() - 20 ? container.getWidth() - 20 : 280;
-        this.height = 400 > container.getHeight() - 20 ? container.getHeight() - 20 : 400;
+        this.width  = 280 > container.getWidth() - 50 ? container.getWidth() - 50 : 280;
+        this.height = 400 > container.getHeight() - 50 ? container.getHeight() - 50 : 400;
         
         long playerGold = getPlayerGold();
         
@@ -254,8 +253,10 @@ public class InventoryFrame extends Frame {
         // Right half
         g.fill(new Rectangle(offX + width/2, offY + underlineOffset, width - width/2, 1),
                 gFill.getInvertedCopy());
-        
-        // Render Close button
+        // Render border
+        g.setColor(new Color(0, 128, 210));
+        g.drawRect(offX, offY, width, height);
+        g.setColor(new Color(255, 255, 255));
     }
     
     /**
@@ -397,12 +398,15 @@ public class InventoryFrame extends Frame {
         scrollBarLength = scrollBarLength < 10 ? 10 : scrollBarLength; // minimum length
         int scrollYOffset = (int)(1.0 * startingIndex / maxIndex * (height - categoryYOffset - scrollBarLength));
         scrollYOffset = (scrollYOffset + categoryYOffset + scrollBarLength) > height ? (height - categoryYOffset - scrollBarLength) : scrollYOffset;
-        GradientFill scrollFill = new GradientFill(0, 0, new Color(0, 255, 255, 50),
+        GradientFill scrollFill = new GradientFill(0, 0, new Color(0, 128, 210),
                 0, scrollBarLength/4, new Color(244, 244, 244), true);
-        g.fill(new Rectangle(width - 4 + offX, categoryYOffset + scrollYOffset + offY, 
+        g.fill(new Rectangle(width - 5 + offX, categoryYOffset + scrollYOffset + offY, 
                 4, scrollBarLength/2), scrollFill);
-        g.fill(new Rectangle(width - 4 + offX, categoryYOffset + scrollYOffset + offY + scrollBarLength/2, 
+        g.fill(new Rectangle(width - 5 + offX, categoryYOffset + scrollYOffset + offY + scrollBarLength/2, 
                 4, scrollBarLength-scrollBarLength/2), scrollFill.getInvertedCopy());
+        g.setColor(new Color(0, 78, 100));
+        g.drawRect(width - 5 + offX, categoryYOffset + scrollYOffset + offY, 4, scrollBarLength);
+        g.setColor(new Color(255, 255, 255, 255));
 
         // Render the tooltip if we need to render one
         if (elementForTooltip != null) {
@@ -410,8 +414,8 @@ public class InventoryFrame extends Frame {
         }
     }
     
-    public void render(GameContainer container, StateBasedGame game
-            , Graphics g) {
+    @Override
+    public void render(GameContainer container, StateBasedGame game, Graphics g) {
         
     	if (!hidden) {
         	try {
@@ -438,7 +442,7 @@ public class InventoryFrame extends Frame {
 
     
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics image) {
 
     }
     
@@ -460,22 +464,25 @@ public class InventoryFrame extends Frame {
 		}
 		
 		// "Wiggle room" 
-		final float BORDER = 10f;
+		final float BORDER = 1f;
 		
 		// We need to see if our scroll bar was pressed
-		if (y >= this.y + categoryYOffset &&
-			y <= this.y + this.height) {
+		if ((y >= this.y + categoryYOffset &&
+			y <= this.y + this.height) || scrollBarIsDragging) {
 			// Get the percentage from 0 to 1 of the index
 			float offset = this.y + this.height - y;
 			// Give the user some "wiggle room" for going to the top / bottom
 			if (offset < BORDER) {
-				offset = BORDER;
-			} else if (offset > this.height - categoryYOffset - BORDER) {
-				offset = this.height - categoryYOffset - BORDER;
+				offset = 0;
+			} else if (offset > this.height - categoryYOffset - BORDER &&
+			        offset < this.height - categoryYOffset) {
+				offset = this.height - categoryYOffset;
 			}
 			
 			double index = 1.0 * offset / (this.height - categoryYOffset - BORDER*2);
 			startingIndex = maxIndex - (int)(maxIndex * index);
+			startingIndex = startingIndex > maxIndex ? maxIndex : startingIndex;
+			startingIndex = startingIndex < 0 ? 0 : startingIndex;
 		}
 	}
 	

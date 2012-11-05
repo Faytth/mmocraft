@@ -1,7 +1,7 @@
 package org.unallied.mmocraft.gui.frame;
 
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Image;
+import org.newdawn.slick.Graphics;
 import org.unallied.mmocraft.Location;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
@@ -53,7 +53,7 @@ public class MiniMapFrame extends Frame {
     }
 
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics g) {
         // There's nothing special to render for this frame.
     }
 }

@@ -2,11 +2,9 @@ package org.unallied.mmocraft.gui.control;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.ImageHandler;
-import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 
@@ -80,14 +78,10 @@ public abstract class Control extends GUIElement {
 	        }
 	        
 	        // Perform normal render stuff
-	        Image image = ImagePool.getInstance().getImage(this, width, height);
-	        if( image != null) {
-	            if (ImagePool.getInstance().needsRefresh() || needsRefresh) {
-	                renderImage(image);
-	                needsRefresh = false;
-	            }
-	            image.draw(getAbsoluteWidth(), getAbsoluteHeight());
-	        }
+            g.translate(getAbsoluteWidth(), getAbsoluteHeight());
+            renderImage(g);
+            g.flush();
+            g.translate(-getAbsoluteWidth(), -getAbsoluteHeight());
 //	        renderToolTip(container, game, g);
     	}
     }

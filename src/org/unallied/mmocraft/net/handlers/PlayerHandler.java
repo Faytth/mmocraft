@@ -5,6 +5,7 @@ import org.unallied.mmocraft.animations.sword.SwordIdle;
 import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
+import org.unallied.mmocraft.skills.Skills;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 
 /**
@@ -21,12 +22,13 @@ public class PlayerHandler extends AbstractPacketHandler {
         try {
             Player p = (Player) slea.readObject();
             p.init();
+            p.setSkills(Skills.fromBytes(slea));
             p.setInventory(Inventory.fromBytes(slea));
             p.setState(new SwordIdle(p, null)); // FIXME:  We need to set the idle state based on their weapon
             client.setPlayer(p);
         } catch (Throwable t) {
             t.printStackTrace();
-            client.disconnect(); // our login was corrupted, so we should log out and try again.
+            client.disconnect(); // Our login was corrupted, so we should log out and try again.
         }
     }
 

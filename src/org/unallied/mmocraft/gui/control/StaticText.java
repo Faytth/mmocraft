@@ -4,7 +4,6 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
@@ -107,7 +106,7 @@ public class StaticText extends GUIElement {
     }
 
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics image) {
         // TODO Auto-generated method stub
         
     }
@@ -139,5 +138,13 @@ public class StaticText extends GUIElement {
     @Override
     public boolean isAcceptingFocus() {
         return false;
+    }
+
+    /**
+     * Retrieves the current label that's being shown.
+     * @return label
+     */
+    public String getLabel() {
+        return label;
     }
 }

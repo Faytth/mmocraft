@@ -49,7 +49,7 @@ public class Item {
      */
     public void addQuantity(long quantity) {
         // Guard
-        if (quantity < 0) {
+        if (quantity <= 0) {
             return;
         }
         
@@ -73,7 +73,7 @@ public class Item {
      */
     public void removeQuantity(long quantity) {
         // Guard
-        if (quantity < 0) {
+        if (quantity <= 0) {
             return;
         }
         

@@ -11,6 +11,8 @@ import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.ImageHandler;
+import org.unallied.mmocraft.client.ImageID;
+import org.unallied.mmocraft.client.ImagePool;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
@@ -40,6 +42,21 @@ public class TextCtrl extends Control {
     private int style = 0;
     /** The maximum number of characters allowed by the text control.  -1 means infinite. */
     private int maxLength = -1;
+    
+    /**
+     * 
+     * @param container The GameContainer that's passed from a state's init()
+     * @param label The TextCtrl label.  This is what the user can change.
+     * @param x The x offset for this control.
+     * @param y The y offset for this control.
+     * @param width The width of this control.  If -1, then it's calculated from background
+     * @param height The height of this control.  If -1, then it's calculated from background
+     * @param style The style masks for this text control
+     */
+    public TextCtrl(GUIElement parent, EventIntf intf, GameContainer container, 
+            String label, float x, float y, int width, int height, int style) {
+        this(parent, intf, container, label, x, y, width, height, null, null, null, style);
+    }
     
     /**
      * 
@@ -207,15 +224,11 @@ public class TextCtrl extends Control {
     }
 
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics g) {
         ImageHandler handler = ImageHandler.getInstance();
-        Graphics g;
         
         try {
-            if( image != null ) {
-                g = image.getGraphics();
-                image.setAlpha(1);
-                g.clear();
+            if( g != null ) {
                 String str = label; // The string to draw on the screen
                 
                 // Password mask check
@@ -224,12 +237,30 @@ public class TextCtrl extends Control {
                 }
                 
                 // Draw background
+                Image textCtrlImage = null;
                 if( GUIUtility.getInstance().isActiveElement(this) ) {
-                    g.drawImage(handler.getImage(background_selected), 0, 0);
+                    if (background_selected != null) {
+                        g.drawImage(handler.getImage(background_selected), 0, 0);
+                    } else {
+                        textCtrlImage = handler.getImage(ImageID.TEXTCTRL_DEFAULT_SELECTED.toString());
+                    }
                 } else if( highlighted ) {
-                    g.drawImage(handler.getImage(background_highlighted), 0, 0);
+                    if (background_highlighted != null) {
+                        g.drawImage(handler.getImage(background_highlighted), 0, 0);
+                    } else {
+                        textCtrlImage = handler.getImage(ImageID.TEXTCTRL_DEFAULT_HIGHLIGHTED.toString());
+                    }
                 } else {
-                    g.drawImage(handler.getImage(background), 0, 0);
+                    if (background != null) {
+                        g.drawImage(handler.getImage(background), 0, 0);
+                    } else {
+                        textCtrlImage = handler.getImage(ImageID.TEXTCTRL_DEFAULT_NORMAL.toString());
+                    }
+                }
+                if (textCtrlImage != null) {
+                    g.drawImage(textCtrlImage, 0, 0, 6, 21, 0, 0, 6, 21);
+                    g.drawImage(textCtrlImage, 6, 0, width - textOffsetX, 21, 0, 21, 6, 42);
+                    g.drawImage(textCtrlImage, width - textOffsetX, 0, width, 21, 0, 42, 6, 63);
                 }
                 
                 // Draw text
@@ -245,18 +276,28 @@ public class TextCtrl extends Control {
 	                 */
 	                int xDelta = font.getWidth(str+"|") - width + textOffsetX;
 	                xDelta = xDelta > 0 ? xDelta : 0;
-	                FontHandler.getInstance().draw(fontKey, str, textOffsetX-xDelta, 
-	                		textOffsetY, textColor, width, height, false);
-	//                g.drawString(str, textOffsetX, textOffsetY);
-	                if (GUIUtility.getInstance().isActiveElement(this)) {
-	                	// "Drawing twice for a "bold" effect
-		                g.drawString("|", xOffset-xDelta, textOffsetY);
-		                g.drawString("|", xOffset+1-xDelta, textOffsetY);
+/*	                FontHandler.getInstance().draw(fontKey, str, textOffsetX-xDelta, 
+	                		textOffsetY, textColor, width, height, false);*/
+	                Image offscreenImage = ImagePool.getInstance().getOffscreenBuffer();
+	                try {
+	                    Graphics offscreenGraphics = offscreenImage.getGraphics();
+	                    offscreenGraphics.setFont(FontHandler.getInstance().getFont(fontKey));
+	                    offscreenGraphics.drawString(str, textOffsetX - xDelta, textOffsetY);
+	                    offscreenGraphics.flush();
+	                    g.drawImage(offscreenImage, textOffsetX, textOffsetY, width - textOffsetX, height, 
+	                            textOffsetX, textOffsetY, width - textOffsetX, height, textColor);
+	                } catch (SlickException e) {
+    	                g.drawString(str, textOffsetX - xDelta, textOffsetY);
 	                }
+                    if (GUIUtility.getInstance().isActiveElement(this)) {
+                        // "Drawing twice for a "bold" effect
+                        g.drawString("|", xOffset-xDelta, textOffsetY);
+                        g.drawString("|", xOffset+1-xDelta, textOffsetY);
+                    }
                 }
                 g.flush();
             }
-        } catch (SlickException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -277,6 +318,7 @@ public class TextCtrl extends Control {
      */
 	public void setColor(Color textColor) {
 		this.textColor = textColor;
+		needsRefresh = true;
 	}
 	
 	/**
@@ -321,5 +363,25 @@ public class TextCtrl extends Control {
     @Override
     public boolean isAcceptingFocus() {
         return true;
+    }
+    
+    /**
+     * Sets the key to use for displaying the text's font.  If the font doesn't
+     * exist or is null, then the font isn't changed.
+     * @param fontKey The font key.
+     */
+    public void setFontKey(String fontKey) {
+        if (fontKey == null || FontHandler.getInstance().getFont(fontKey) == null) {
+            return;
+        }
+        this.fontKey = fontKey;
+    }
+    
+    /**
+     * Retrieves the font key used for rendering the text's font.
+     * @return The font key.
+     */
+    public String getFontKey() {
+        return fontKey;
     }
 }

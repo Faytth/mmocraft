@@ -19,6 +19,8 @@ import org.unallied.mmocraft.net.mina.MMOCodecFactory;
 public class PacketSocket {
     private IoConnector connector;
     
+    /** Keeps track of the packet socket's connection status to the server. */
+    private static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     
     private PacketSocket() {
         init();
@@ -46,6 +48,7 @@ public class PacketSocket {
         final int RETRY_TIME = 100; //
         final int MAX_RETRY_ATTEMPTS = 50; // number of times to keep retrying connection
         try {
+            connectionStatus = ConnectionStatus.CONTACTING_SERVER;
             connector = new NioSocketConnector();
             connector.getFilterChain().addLast("codec", 
                     (IoFilter) new ProtocolCodecFilter(new MMOCodecFactory()));
@@ -63,16 +66,30 @@ public class PacketSocket {
             }
             
         } catch (Throwable t) {
-            System.out.println("Badness");
+            t.printStackTrace();
             // We failed to connect, or something went wrong.
             if (connector != null) {
                 connector.dispose();
             }
         }
+        if (connector != null && connector.isActive()) {
+            connectionStatus = ConnectionStatus.CONNECTED;
+        } else {
+            connectionStatus = ConnectionStatus.FAILED_TO_CONNECT;
+        }
     }
     
     public static PacketSocket getInstance() {
         return PacketSocketHolder.instance;
+    }
+    
+    /**
+     * Retrieves whether this packet socket is connected or not.
+     * @return connected True if connected, else false.
+     */
+    public boolean isConnected() {
+        connectionStatus = (connector != null && connector.isActive()) ? ConnectionStatus.CONNECTED : connectionStatus;
+        return connectionStatus == ConnectionStatus.CONNECTED;
     }
     
     /**
@@ -96,5 +113,9 @@ public class PacketSocket {
         }
         
         return null;
+    }
+
+    public static ConnectionStatus getConnectionStatus() {
+        return connectionStatus;
     }
 }

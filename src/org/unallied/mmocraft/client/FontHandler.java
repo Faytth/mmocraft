@@ -48,6 +48,21 @@ public class FontHandler {
             }
             
             try {
+                uFont = new TrueTypeFont(new java.awt.Font("Tahoma", 0, 11), false);
+                fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
+                fonts.put( FontID.STATIC_TEXT_MEDIUM_SMALL.toString(), uFont);
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
+            try {
+                uFont = new TrueTypeFont(new java.awt.Font("Tahoma", java.awt.Font.BOLD, 11), false);
+                fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
+                fonts.put( FontID.STATIC_TEXT_MEDIUM_SMALL_BOLD.toString(), uFont);
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
+            
+            try {
                 uFont = new TrueTypeFont(new java.awt.Font("Tahoma", 0, 12), false);
                 fonts.put( FontID.TOOLTIP_DEFAULT.toString(), uFont );
                 fonts.put( FontID.STATIC_TEXT_MEDIUM.toString(), uFont);

@@ -3,17 +3,13 @@ package org.unallied.mmocraft.animations.sword;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SpriteSheet;
-import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Controls;
-import org.unallied.mmocraft.Location;
 import org.unallied.mmocraft.Player;
-import org.unallied.mmocraft.RawPoint;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
-import org.unallied.mmocraft.constants.WorldConstants;
 
 public class SwordAirDodge extends AnimationState {
 

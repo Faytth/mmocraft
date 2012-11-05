@@ -3,7 +3,6 @@ package org.unallied.mmocraft.gui.control;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.unallied.mmocraft.client.FontHandler;
@@ -64,14 +63,13 @@ public class Gauge extends Control {
     }
     
     @Override
-    public void renderImage(Image image) {
+    public void renderImage(Graphics g) {
         // Guard
-        if (image == null) {
+        if (g == null) {
             return;
         }
         
         try {
-            Graphics g = image.getGraphics();
             // Background
             g.fill(new Rectangle(0, 0, width, height), new GradientFill(0, 0, BACKGROUND_COLOR, width / 2, height / 2, BACKGROUND_COLOR));
             // Gauge
