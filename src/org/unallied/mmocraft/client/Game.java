@@ -10,8 +10,8 @@ import org.unallied.mmocraft.net.PacketSocket;
 import org.unallied.mmocraft.states.*;
 
 public class Game extends StateBasedGame {
-    private static final int SCREEN_WIDTH = 800;
-    private static final int SCREEN_HEIGHT = 600;
+    public static final int SCREEN_WIDTH = 800;
+    public static final int SCREEN_HEIGHT = 600;
     public static final int MAX_FPS = 60;
     
     /// We are not able to use the superior Singleton pattern for this due to applet complications

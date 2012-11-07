@@ -296,8 +296,8 @@ public class IngameState extends AbstractState {
      */
     public void update(GameContainer container, StateBasedGame game, int delta) {
         try {
-            if (container.getWidth() != Display.getDisplayMode().getWidth() || 
-                    container.getHeight() != Display.getDisplayMode().getHeight() ||
+            if (container.getWidth() != Display.getWidth() || 
+                    container.getHeight() != Display.getHeight() ||
                     container.getWidth() != container.getGraphics().getWidth() ||
                     container.getHeight() != container.getGraphics().getHeight()) {
                 resetGUI(container);
@@ -319,7 +319,8 @@ public class IngameState extends AbstractState {
                     input.isKeyPressed(Input.KEY_RALT))) {
                 if (container.isFullscreen()) {
                     if (container instanceof org.newdawn.slick.AppGameContainer) {
-                        container.setFullscreen(false);
+                        ((org.newdawn.slick.AppGameContainer)container).setDisplayMode(
+                                Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT, false);
                     } else if (container instanceof org.newdawn.slick.AppletGameContainer.Container) {
                         ((org.newdawn.slick.AppletGameContainer.Container)container).setDisplayMode(
                                 Display.getDesktopDisplayMode().getWidth(), 
