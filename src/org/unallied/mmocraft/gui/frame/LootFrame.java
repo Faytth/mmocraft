@@ -14,10 +14,14 @@ import org.unallied.mmocraft.items.ItemData;
 
 public class LootFrame extends Frame {
 
-	private static final int ITEM_FADE_LIFE = 3000; //in milliseconds
-	private static final String ITEM_FONT = FontID.STATIC_TEXT_MEDIUM.toString(); //font to use for the item
+    /** in milliseconds */
+	private static final int ITEM_FADE_LIFE = 3000;
+	/** font to use for the item */
+	private static final String ITEM_FONT = FontID.STATIC_TEXT_MEDIUM.toString();
 	
-	//represents a item to fade in/out
+	/**
+	 * represents a item to fade in/out
+	 */
 	protected class FadingItem {
 		public ItemData item; //the item that was received
 		public long creationTime; //when the item was received
@@ -55,8 +59,6 @@ public class LootFrame extends Frame {
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		
-		//g.setColor(new Color(0, 128, 210));
-		//g.drawRect(getAbsoluteWidth(), getAbsoluteHeight(), width, height);
 		g.translate(getAbsoluteWidth(), getAbsoluteHeight());
 		
 		//Recalculate which items should be removed
@@ -66,11 +68,9 @@ public class LootFrame extends Frame {
 		int lineY = this.height - lineHeight;
 		//calculate the maximum number of items that can be shown
 		int itemsToDisplay = this.height / lineHeight; 
-		//start index of the list (show most recent looted items if we cannot fit them all)
-		int startIndex = items.size() > itemsToDisplay ? items.size() - itemsToDisplay : 0; 
 		
 		//display the items
-		for (int i = startIndex; i < items.size(); i++, lineY -= lineHeight) {
+		for (int i = items.size() -1, j = 0; j < itemsToDisplay && i >= 0; --i, ++j, lineY -= lineHeight) {
 			Color c = new Color(items.get(i).item.getQuality().getColor());
 			c.a *= ((ITEM_FADE_LIFE - (System.currentTimeMillis() - items.get(i).creationTime)) / (double)ITEM_FADE_LIFE);
 			
