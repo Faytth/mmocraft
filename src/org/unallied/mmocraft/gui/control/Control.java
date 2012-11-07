@@ -100,7 +100,6 @@ public abstract class Control extends GUIElement {
                 return true;
             } else if (util.isActiveElement(this)) {
                 util.setActiveElement(null);
-                return true;
             }
     	}
     	
@@ -110,8 +109,11 @@ public abstract class Control extends GUIElement {
     @Override
     public boolean mouseMoved(int oldx, int oldy, int newx, int newy) {
     	if (this.isAcceptingInput()) {
-    		highlighted = containsPoint(newx, newy);
-    		return true;
+    		boolean newHighlighted = containsPoint(newx, newy);
+    		if (highlighted != newHighlighted) {
+    			highlighted = newHighlighted;
+    			return true;
+    		}
     	}
 
     	return super.mouseMoved(oldx, oldy, newx, newy);

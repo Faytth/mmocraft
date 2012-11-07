@@ -71,6 +71,7 @@ public class Button extends Control {
     public boolean mousePressed(int button, int x, int y) {
         if( this.containsPoint(x, y) ) {
             activated = true;
+            super.mousePressed(button, x, y);
             return true;
         }
         return super.mousePressed(button, x, y);
