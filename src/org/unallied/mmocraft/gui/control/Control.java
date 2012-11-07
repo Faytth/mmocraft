@@ -23,8 +23,7 @@ public abstract class Control extends GUIElement {
     protected String background_highlighted;
     protected String background_selected;
     protected boolean highlighted = false; // true if the control is highlighted
-    protected boolean mouseDown = false; // true if the mouse was down for the last update
-    protected boolean activeState = false; // true if the control is active
+    //protected boolean mouseDown = false; // true if the mouse was down for the last update
     protected int textOffsetX = 4;
     protected int textOffsetY = 2;
     
@@ -63,20 +62,14 @@ public abstract class Control extends GUIElement {
     /**
      * We need to check each render to make sure we didn't change states
      */
-    public void render(GameContainer container, StateBasedGame game
-            , Graphics g) {
-        
+    public void render(GameContainer container, StateBasedGame game, Graphics g) {
     	if (!hidden) {
 	        boolean newActiveState;
 	        
 	        GUIUtility util = GUIUtility.getInstance();
 	        newActiveState = util.isActiveElement(this);
 	        
-	        if( activeState != newActiveState ) {
-	            activeState = newActiveState;
-	            needsRefresh = true;
-	        }
-	        
+	
 	        // Perform normal render stuff
             g.translate(getAbsoluteWidth(), getAbsoluteHeight());
             renderImage(g);
@@ -85,39 +78,48 @@ public abstract class Control extends GUIElement {
 //	        renderToolTip(container, game, g);
     	}
     }
+   
     
     @Override
-    /**
-     * Provides a means for mouse selection / highlighting
-     */
-    public void update(GameContainer container) {
-        Input input = container.getInput();
-        
-        int mouseX = input.getMouseX();
-        int mouseY = input.getMouseY();
-        boolean newMouseDown = input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON);
-        boolean newHighlighted = highlighted;
-        boolean newActiveState = activeState;
-        
-        // Check if selected / deselected
-        if (this.isAcceptingInput()) {
-            if (mouseDown && !newMouseDown) {
-                GUIUtility util = GUIUtility.getInstance();
-                if (containsPoint(mouseX, mouseY) && isShown() && isAcceptingFocus()) {
-                    util.setActiveElement(this);
-                    newActiveState = true;
-                } else if (util.isActiveElement(this)) {
-                    util.setActiveElement(null);
-                    newActiveState = false;
-                }
-            }
-            newHighlighted = containsPoint(mouseX, mouseY);
+    public boolean mousePressed(int button, int x, int y) {
+        if( this.containsPoint(x, y) ) {
+            return true;
         }
-        
-        needsRefresh |= ( highlighted != newHighlighted || newActiveState != activeState);
-        highlighted = newHighlighted;
-        activeState = newActiveState;
-        
-        mouseDown = newMouseDown;
+        return super.mousePressed(button, x, y);
+    }
+    
+    @Override
+    public boolean mouseReleased(int button, int x, int y) {
+    	if (this.isAcceptingInput()) {
+    		GUIUtility util = GUIUtility.getInstance();
+
+    		highlighted = containsPoint(x, y);
+    		
+    		if (containsPoint(x, y) && isShown() && isAcceptingFocus()) {
+                util.setActiveElement(this);
+                return true;
+            } else if (util.isActiveElement(this)) {
+                util.setActiveElement(null);
+                return true;
+            }
+    	}
+    	
+    	return super.mouseReleased(button, x, y);
+    }
+    
+    @Override
+    public boolean mouseMoved(int oldx, int oldy, int newx, int newy) {
+    	if (this.isAcceptingInput()) {
+    		highlighted = containsPoint(newx, newy);
+    		return true;
+    	}
+
+    	return super.mouseMoved(oldx, oldy, newx, newy);
+    }
+    
+    
+    @Override
+    public void update(GameContainer container) {
+
     }
 }

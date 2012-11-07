@@ -461,10 +461,10 @@ public class ChatFrame extends Frame {
     }
     
     @Override
-    public void mousePressed(int button, int x, int y) {
+    public boolean mousePressed(int button, int x, int y) {
         // Guard
         if (chatHeight <= 0) {
-            return;
+            return super.mousePressed(button, x, y);
         }
         
         // We need to see if our scroll bar was pressed
@@ -474,26 +474,32 @@ public class ChatFrame extends Frame {
             y <= this.y + chatHeight) {
             updateScrollBarPosition(y);
             scrollBarIsDragging = true;
+            return true;
         } else {
             scrollBarIsDragging = false;
         }
+        
+        return super.mousePressed(button, x, y);
     }
         
     @Override
-    public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+    public boolean mouseDragged(int oldx, int oldy, int newx, int newy) {
         if (scrollBarIsDragging) {
             updateScrollBarPosition(newy);
+            return true;
         }
+        return super.mouseDragged(oldx, oldy, newx, newy);
     }
     
     @Override
-    public void mouseReleased(int button, int x, int y) {
+    public boolean mouseReleased(int button, int x, int y) {
         scrollBarIsDragging = false;
+        return super.mouseReleased(button, x, y);
     }
     
     
     @Override
-    public void mouseWheelMoved(int change) {
+    public boolean mouseWheelMoved(int change) {
         Input input = Game.getInstance().getContainer().getInput();
         if (input != null && input.getMouseX() >= x && input.getMouseX() <= x+width &&
                 input.getMouseY() >= y && input.getMouseY() <= y+height) {
@@ -501,6 +507,8 @@ public class ChatFrame extends Frame {
             lineIndex = lineIndex < 0 ? 0 : lineIndex;
             lineIndex = lineIndex >= receivedMessages.size() ? receivedMessages.size()-1 : lineIndex;
             needsRefresh = true;
+            return true;
         }
+        return super.mouseWheelMoved(change);
     }
 }

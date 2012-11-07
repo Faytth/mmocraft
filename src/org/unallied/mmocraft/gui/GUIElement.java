@@ -6,7 +6,6 @@ import java.util.List;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.InputListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.gui.tooltips.ToolTip;
@@ -16,7 +15,7 @@ import org.unallied.mmocraft.gui.tooltips.ToolTip;
  * @author Faythless
  *
  */
-public abstract class GUIElement implements InputListener {
+public abstract class GUIElement {
     
     protected List<GUIElement> elements = new ArrayList<GUIElement>();
     
@@ -88,7 +87,7 @@ public abstract class GUIElement implements InputListener {
         this.container = container;
         if( container != null ) {
             isHandler = true;
-            container.getInput().addListener(this);
+            //container.getInput().addListener(this);
         }
         this.x = x;
         this.y = y;
@@ -108,7 +107,7 @@ public abstract class GUIElement implements InputListener {
                 element.destroy();
             }
             if (isHandler) {
-                container.getInput().removeListener(this);
+                //container.getInput().removeListener(this);
             }
         } catch (Throwable t) {
         }
@@ -169,12 +168,12 @@ public abstract class GUIElement implements InputListener {
                 g.resetTransform();
 	        }
 	        
-	        if (elements != null) {
-	            // Iterate over all GUI controls and inform them of input
-	            for( GUIElement element : elements ) {
-	                element.render(container, game, g);
-	            }
-	        }
+	        // Iterate over all GUI controls and inform them of input
+			if (elements != null) {
+				for(int i = elements.size() - 1; i >= 0; i--) {
+					elements.get(i).render(container, game, g);
+				}
+			}
     	}
     }
     
@@ -256,104 +255,191 @@ public abstract class GUIElement implements InputListener {
      */
     public abstract boolean isAcceptingFocus();
     
-    public void mouseClicked(int button, int x, int y, int clickCount) {
-        // TODO Auto-generated method stub
-        
+    public boolean mouseClicked(int button, int x, int y, int clickCount) {
+    	for (GUIElement element : elements) {
+			if (element.mouseClicked(button, x, y, clickCount)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+    public boolean mouseDragged(int oldx, int oldy, int newx, int newy) {
+    	for (GUIElement element : elements) {
+			if (element.mouseDragged(oldx, oldy, newx, newy)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void mouseMoved(int oldx, int oldy, int newx, int newy) {
+    public boolean mouseMoved(int oldx, int oldy, int newx, int newy) {
+    	for (GUIElement element : elements) {
+			if (element.mouseMoved(oldx, oldy, newx, newy)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void mousePressed(int button, int x, int y) {
-        // TODO Auto-generated method stub
-        
+    public boolean mousePressed(int button, int x, int y) {
+    	for (GUIElement element : elements) {
+			if (element.mousePressed(button, x, y)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void mouseReleased(int button, int x, int y) {
-        // TODO Auto-generated method stub
-        
+    public boolean mouseReleased(int button, int x, int y) {
+    	for (GUIElement element : elements) {
+			if (element.mouseReleased(button, x, y)) {
+				return true;
+			}
+		}
+    	return false;
     }
     
-    public void mouseWheelMoved(int change) {
-        // TODO Auto-generated method stub
-        
+    public boolean mouseWheelMoved(int change) {
+    	for (GUIElement element : elements) {
+			if (element.mouseWheelMoved(change)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void inputEnded() {
-        // TODO Auto-generated method stub
-        
+    public boolean inputEnded() {
+    	for (GUIElement element : elements) {
+			if (element.inputEnded()) {
+				return true;
+			}
+		}
+    	return false;
+    }
+    
+    public boolean inputStarted() {
+    	for (GUIElement element : elements) {
+			if (element.inputStarted()) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void inputStarted() {
-        // TODO Auto-generated method stub
-        
+    public boolean setInput(Input input) {
+    	return false;
     }
 
-    public void setInput(Input input) {
-        // TODO Auto-generated method stub
-        
+    public boolean keyPressed(int key, char c) {
+    	for (GUIElement element : elements) {
+			if (element.keyPressed(key, c)) {
+				return true;
+			}
+		}
+    	return false;
+    }
+    
+    public boolean keyReleased(int key, char c) {
+    	for (GUIElement element : elements) {
+			if (element.keyReleased(key, c)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void keyPressed(int key, char c) {
+    public boolean controllerButtonPressed(int controller, int button) {
+    	for (GUIElement element : elements) {
+			if (element.controllerButtonPressed(controller, button)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void keyReleased(int key, char c) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerButtonReleased(int controller, int button) {
+    	for (GUIElement element : elements) {
+			if (element.controllerButtonReleased(controller, button)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerButtonPressed(int controller, int button) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerDownPressed(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerDownPressed(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerButtonReleased(int controller, int button) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerDownReleased(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerDownReleased(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerDownPressed(int controller) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerLeftPressed(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerLeftPressed(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerDownReleased(int controller) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerLeftReleased(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerLeftReleased(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerLeftPressed(int controller) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerRightPressed(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerRightPressed(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerLeftReleased(int controller) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerRightReleased(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerRightReleased(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerRightPressed(int controller) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerUpPressed(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerUpPressed(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
 
-    public void controllerRightReleased(int controller) {
-        // TODO Auto-generated method stub
-        
+    public boolean controllerUpReleased(int controller) {
+    	for (GUIElement element : elements) {
+			if (element.controllerUpReleased(controller)) {
+				return true;
+			}
+		}
+    	return false;
     }
-
-    public void controllerUpPressed(int controller) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void controllerUpReleased(int controller) {
-        // TODO Auto-generated method stub
-        
-    }
+    
+    public abstract boolean isAcceptingInput();
     
     /**
      * Returns the parent to this element.
