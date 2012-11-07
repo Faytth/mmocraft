@@ -18,9 +18,13 @@ import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.frame.CharacterFrame;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.gui.frame.InventoryFrame;
+import org.unallied.mmocraft.gui.frame.LootFrame;
 import org.unallied.mmocraft.gui.frame.MiniMapFrame;
 import org.unallied.mmocraft.gui.frame.StatusFrame;
 import org.unallied.mmocraft.gui.frame.ToolbarFrame;
+import org.unallied.mmocraft.items.ItemData;
+import org.unallied.mmocraft.items.ItemQuality;
+import org.unallied.mmocraft.items.ItemType;
 import org.unallied.mmocraft.net.PacketCreator;
 
 public class IngameState extends AbstractState {
@@ -31,6 +35,9 @@ public class IngameState extends AbstractState {
      * The chat frame that the user can send and receive chat messages through.
      */
     private ChatFrame chatFrame = null;
+    
+    /** Shows received items with fadein/out */
+    private LootFrame itemsReceivedFrame = null;
     
     /** The inventory frame that contains all of a player's items. */
     private InventoryFrame inventoryFrame = null;
@@ -59,6 +66,8 @@ public class IngameState extends AbstractState {
 
     @Override
     public void keyPressed(int key, char c) {
+    	itemsReceivedFrame.addItem(new ItemData(0, "Test Item A", "a test", ItemQuality.EPIC, ItemType.EQUIPMENT, 100, 100));
+    	
         // Be careful about using this function, because it occurs BEFORE child elements
     	Controls controls = Game.getInstance().getControls();
     	
@@ -177,11 +186,15 @@ public class IngameState extends AbstractState {
         characterFrame.setY(chatFrame.getY() - characterFrame.getHeight() - 5);
         characterFrame.hide();
         
+        itemsReceivedFrame = new LootFrame(orderedFrames, null, container, 
+        		Game.getInstance().getWidth() - 300 - 10, toolbarFrame.getAbsoluteHeight() - 100 - 10, 300, 100);
+        
         // Controls.  Add these in the order you would like to see them appear.
         orderedFrames.addFrame(chatFrame);
         orderedFrames.addFrame(miniMapFrame);
         orderedFrames.addFrame(statusFrame);
         orderedFrames.addFrame(toolbarFrame);
+        orderedFrames.addFrame(itemsReceivedFrame);
  
         orderedFrames.addFrame(characterFrame);
         orderedFrames.addFrame(inventoryFrame);
