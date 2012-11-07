@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.unallied.mmocraft.chat.ChatMessage;
 import org.unallied.mmocraft.client.MMOClient;
-import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.MessageType;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;

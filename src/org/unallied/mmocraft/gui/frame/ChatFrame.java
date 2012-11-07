@@ -12,10 +12,10 @@ import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.chat.ChatCommand;
+import org.unallied.mmocraft.chat.ChatMessage;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
-import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
@@ -32,6 +32,15 @@ public class ChatFrame extends Frame {
 	
 	/** The color of "world" messages. */
 	private static final Color WORLD_COLOR = new Color(227, 115, 40);
+	
+	/** The color of "party" messages. */
+	private static final Color PARTY_COLOR = new Color(5, 174, 240);
+	
+	/** The color of "guild" messages. */
+	private static final Color GUILD_COLOR = new Color(5, 210, 51);
+	
+	/** The color of "system" messages. */
+	private static final Color SYSTEM_COLOR = new Color(231, 218, 28);
 	
 	private static final String MESSAGE_FONT = FontID.STATIC_TEXT_MEDIUM_SMALL.toString();
 	private static final String TITLE_FONT = FontID.STATIC_TEXT_MEDIUM_SMALL_BOLD.toString();
@@ -160,6 +169,10 @@ public class ChatFrame extends Frame {
             this.height = chatHeight + messageTextCtrl.getHeight();
         }
         messageTextCtrl.setY(chatHeight);
+        buttonY = chatHeight;
+        chatTypeButton.setY(buttonY);
+        worldButton.setY(buttonY -= 21);
+        sayButton.setY(buttonY -= 21);
     }
     
     @Override
@@ -304,6 +317,15 @@ public class ChatFrame extends Frame {
     	case WORLD:
     		result = WORLD_COLOR;
     		break;
+    	case PARTY:
+    	    result = PARTY_COLOR;
+    	    break;
+    	case GUILD:
+    	    result = GUILD_COLOR;
+    	    break;
+    	case SYSTEM:
+    	    result = SYSTEM_COLOR;
+    	    break;
     	case SAY:
     	default:
     		result = SAY_COLOR;

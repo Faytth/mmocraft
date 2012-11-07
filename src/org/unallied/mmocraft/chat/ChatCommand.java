@@ -8,10 +8,11 @@ package org.unallied.mmocraft.chat;
  */
 public enum ChatCommand {
     NONE("/"), /** Not a chat command. */
+    DIAGNOSTICS("/diagnostics"), /** Retrieves debug diagnostics. */
     HELP("/help"), /** Displays help information. */
+    RELOAD_GUI("/reload"), /** Reloads the GUI. */
     SELECT_SAY("/say"), /** Changes the chat frame to /say. */
-    SELECT_WORLD("/world"), /** Changes the chat frame to /world. */
-    RELOAD_GUI("/reload"); /** Reloads the GUI. */
+    SELECT_WORLD("/world"); /** Changes the chat frame to /world. */
     String name = "";
     
     ChatCommand(String name) {

@@ -2,6 +2,8 @@ package org.unallied.mmocraft.constants;
 
 import java.nio.charset.Charset;
 
+import org.newdawn.slick.Color;
+
 public abstract class ClientConstants {
     public static final String HOST = "www.unallied.com";
     public static final int PACKET_TIMEOUT = 30; // 30 seconds timeout for packets
@@ -56,4 +58,7 @@ public abstract class ClientConstants {
      * shield, roll).
      */
     public static final long ROLL_COOLDOWN = 330;
+    
+    /** The color that other player's damage is rendered in. */
+    public static final Color DAMAGE_OTHER_PLAYER_COLOR = new Color(160, 160, 160, 150);
 }

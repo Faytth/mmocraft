@@ -2,7 +2,7 @@ package org.unallied.mmocraft.net;
 
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationType;
-import org.unallied.mmocraft.gui.ChatMessage;
+import org.unallied.mmocraft.chat.ChatMessage;
 
 /**
  * Creates Packets to send to the client
@@ -139,6 +139,7 @@ public class PacketCreator {
         writer.writeInt(endingIndex);
         writer.writeFloat(horizontalOffset);
         writer.writeFloat(verticalOffset);
+        writer.writeShort(animation.getValue());
         
         return writer.getPacket();
     }

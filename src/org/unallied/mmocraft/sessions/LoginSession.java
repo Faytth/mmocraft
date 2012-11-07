@@ -1,4 +1,4 @@
-package org.unallied.mmocraft.net.sessions;
+package org.unallied.mmocraft.sessions;
 
 import org.unallied.mmocraft.tools.Hasher;
 

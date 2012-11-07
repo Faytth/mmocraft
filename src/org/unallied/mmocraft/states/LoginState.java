@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.states;
 
+import org.lwjgl.opengl.Display;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -16,7 +17,7 @@ import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.frame.LoginFrame;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.PacketSender;
-import org.unallied.mmocraft.net.sessions.LoginSession;
+import org.unallied.mmocraft.sessions.LoginSession;
 
 public class LoginState extends AbstractState {
 
@@ -159,6 +160,52 @@ public class LoginState extends AbstractState {
         
     }
 
+    /**
+     * Resets the GUI elements of this state by destroying and re-initializing them.
+     * @param container The container used for resizing the GUI and creating the GUI elements.
+     */
+    public void resetGUI(GameContainer container) {
+        resize(container);
+        // Set GUI elements
+        if (this.elements.size() > 0 ) {
+            // Destroy our children
+            for (GUIElement element : elements) {
+                element.destroy();
+            }
+            this.elements.clear();
+        }
+        loginFrame = new LoginFrame(this, new EventIntf(){
+
+            @Override
+            public void callback(Event event) {
+                switch( event.getId() ) {
+                case LOGIN_CLICKED:
+                    // Set user / pass for the loginSession
+                    LoginSession loginSession = Game.getInstance().getClient().loginSession;
+                    loginSession.setUsername(loginFrame.getUsername());
+                    loginSession.setPassword(loginFrame.getPassword());
+                    
+                    // Initiate communication to the server for the login
+                    if (loginFrame.getUsername().length() > 0 && loginFrame.getPassword().length() > 0) {
+                        Game.getInstance().getClient().announce(
+                                PacketCreator.getLogon(loginSession.getUsername()));
+                    }
+                    break;
+                case REGISTER_CLICKED:
+                    Game.getInstance().enterState(GameState.REGISTER);
+                    break;
+                }
+            }
+            
+        }, container, 0, 0, -1, -1);
+        loginFrame.setX( (Game.getInstance().getWidth() - loginFrame.getWidth()) / 2);
+        loginFrame.setY( (Game.getInstance().getHeight() - loginFrame.getHeight()) / 2);
+        
+        // Controls
+        this.elements.add(loginFrame);
+        container.getInput().enableKeyRepeat();
+    }
+    
     @Override
     public void enter(GameContainer container, StateBasedGame game)
             throws SlickException {
@@ -166,39 +213,7 @@ public class LoginState extends AbstractState {
         Game.getInstance().getClient().getTerrainSession().clear();
         // Enable anti-aliasing
         container.getGraphics().setAntiAlias(true);
-        // Set GUI elements
-        if( this.elements.size() == 0 ) {
-            loginFrame = new LoginFrame(this, new EventIntf(){
-
-                @Override
-                public void callback(Event event) {
-                    switch( event.getId() ) {
-                    case LOGIN_CLICKED:
-                        // Set user / pass for the loginSession
-                        LoginSession loginSession = Game.getInstance().getClient().loginSession;
-                        loginSession.setUsername(loginFrame.getUsername());
-                        loginSession.setPassword(loginFrame.getPassword());
-                        
-                        // Initiate communication to the server for the login
-                        if (loginFrame.getUsername().length() > 0 && loginFrame.getPassword().length() > 0) {
-                            Game.getInstance().getClient().announce(
-                                    PacketCreator.getLogon(loginSession.getUsername()));
-                        }
-                        break;
-                    case REGISTER_CLICKED:
-                        Game.getInstance().enterState(GameState.REGISTER);
-                        break;
-                    }
-                }
-                
-            }, container, 0, 0, -1, -1);
-            loginFrame.setX( (Game.getInstance().getWidth() - loginFrame.getWidth()) / 2);
-            loginFrame.setY( (Game.getInstance().getHeight() - loginFrame.getHeight()) / 2);
-            
-            // Controls
-            this.elements.add(loginFrame);
-        }
-        container.getInput().enableKeyRepeat();
+        resetGUI(container);
     }
 
     @Override
@@ -248,7 +263,9 @@ public class LoginState extends AbstractState {
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta)
             throws SlickException {
-        
+        if (container.getWidth() != Display.getWidth() || container.getHeight() != Display.getHeight()) {
+            resetGUI(container);
+        }
         // Iterate over all GUI controls and inform them of input
         for( GUIElement element : elements ) {
             element.update(container);

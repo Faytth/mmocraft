@@ -1,7 +1,6 @@
 package org.unallied.mmocraft.client;
 
 import org.unallied.mmocraft.BoundLocation;
-import org.unallied.mmocraft.constants.WorldConstants;
 
 /**
  * The camera used by the game to determine which section of the game should be
@@ -99,43 +98,42 @@ public class Camera {
                  * always on the character).
                  */
                 if (System.currentTimeMillis() - lastSnap > SNAP_COOLDOWN_TIME) {
-                    if (deltaX > -1f && deltaX < 1f) {
+                    if (deltaX > -1f && deltaX < 1f && deltaX != 0) {
                         currentLocation.setRawX(destination.getRawX());
                         deltaX = 0;
                         lastSnap = System.currentTimeMillis();
                     }
-                    if (deltaY > -1f && deltaY < 1f) {
+                    if (deltaY > -1f && deltaY < 1f && deltaY != 0) {
                         currentLocation.setRawY(destination.getRawY());
                         deltaY = 0;
                         lastSnap = System.currentTimeMillis();
                     }
                 }
                 
-                // Check for minimum speed and adjust as necessary.                if (deltaX != 0 && ((Math.abs(deltaX) * percentChange * (1000.0 / delta)) < CAMERA_MIN_CHANGE_RATE)) {                    deltaX = deltaX < 0 ? -1.0f : 1.0f;                    deltaX = deltaX * CAMERA_MIN_CHANGE_RATE * delta / 1000;                } else {                    deltaX *= percentChange;
-                }                                 if (deltaY != 0 && ((Math.abs(deltaY) * percentChange * (1000.0 / delta)) < CAMERA_MIN_CHANGE_RATE)) {                    deltaY = deltaY < 0 ? -1.0f : 1.0f;                    deltaY = deltaY * CAMERA_MIN_CHANGE_RATE * delta / 1000;                } else {                    deltaY *= percentChange;                }                
+                // Check for minimum speed and adjust as necessary.                if (deltaX != 0 && ((Math.abs(deltaX) * percentChange * (1000.0 / delta)) < CAMERA_MIN_CHANGE_RATE)) {                    deltaX = deltaX < 0 ? -1.0f : 1.0f;                    deltaX = deltaX * CAMERA_MIN_CHANGE_RATE * delta / 1000;                } else if (deltaX != 0) {                    deltaX *= percentChange;
+                }                                 if (deltaY != 0 && ((Math.abs(deltaY) * percentChange * (1000.0 / delta)) < CAMERA_MIN_CHANGE_RATE)) {                    deltaY = deltaY < 0 ? -1.0f : 1.0f;                    deltaY = deltaY * CAMERA_MIN_CHANGE_RATE * delta / 1000;                } else if (deltaY != 0) {                    deltaY *= percentChange;                }                
                 // Adjust for "overshooting" the destination
+                BoundLocation testLocation = new BoundLocation(currentLocation);
+                testLocation.moveRight(deltaX);
+                testLocation.moveDown(deltaY);
                 if (currentLocation.getRawDeltaX(destination) < 0) { // Moving to the right
-                    if (currentLocation.getX() * WorldConstants.WORLD_BLOCK_WIDTH + currentLocation.getXOffset() + deltaX >= 
-                            destination.getX() * WorldConstants.WORLD_BLOCK_WIDTH + destination.getXOffset()) {
+                    if (testLocation.getRawDeltaX(destination) >= 0) {
                         deltaX = 0;
                         currentLocation.setRawX(destination.getRawX());
                     }
                 } else { // Moving to the left
-                    if (currentLocation.getX() * WorldConstants.WORLD_BLOCK_WIDTH + currentLocation.getXOffset() + deltaX <= 
-                            destination.getX() * WorldConstants.WORLD_BLOCK_WIDTH + destination.getXOffset()) {
+                    if (testLocation.getRawDeltaX(destination) <= 0) {
                         deltaX = 0;
                         currentLocation.setRawX(destination.getRawX());
                     }
                 }
                 if (currentLocation.getRawDeltaY(destination) < 0) { // Moving down
-                    if (currentLocation.getY() * WorldConstants.WORLD_BLOCK_HEIGHT + currentLocation.getYOffset() + deltaY >= 
-                            destination.getY() * WorldConstants.WORLD_BLOCK_HEIGHT + destination.getYOffset()) {
+                    if (testLocation.getRawDeltaY(destination) >= 0) {
                         deltaY = 0;
                         currentLocation.setRawY(destination.getRawY());
                     }
                 } else { // Moving up
-                    if (currentLocation.getY() * WorldConstants.WORLD_BLOCK_HEIGHT + currentLocation.getYOffset() + deltaY <= 
-                            destination.getY() * WorldConstants.WORLD_BLOCK_HEIGHT + destination.getYOffset()) {
+                    if (testLocation.getRawDeltaY(destination) <= 0) {
                         deltaY = 0;
                         currentLocation.setRawY(destination.getRawY());
                     }

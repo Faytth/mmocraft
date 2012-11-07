@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.states;
 
+import org.lwjgl.opengl.Display;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -156,39 +157,54 @@ public class RegisterState extends AbstractState {
         
     }
 
+    /**
+     * Resets the GUI elements of this state by destroying and re-initializing them.
+     * @param container The container used for resizing the GUI and creating the GUI elements.
+     */
+    public void resetGUI(GameContainer container) {
+        resize(container);
+        // Set GUI elements
+        if( this.elements.size() > 0 ) {
+            // Destroy our children
+            for (GUIElement element : elements) {
+                element.destroy();
+            }
+            this.elements.clear();
+        }
+        registerFrame = new RegisterFrame(this, new EventIntf(){
+
+            @Override
+            public void callback(Event event) {
+                switch( event.getId() ) {
+                // If the user clicked the "Back" button and should return to the Login state
+                case BACK_CLICKED:
+                    Game.getInstance().enterState(GameState.LOGIN);
+                    break;
+                case REGISTER_CLICKED:
+                    // If the user didn't mess up on their password and such
+                    if (registerFrame.isValid()) {
+                        Game.getInstance().getClient().announce(PacketCreator.getRegister(
+                                registerFrame.getUsername(), registerFrame.getPassword(), registerFrame.getEmail()));
+                    }
+                    break;
+                }
+            }
+            
+        }, container, 0, 0, -1, -1);
+        registerFrame.setX( (Game.getInstance().getWidth() - registerFrame.getWidth()) / 2);
+        registerFrame.setY( (Game.getInstance().getHeight()- registerFrame.getHeight()) / 2);
+        
+        // Controls
+        this.elements.add(registerFrame);
+        container.getInput().enableKeyRepeat();
+    }
+    
     @Override
     public void enter(GameContainer container, StateBasedGame game)
             throws SlickException {
         // Remove all cached chunks.
         Game.getInstance().getClient().getTerrainSession().clear();
-        if( this.elements.size() == 0 ) {
-            registerFrame = new RegisterFrame(this, new EventIntf(){
-
-                @Override
-                public void callback(Event event) {
-                    switch( event.getId() ) {
-                    // If the user clicked the "Back" button and should return to the Login state
-                    case BACK_CLICKED:
-                        Game.getInstance().enterState(GameState.LOGIN);
-                        break;
-                    case REGISTER_CLICKED:
-                        // If the user didn't mess up on their password and such
-                        if (registerFrame.isValid()) {
-                            Game.getInstance().getClient().announce(PacketCreator.getRegister(
-                                    registerFrame.getUsername(), registerFrame.getPassword(), registerFrame.getEmail()));
-                        }
-                        break;
-                    }
-                }
-                
-            }, container, 0, 0, -1, -1);
-            registerFrame.setX( (Game.getInstance().getWidth() - registerFrame.getWidth()) / 2);
-            registerFrame.setY( (Game.getInstance().getHeight()- registerFrame.getHeight()) / 2);
-            
-            // Controls
-            this.elements.add(registerFrame);
-        }
-        container.getInput().enableKeyRepeat();
+        resetGUI(container);
     }
 
     @Override
@@ -218,7 +234,9 @@ public class RegisterState extends AbstractState {
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta)
             throws SlickException {
-        
+        if (container.getWidth() != Display.getWidth() || container.getHeight() != Display.getHeight()) {
+            resetGUI(container);
+        }
         // Iterate over all GUI controls and inform them of input
         for( GUIElement element : elements ) {
             element.update(container);

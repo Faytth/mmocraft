@@ -1,4 +1,4 @@
-package org.unallied.mmocraft.net.sessions;
+package org.unallied.mmocraft.blocks;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
@@ -6,7 +6,6 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Rectangle;
 import org.unallied.mmocraft.BlockType;
-import org.unallied.mmocraft.blocks.Block;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
 

@@ -1,4 +1,6 @@
-package org.unallied.mmocraft.gui;
+package org.unallied.mmocraft.chat;
+
+import org.unallied.mmocraft.gui.MessageType;
 
 /**
  * Contains the message type and the body of a message.  Used in the ChatFrame

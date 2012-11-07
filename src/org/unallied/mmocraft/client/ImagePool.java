@@ -64,8 +64,11 @@ public class ImagePool {
         	// This is a kludge for chunks.  Chunks require extra special image size to prevent some MAJOR rendering problems.
         	// TODO: Remove this kludge
         	if (width == chunkWidth && height == chunkHeight && chunkWidth != 0 && chunkHeight != 0) {
-        		int chunksAcross = (Game.getInstance().getContainer().getWidth() / chunkWidth) + 1;
-        		int chunksHigh   = (Game.getInstance().getContainer().getHeight() / chunkHeight) + 1;
+        	    // Because the game is now resizable, we need these to be sufficiently large.
+        	    int chunksAcross = 4;
+        	    int chunksHigh   = 2;
+//        		int chunksAcross = (Game.getInstance().getContainer().getWidth() / chunkWidth) + 1;
+//        		int chunksHigh   = (Game.getInstance().getContainer().getHeight() / chunkHeight) + 1;
         		chunksAcross = chunksAcross * 2 + 1;
         		chunksHigh   = chunksHigh   * 2 + 1;
         		// The +1 below is to stop "lag" between two adjacent coordinates when walking back and forth

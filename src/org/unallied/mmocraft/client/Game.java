@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.client;
 
+import org.lwjgl.opengl.Display;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -39,6 +40,7 @@ public class Game extends StateBasedGame {
     	// NOTE:  Most of the container initialization is performed in LoginState.init()
         try {
             AppGameContainer app = new AppGameContainer( getInstance() );
+            Display.setResizable(true);
             app.setDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, false);
             app.start();
         } catch (Throwable e) {

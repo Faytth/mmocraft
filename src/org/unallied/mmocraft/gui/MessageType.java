@@ -11,7 +11,8 @@ public enum MessageType {
 	WORLD(0x00, "World"),
 	SAY(0x01, "Say"),
 	PARTY(0x02, "Party"),
-	GUILD(0x03, "Guild");
+	GUILD(0x03, "Guild"),
+	SYSTEM(0x04, "System");
 	byte value = 0;
 	String name;
 	
