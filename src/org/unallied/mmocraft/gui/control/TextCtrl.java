@@ -90,9 +90,10 @@ public class TextCtrl extends Control {
     }
 
     @Override
-    public void keyPressed(int key, char c) {
+    public boolean keyPressed(int key, char c) {
         callback(new Event(this, EventType.TEXT));
-        processKeyEvent(key, c);
+        boolean processedKey = processKeyEvent(key, c);
+        return processedKey ? true : super.keyPressed(key, c);
     }
 
     /**
@@ -143,7 +144,7 @@ public class TextCtrl extends Control {
      * @param key
      * @param c
      */
-    private void processKeyEvent(int key, char c) {
+    private boolean processKeyEvent(int key, char c) {
         if( GUIUtility.getInstance().isActiveElement(this) ) {
             Input input = Game.getInstance().getContainer().getInput();
             switch (key) {
@@ -214,7 +215,9 @@ public class TextCtrl extends Control {
             	break;
             }
             needsRefresh = true;
+            return true;
         }
+        return false;
     }
 
     @Override

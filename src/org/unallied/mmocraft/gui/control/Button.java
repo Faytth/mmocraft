@@ -68,29 +68,36 @@ public class Button extends Control {
     }
 
     @Override
-    public void mousePressed(int button, int x, int y) {
+    public boolean mousePressed(int button, int x, int y) {
         if( this.containsPoint(x, y) ) {
             activated = true;
-            needsRefresh = true;
+            super.mousePressed(button, x, y);
+            return true;
         }
+        return super.mousePressed(button, x, y);
     }
 
     @Override
-    public void mouseReleased(int button, int x, int y) {
-        if( this.containsPoint(x, y) ) {
-            callback(new Event(this, EventType.BUTTON));
-        }
+    public boolean mouseReleased(int button, int x, int y) {
+        
         if( activated ) {
             activated = false;
-            needsRefresh = true;
         }
+        if( this.containsPoint(x, y) ) {
+            callback(new Event(this, EventType.BUTTON));
+            super.mouseReleased(button, x, y);
+            return true;
+        }
+        return super.mouseReleased(button, x, y);
     }
 
     @Override
-    public void keyPressed(int key, char c) {
+    public boolean keyPressed(int key, char c) {
         if( key == Input.KEY_RETURN && GUIUtility.getInstance().isActiveElement(this)) {
             callback(new Event(this, EventType.BUTTON));
+            return true;
         }
+        return super.keyPressed(key, c);
     }
 
     
