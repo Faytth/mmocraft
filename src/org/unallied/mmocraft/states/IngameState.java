@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.states;
 
+import org.lwjgl.opengl.Display;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -7,14 +8,15 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.chat.ChatCommand;
+import org.unallied.mmocraft.chat.ChatMessage;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.MMOClient;
-import org.unallied.mmocraft.gui.ChatMessage;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIElement.Event;
 import org.unallied.mmocraft.gui.GUIElement.EventIntf;
 import org.unallied.mmocraft.gui.GUIUtility;
+import org.unallied.mmocraft.gui.MessageType;
 import org.unallied.mmocraft.gui.frame.CharacterFrame;
 import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.gui.frame.InventoryFrame;
@@ -85,6 +87,14 @@ public class IngameState extends AbstractState {
         	return;
         }
         
+        if (key == Input.KEY_SLASH) {
+            if (GUIUtility.getInstance().getActiveElement() == null) {
+                if (chatFrame != null) {
+                    chatFrame.activate();
+                }
+            }
+        }
+        
         GUIElement activeElement = GUIUtility.getInstance().getActiveElement();
         
         try {
@@ -113,8 +123,11 @@ public class IngameState extends AbstractState {
 
     /**
      * Resets the GUI elements of this state by destroying and re-initializing them.
+     * @param container The container used for resizing the GUI and creating the GUI elements.
      */
-    public void resetGUI(GameContainer container, StateBasedGame game) {
+    public void resetGUI(GameContainer container) {
+        resize(container);
+//        container.getGraphics().setDimensions(container.getWidth(), container.getHeight());
         // Set GUI elements
         if( orderedFrames.getFrameCount() > 0 ) {
             // Controls
@@ -211,24 +224,45 @@ public class IngameState extends AbstractState {
      * @param message
      */
     protected void handleChatCommand(String message) {
-        switch (ChatCommand.getCommand(message)) {
-        case HELP:
-            
-            break;
-        case RELOAD_GUI:
-            Game game = Game.getInstance();
-            org.newdawn.slick.state.GameState state = game.getCurrentState();
-            if (state instanceof IngameState) {
-                ((IngameState)state).resetGUI(game.getContainer(), game);
+        try {
+            switch (ChatCommand.getCommand(message)) {
+            case DIAGNOSTICS:
+                GameContainer container = Game.getInstance().getContainer();
+                String author = "Diagnostics";
+                MessageType type = MessageType.SYSTEM;
+                chatFrame.addMessage(new ChatMessage(author, type, 
+                        String.format("Window size: (%d, %d)", container.getWidth(), container.getHeight())));
+                chatFrame.addMessage(new ChatMessage(author, type, 
+                        String.format("Graphics size: (%d, %d)", container.getGraphics().getWidth(), 
+                                container.getGraphics().getHeight())));
+                chatFrame.addMessage(new ChatMessage(author, type, 
+                        String.format("FPS: %d", container.getFPS())));
+                chatFrame.addMessage(new ChatMessage(author, type, 
+                        String.format("Target FPS: %d", container.getTargetFrameRate())));
+                chatFrame.addMessage(new ChatMessage(author, type, "Fullscreen: " + container.isFullscreen()));
+                chatFrame.addMessage(new ChatMessage(author, type, "Received bytes: " + Game.getInstance().getClient().getSession().getReadBytes()));
+                chatFrame.addMessage(new ChatMessage(author, type, "Sent bytes: " + Game.getInstance().getClient().getSession().getWrittenBytes()));
+                break;
+            case HELP:
+                
+                break;
+            case RELOAD_GUI:
+                Game game = Game.getInstance();
+                org.newdawn.slick.state.GameState state = game.getCurrentState();
+                if (state instanceof IngameState) {
+                    ((IngameState)state).resetGUI(game.getContainer());
+                }
+                break;
             }
-            break;
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 
     @Override
     public void enter(GameContainer container, StateBasedGame game)
             throws SlickException {
-        resetGUI(container, game);
+        resetGUI(container);
     }
 
     @Override
@@ -275,6 +309,13 @@ public class IngameState extends AbstractState {
      */
     public void update(GameContainer container, StateBasedGame game, int delta) {
         try {
+            if (container.getWidth() != Display.getWidth() || 
+                    container.getHeight() != Display.getHeight() ||
+                    container.getWidth() != container.getGraphics().getWidth() ||
+                    container.getHeight() != container.getGraphics().getHeight()) {
+                resetGUI(container);
+            }
+
             Input input = container.getInput();
 
             Game.getInstance().getClient().update(container, game, delta);
@@ -286,8 +327,40 @@ public class IngameState extends AbstractState {
             // Iterate over all GUI controls and inform them of input
             orderedFrames.update(container);
             
+            boolean enterPressed = input.isKeyPressed(Input.KEY_ENTER);
+            if (enterPressed && (input.isKeyPressed(Input.KEY_LALT) ||
+                    input.isKeyPressed(Input.KEY_RALT))) {
+                if (container.isFullscreen()) {
+                    if (container instanceof org.newdawn.slick.AppGameContainer) {
+                        ((org.newdawn.slick.AppGameContainer)container).setDisplayMode(
+                                Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT, false);
+                    } else if (container instanceof org.newdawn.slick.AppletGameContainer.Container) {
+                        ((org.newdawn.slick.AppletGameContainer.Container)container).setDisplayMode(
+                                Display.getDesktopDisplayMode().getWidth(), 
+                                Display.getDesktopDisplayMode().getHeight(), false, true);
+                    }
+                } else {
+                    if (container instanceof org.newdawn.slick.AppGameContainer) {
+                        ((org.newdawn.slick.AppGameContainer)container).setDisplayMode(
+                                Display.getDesktopDisplayMode().getWidth(), 
+                                Display.getDesktopDisplayMode().getHeight(), true);
+                        container.setVSync(true);
+                    } else if (container instanceof org.newdawn.slick.AppletGameContainer.Container) {
+                        ((org.newdawn.slick.AppletGameContainer.Container)container).setDisplayMode(
+                                Display.getDesktopDisplayMode().getWidth(), 
+                                Display.getDesktopDisplayMode().getHeight(), true);
+                    }
+                }
+                enterPressed = false; // Don't propagate to chat frame
+                resetGUI(container);
+            }
+            
             // If the main game is focused and not a GUI element
-            if (input.isKeyPressed(Input.KEY_ENTER) || input.isKeyPressed(Input.KEY_RETURN)) {
+            /*
+             *  TODO:  This is a kludge.  It can't go under keyPressed() because 
+             *         the child window handles the event a second time.
+             */
+            if (enterPressed || input.isKeyPressed(Input.KEY_RETURN)) {
                 if (GUIUtility.getInstance().getActiveElement() == null) {
                     if (chatFrame != null) {
                         chatFrame.activate();

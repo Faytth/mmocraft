@@ -16,13 +16,14 @@ import org.unallied.mmocraft.blocks.Block;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
+import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.constants.WorldConstants;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.items.ItemRequirement;
 import org.unallied.mmocraft.net.PacketCreator;
-import org.unallied.mmocraft.net.sessions.TerrainSession;
+import org.unallied.mmocraft.sessions.TerrainSession;
 import org.unallied.mmocraft.skills.Skills;
 
 /**
@@ -142,11 +143,7 @@ public class Player extends Living implements Serializable {
         float y = (location.getY() - camera.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT;
         y += location.getYOffset() - camera.getYOffset();
         
-        for (int i=0; i < 1; ++i) {
-            for (int j=0; j < 1; ++j) {
-                current.render(x, y, direction == Direction.LEFT);
-            }
-        }
+        current.render(x, y, direction == Direction.LEFT);
         
         // Render player name if this player is not the current player.
         try {
@@ -747,6 +744,30 @@ public class Player extends Living implements Serializable {
 	}
 	
 	/**
+	 * Retrieves the damage multiplier based on the player's gear, primary
+	 * skills, secondary skills, and buffs
+	 * @return damageMultiplier
+	 */
+	public double getDamageMultiplier() {
+	    return 1000.0;
+	}
+	
+	/**
+	 * Displays the damage dealt to a block.
+	 * @param x The global x position of the block.  Each block is 1 unit.
+	 * @param y The global y position of the block.  Each block is 1 unit.
+	 * @param damage The amount of damage dealt
+	 */
+	public void displayBlockDamage(long x, long y, int damage) {
+	    MMOClient client = Game.getInstance().getClient();
+	    if (this == client.getPlayer()) {
+	        client.damageSession.addDamage(new Location(x, y), damage);
+	    } else {
+	        client.damageSession.addDamage(new Location(x, y), damage, ClientConstants.DAMAGE_OTHER_PLAYER_COLOR);
+	    }
+	}
+	
+	/**
 	 * Performs the collision checks from startingIndex to endingIndex.
 	 * 
 	 * This code may look ugly, but it's very fast.  On an i7-2600k, performing
@@ -793,24 +814,33 @@ public class Player extends Living implements Serializable {
                  *  Using this, we need to grab every block in our rectangle for collision
                  *  testing.
                  */
+                boolean sendCollisionPacket = false;
                 for (long x = topLeft.getX(); x <= bottomRight.getX(); ++x) {
                     for (long y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
-                        if (ts.getBlock(x, y).isCollidable() || true) {
-                            int xOff = 0;
-                            if (direction == Direction.RIGHT) {
-                                xOff = (int) (((x - this.location.getX()) * WorldConstants.WORLD_BLOCK_WIDTH - horizontalOffset - collisionArc[curIndex].getXOffset() - this.location.getXOffset()));
-                            } else {
-                                xOff = (int) (-this.location.getXOffset() + current.getWidth() - ((this.location.getX() - x) * WorldConstants.WORLD_BLOCK_WIDTH + getWidth() - horizontalOffset + collisionArc[curIndex].getFlipped().getXOffset()));
+                        try {
+                            if (ts.getBlock(x, y).isCollidable()) {
+                                int xOff = 0;
+                                if (direction == Direction.RIGHT) {
+                                    xOff = (int) (((x - this.location.getX()) * WorldConstants.WORLD_BLOCK_WIDTH - horizontalOffset - collisionArc[curIndex].getXOffset() - this.location.getXOffset()));
+                                } else {
+                                    xOff = (int) (-this.location.getXOffset() + current.getWidth() - ((this.location.getX() - x) * WorldConstants.WORLD_BLOCK_WIDTH + getWidth() - horizontalOffset + collisionArc[curIndex].getFlipped().getXOffset()));
+                                }
+                                int yOff = (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset()));
+                                float damage =  (direction == Direction.RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
+                                        new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), xOff, yOff);
+                                if (damage > 0) {
+                                    sendCollisionPacket = true;
+                                    // display damage
+                                    displayBlockDamage(x, y, (int)Math.round(getDamageMultiplier() * damage));
+    //                                ts.setBlock(x, y, new AirBlock());
+                                }
                             }
-                            int yOff = (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset()));
-                            float damage =  (direction == Direction.RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
-                                    new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), xOff, yOff);
-                            if (damage > 0) {
-//                                ts.setBlock(x, y, new AirBlock());
-                                Game.getInstance().getClient().announce(PacketCreator.getBlockCollisionPacket(current.getId(), startingIndex, endingIndex, horizontalOffset, verticalOffset));
-                            }
+                        } catch (NullPointerException e) {
                         }
                     }
+                }
+                if (sendCollisionPacket) {
+                    Game.getInstance().getClient().announce(PacketCreator.getBlockCollisionPacket(current.getId(), startingIndex, endingIndex, horizontalOffset, verticalOffset));
                 }
             } while (curIndex != endingIndex);
         } catch (ArrayIndexOutOfBoundsException e) {

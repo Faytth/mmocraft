@@ -12,11 +12,12 @@ import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.PacketSender;
-import org.unallied.mmocraft.net.sessions.LoginSession;
-import org.unallied.mmocraft.net.sessions.NPCSession;
-import org.unallied.mmocraft.net.sessions.ObjectSession;
-import org.unallied.mmocraft.net.sessions.PlayerPoolSession;
-import org.unallied.mmocraft.net.sessions.TerrainSession;
+import org.unallied.mmocraft.sessions.DamageSession;
+import org.unallied.mmocraft.sessions.LoginSession;
+import org.unallied.mmocraft.sessions.NPCSession;
+import org.unallied.mmocraft.sessions.ObjectSession;
+import org.unallied.mmocraft.sessions.PlayerPoolSession;
+import org.unallied.mmocraft.sessions.TerrainSession;
 
 /**
  * This class houses the Player as well as some important account information.
@@ -49,6 +50,9 @@ public class MMOClient {
 
     // Stores all non-playable characters
     public NPCSession npcSession = new NPCSession();
+
+    /** Stores all of the damage that needs to be displayed on the screen. */
+    public DamageSession damageSession = new DamageSession();
     
     public MMOClient() {
     }
@@ -207,6 +211,9 @@ public class MMOClient {
                 
                 // Render yourself
                 player.render(container, game, g, cameraLocation);
+                
+                // Render the damage dealt
+                damageSession.render(container, game, g, cameraLocation);
             }
         } catch (Throwable t) {
             // Do nothing.  It's a rendering bug.  So what?

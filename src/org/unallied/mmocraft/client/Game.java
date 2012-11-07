@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.client;
 
+import org.lwjgl.opengl.Display;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -9,8 +10,8 @@ import org.unallied.mmocraft.net.PacketSocket;
 import org.unallied.mmocraft.states.*;
 
 public class Game extends StateBasedGame {
-    private static final int SCREEN_WIDTH = 800;
-    private static final int SCREEN_HEIGHT = 600;
+    public static final int SCREEN_WIDTH = 800;
+    public static final int SCREEN_HEIGHT = 600;
     public static final int MAX_FPS = 60;
     
     /// We are not able to use the superior Singleton pattern for this due to applet complications
@@ -39,6 +40,7 @@ public class Game extends StateBasedGame {
     	// NOTE:  Most of the container initialization is performed in LoginState.init()
         try {
             AppGameContainer app = new AppGameContainer( getInstance() );
+            Display.setResizable(true);
             app.setDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, false);
             app.start();
         } catch (Throwable e) {

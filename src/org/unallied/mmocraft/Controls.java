@@ -59,9 +59,13 @@ public class Controls {
 		
 		if (controls.containsKey(key)) {
 			for (Integer i : controls.get(key)) {
-				if (input.isKeyDown(i)) {
-					result = true;
-				}
+			    try {
+    				if (input.isKeyDown(i)) {
+    					result = true;
+    				}
+			    } catch (Throwable t) {
+			        // Really don't care about this exception
+			    }
 			}
 		}
 		

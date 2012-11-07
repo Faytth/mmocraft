@@ -1,4 +1,4 @@
-package org.unallied.mmocraft.net.sessions;
+package org.unallied.mmocraft.sessions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +9,8 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Location;
 import org.unallied.mmocraft.TerrainChunk;
+import org.unallied.mmocraft.blocks.AirGreenBlock;
+import org.unallied.mmocraft.blocks.AirRedBlock;
 import org.unallied.mmocraft.blocks.Block;
 import org.unallied.mmocraft.constants.WorldConstants;
 

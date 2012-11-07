@@ -1,4 +1,4 @@
-package org.unallied.mmocraft.net.sessions;
+package org.unallied.mmocraft.sessions;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
