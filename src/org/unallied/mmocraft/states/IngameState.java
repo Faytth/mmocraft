@@ -12,6 +12,7 @@ import org.unallied.mmocraft.chat.ChatMessage;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.MMOClient;
+import org.unallied.mmocraft.constants.StringConstants;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIElement.Event;
 import org.unallied.mmocraft.gui.GUIElement.EventIntf;
@@ -28,6 +29,7 @@ import org.unallied.mmocraft.items.ItemData;
 import org.unallied.mmocraft.items.ItemQuality;
 import org.unallied.mmocraft.items.ItemType;
 import org.unallied.mmocraft.net.PacketCreator;
+import org.unallied.mmocraft.net.handlers.PvPToggleHandler;
 
 public class IngameState extends AbstractState {
 
@@ -68,10 +70,26 @@ public class IngameState extends AbstractState {
 
     @Override
     public void keyPressed(int key, char c) {
+        GameContainer container = Game.getInstance().getContainer();
+        Input input = container.getInput();
     	itemsReceivedFrame.addItem(new ItemData(0, "Test Item A", "a test", ItemQuality.EPIC, ItemType.EQUIPMENT, 100, 100));
     	
         // Be careful about using this function, because it occurs BEFORE child elements
     	Controls controls = Game.getInstance().getControls();
+    	
+    	// Check for fullscreen.
+    	if (key == Input.KEY_ENTER && (input.isKeyDown(Input.KEY_LALT) || input.isKeyDown(Input.KEY_RALT))) {
+    	    toggleFullscreen(container);
+    	    resetGUI(container);
+    	    return;
+    	} else if (key == Input.KEY_ENTER || key == Input.KEY_RETURN) {
+            if (GUIUtility.getInstance().getActiveElement() == null) {
+                if (chatFrame != null) {
+                    chatFrame.activate();
+                    return;
+                }
+            }
+    	}
     	
         // Deactivate GUI if needed.
         if (key == Input.KEY_ESCAPE) {
@@ -225,11 +243,12 @@ public class IngameState extends AbstractState {
      */
     protected void handleChatCommand(String message) {
         try {
+            String author = "";
+            MessageType type = MessageType.SYSTEM;
             switch (ChatCommand.getCommand(message)) {
             case DIAGNOSTICS:
                 GameContainer container = Game.getInstance().getContainer();
-                String author = "Diagnostics";
-                MessageType type = MessageType.SYSTEM;
+                author = "Diagnostics";
                 chatFrame.addMessage(new ChatMessage(author, type, 
                         String.format("Window size: (%d, %d)", container.getWidth(), container.getHeight())));
                 chatFrame.addMessage(new ChatMessage(author, type, 
@@ -244,7 +263,16 @@ public class IngameState extends AbstractState {
                 chatFrame.addMessage(new ChatMessage(author, type, "Sent bytes: " + Game.getInstance().getClient().getSession().getWrittenBytes()));
                 break;
             case HELP:
-                
+                author = "Help";
+                chatFrame.addMessage(new ChatMessage(author, type, StringConstants.HELP_INTRODUCTION_MESSAGE));
+                for (ChatCommand command : ChatCommand.values()) {
+                    if (command != ChatCommand.NONE) {
+                        chatFrame.addMessage(new ChatMessage(author, type, command.toString()));
+                    }
+                }
+                break;
+            case PVP:
+                Game.getInstance().getClient().announce(PacketCreator.getPvPToggle(PvPToggleHandler.getPvPEnabled()));
                 break;
             case RELOAD_GUI:
                 Game game = Game.getInstance();
@@ -315,58 +343,10 @@ public class IngameState extends AbstractState {
                     container.getHeight() != container.getGraphics().getHeight()) {
                 resetGUI(container);
             }
-
-            Input input = container.getInput();
-
             Game.getInstance().getClient().update(container, game, delta);
-            
-    /*        if (delta > 20) {
-                System.out.println(delta);
-            }*/
             
             // Iterate over all GUI controls and inform them of input
             orderedFrames.update(container);
-            
-            boolean enterPressed = input.isKeyPressed(Input.KEY_ENTER);
-            if (enterPressed && (input.isKeyPressed(Input.KEY_LALT) ||
-                    input.isKeyPressed(Input.KEY_RALT))) {
-                if (container.isFullscreen()) {
-                    if (container instanceof org.newdawn.slick.AppGameContainer) {
-                        ((org.newdawn.slick.AppGameContainer)container).setDisplayMode(
-                                Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT, false);
-                    } else if (container instanceof org.newdawn.slick.AppletGameContainer.Container) {
-                        ((org.newdawn.slick.AppletGameContainer.Container)container).setDisplayMode(
-                                Display.getDesktopDisplayMode().getWidth(), 
-                                Display.getDesktopDisplayMode().getHeight(), false, true);
-                    }
-                } else {
-                    if (container instanceof org.newdawn.slick.AppGameContainer) {
-                        ((org.newdawn.slick.AppGameContainer)container).setDisplayMode(
-                                Display.getDesktopDisplayMode().getWidth(), 
-                                Display.getDesktopDisplayMode().getHeight(), true);
-                        container.setVSync(true);
-                    } else if (container instanceof org.newdawn.slick.AppletGameContainer.Container) {
-                        ((org.newdawn.slick.AppletGameContainer.Container)container).setDisplayMode(
-                                Display.getDesktopDisplayMode().getWidth(), 
-                                Display.getDesktopDisplayMode().getHeight(), true);
-                    }
-                }
-                enterPressed = false; // Don't propagate to chat frame
-                resetGUI(container);
-            }
-            
-            // If the main game is focused and not a GUI element
-            /*
-             *  TODO:  This is a kludge.  It can't go under keyPressed() because 
-             *         the child window handles the event a second time.
-             */
-            if (enterPressed || input.isKeyPressed(Input.KEY_RETURN)) {
-                if (GUIUtility.getInstance().getActiveElement() == null) {
-                    if (chatFrame != null) {
-                        chatFrame.activate();
-                    }
-                }
-            }
         } catch (Throwable t) {
             t.printStackTrace(); // We had a pretty major error, but let's try to keep going.
         }

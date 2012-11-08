@@ -19,7 +19,7 @@ public class IronBlock extends Block {
     }
 
     @Override
-    protected BlockType getType() {
+    public BlockType getType() {
         return type;
     }
 

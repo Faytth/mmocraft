@@ -1,7 +1,9 @@
 package org.unallied.mmocraft;
 
+import org.newdawn.slick.SpriteSheet;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
+import org.unallied.mmocraft.client.SpriteSheetNode;
 
 /**
  * Contains a list of all collisions for animations.  Use this when you need
@@ -25,7 +27,13 @@ public enum Collision {
     private CollisionBlob[] collisionArc;
     
     Collision(SpriteID spriteID) {
-        this.collisionArc = CollisionBlob.generateCollisionArc(SpriteHandler.getInstance().get(spriteID.toString()));
+        SpriteSheetNode node = SpriteHandler.getInstance().getNode(spriteID.toString());
+        SpriteSheet spriteSheet = node.getSpriteSheet();
+        if (spriteSheet != null) {
+            this.collisionArc = CollisionBlob.generateCollisionArc(spriteSheet);
+        } else {
+            this.collisionArc = CollisionBlob.generateCollisionArc(node);
+        }
     }
     
     /**

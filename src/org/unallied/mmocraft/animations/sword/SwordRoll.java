@@ -1,13 +1,13 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
-import org.newdawn.slick.SpriteSheet;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.animations.Roll;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
+import org.unallied.mmocraft.client.SpriteSheetNode;
 
 public class SwordRoll extends Roll {
 
@@ -33,8 +33,10 @@ public class SwordRoll extends Roll {
         animation = new Animation();
         animation.setAutoUpdate(false);
         animation.setLooping(true);
-        SpriteSheet ss = SpriteHandler.getInstance().get(SpriteID.SWORD_ROLL.toString());
-        setAnimation(ss);
+        SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_ROLL.toString());
+        width = node.getWidth();
+        height = node.getHeight();
+        setAnimation(node.getSpriteSheet());
         animation.start();
         horizontalOffset = 21;
         verticalOffset = 3;

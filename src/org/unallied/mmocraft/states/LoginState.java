@@ -4,6 +4,7 @@ import org.lwjgl.opengl.Display;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.Collision;
@@ -29,6 +30,21 @@ public class LoginState extends AbstractState {
 		super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
 	}
 
+	@Override
+	public void keyPressed(int key, char c) {
+	    GameContainer container = Game.getInstance().getContainer();
+	    Input input = container.getInput();
+	    
+	    // Check for fullscreen.
+        if (key == Input.KEY_ENTER && (input.isKeyDown(Input.KEY_LALT) || input.isKeyDown(Input.KEY_RALT))) {
+            toggleFullscreen(container);
+            resetGUI(container);
+            return;
+        }
+        
+        super.keyPressed(key, c);
+	}
+	
     /**
      * Resets the GUI elements of this state by destroying and re-initializing them.
      * @param container The container used for resizing the GUI and creating the GUI elements.

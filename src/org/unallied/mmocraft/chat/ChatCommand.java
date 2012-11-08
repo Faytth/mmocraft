@@ -1,5 +1,7 @@
 package org.unallied.mmocraft.chat;
 
+import org.unallied.mmocraft.constants.StringConstants;
+
 /**
  * Contains all available chat commands, such as /help and /reload.  Also
  * provides a mechanism for detecting whether a ChatMessage is a command.
@@ -7,16 +9,19 @@ package org.unallied.mmocraft.chat;
  *
  */
 public enum ChatCommand {
-    NONE("/"), /** Not a chat command. */
-    DIAGNOSTICS("/diagnostics"), /** Retrieves debug diagnostics. */
-    HELP("/help"), /** Displays help information. */
-    RELOAD_GUI("/reload"), /** Reloads the GUI. */
-    SELECT_SAY("/say"), /** Changes the chat frame to /say. */
-    SELECT_WORLD("/world"); /** Changes the chat frame to /world. */
+    NONE("/", ""), /** Not a chat command. */
+    DIAGNOSTICS("/diagnostics", StringConstants.HELP_DIAGNOSTICS), /** Retrieves debug diagnostics. */
+    HELP("/help", StringConstants.HELP_HELP), /** Displays help information. */
+    PVP("/pvp", StringConstants.HELP_PVP), /** Toggles PvP on / off. */
+    RELOAD_GUI("/reload", StringConstants.HELP_RELOAD_GUI), /** Reloads the GUI. */
+    SELECT_SAY("/say", StringConstants.HELP_SELECT_SAY), /** Changes the chat frame to /say. */
+    SELECT_WORLD("/world", StringConstants.HELP_SELECT_WORLD); /** Changes the chat frame to /world. */
     String name = "";
+    String description;
     
-    ChatCommand(String name) {
+    ChatCommand(String name, String description) {
         this.name = name;
+        this.description = description;
     }
     
     /**
@@ -54,5 +59,10 @@ public enum ChatCommand {
      */
     public static boolean isCommand(String message) {
         return message.startsWith("/");
+    }
+    
+    @Override
+    public String toString() {
+        return name + " - " + description;
     }
 }

@@ -25,7 +25,7 @@ public class StoneBlock extends Block {
     }
 
     @Override
-    protected BlockType getType() {
+    public BlockType getType() {
         return type;
     }
 

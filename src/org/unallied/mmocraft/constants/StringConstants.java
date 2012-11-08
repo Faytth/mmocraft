@@ -12,5 +12,11 @@ public abstract class StringConstants {
     public static final String REGISTER_ERROR = "Error creating account.  Try a different name / email.";
     public static final String LOGIN_ERROR = "Error logging in.  Make sure your username and password are correct.";
     public static final String CONNECTION_ERROR = "Error connecting to server.";
-
+    public static final String HELP_INTRODUCTION_MESSAGE = "The below commands are available:";
+    public static final String HELP_DIAGNOSTICS = "Displays debug information.";
+    public static final String HELP_HELP = "Shows available commands.";
+    public static final String HELP_RELOAD_GUI = "Reloads the interface.";
+    public static final String HELP_SELECT_SAY = "Changes the chat type to /say.";
+    public static final String HELP_SELECT_WORLD = "Changes the chat type to /world.";
+    public static final String HELP_PVP = "Toggles PvP on/off.";
 }

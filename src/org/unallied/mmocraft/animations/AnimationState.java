@@ -45,6 +45,12 @@ public abstract class AnimationState implements Serializable {
     /** The time (in milliseconds since 1970) that this state was entered. */
     protected transient long entryTime;
     
+    /** The width of a frame in this animation state. */
+    protected transient int width = -1;
+    
+    /** The height of a frame in this animation state. */
+    protected transient int height = -1;
+    
     /** Offset from the left.  +1 moves player LEFT 1 pixel. */
     protected transient float horizontalOffset = 0.0f;
     
@@ -161,7 +167,9 @@ public abstract class AnimationState implements Serializable {
      * @return width
      */
     public int getWidth() {
-        if (animation != null) {
+        if (width != -1) {
+            return width;
+        } else if (animation != null) {
             return animation.getWidth();
         }
         

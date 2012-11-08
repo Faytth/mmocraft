@@ -1,7 +1,6 @@
 package org.unallied.mmocraft.net;
 
 import org.unallied.mmocraft.Player;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.chat.ChatMessage;
 
 /**
@@ -14,12 +13,14 @@ public class PacketCreator {
     private PacketCreator() {}
         
     /**
-     * Pong the server (used to prevent connection timeouts)
+     * Ping the server (used to get latency).
      */
-    public static Packet getPong() {
-        // Create a new packet writer with 2 bytes (opcode only)
+    public static Packet getPing() {
         PacketLittleEndianWriter writer = new PacketLittleEndianWriter(2);
-        writer.write(SendOpcode.PONG);
+
+        writer.write(SendOpcode.PING);
+        writer.writeLong(System.currentTimeMillis());
+        
         return writer.getPacket();
     }
     
@@ -153,6 +154,15 @@ public class PacketCreator {
         
         writer.write(SendOpcode.PLAYER_INFO);
         writer.writeInt(playerId);
+        
+        return writer.getPacket();
+    }
+
+    public static Packet getPvPToggle(boolean pvpEnabled) {
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.PVP_TOGGLE);
+        writer.write((byte)(pvpEnabled ? 1 : 0));
         
         return writer.getPacket();
     }

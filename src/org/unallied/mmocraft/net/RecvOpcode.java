@@ -7,7 +7,7 @@ package org.unallied.mmocraft.net;
  *
  */
 public enum RecvOpcode {
-    PING(0x00), 
+    PONG(0x00), 
     WELCOME(0x01),
     CHALLENGE(0x02),
     VERIFY(0x03), 

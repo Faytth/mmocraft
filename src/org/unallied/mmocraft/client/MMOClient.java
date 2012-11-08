@@ -10,7 +10,6 @@ import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.net.Packet;
-import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.PacketSender;
 import org.unallied.mmocraft.sessions.DamageSession;
 import org.unallied.mmocraft.sessions.LoginSession;
@@ -152,15 +151,6 @@ public class MMOClient {
         lastPing = System.currentTimeMillis();
     }
     
-    /**
-     * Send a ping to the client to make sure it's still alive
-     */
-    public void sendPong() {
-        final long pongSent = System.currentTimeMillis();
-        announce(PacketCreator.getPong());
-        // FIXME:  Not finished!!!
-    }
-    
     public void announce(Packet packet) {
         PacketSender.addPacket(packet);
     }
@@ -288,5 +278,17 @@ public class MMOClient {
             player.update(delta);
         }
         playerPoolSession.update(container,  game, delta);
+    }
+
+    /**
+     * Retrieves a local timestamp from a server timestamp.  This is calculated
+     * from the latency information retrieved from ping-pong events.  The local
+     * timestamp is roughly the equivalent of having called 
+     * {@link System#currentTimeMillis()} on the client.
+     * @param timestamp The server timestamp
+     * @return localTime
+     */
+    public long getLocalTimestamp(long timestamp) {
+        return timestamp; // TODO:  Latency not implemented yet.
     }
 }

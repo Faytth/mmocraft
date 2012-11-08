@@ -2,12 +2,17 @@ package org.unallied.mmocraft;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.util.ResourceLoader;
+import org.unallied.mmocraft.client.SpriteSheetNode;
 
 /**
  * A class that can be used for determining collision between two blobs (amorphous shapes).
@@ -138,6 +143,67 @@ public class CollisionBlob {
         }
     }
     
+    /**
+     * 
+     * @param image
+     * @param width
+     * @param height
+     * @param index The 0-based index 
+     */
+    public CollisionBlob(BufferedImage image, int width, int height, int index) {
+        int lowestX = width;
+        int lowestY = height;
+        int highestX = 0;
+        int highestY = 0;
+        List<CollisionPoint> collisionPoints = new ArrayList<CollisionPoint>();
+        
+        // Go through all of the pixels adding any non-blank ones to the blob.
+        for (int x=0; x < width; ++x) {
+            for (int y=0; y < height; ++y) {
+                Color pixel = new Color(image.getRGB(x + index * width, y));
+                
+                /*
+                 *  If this pixel is a damage pixel.  Note that we ignore alpha
+                 *  in the calculations, but we still want to prevent "invisible"
+                 *  pixels.
+                 */
+                if ((pixel.r != 0 || pixel.g != 0 || pixel.b != 0) && pixel.a > 0.5f) {
+                    collisionPoints.add(
+                            new CollisionPoint(new Point(x, y), pixel.r));
+                    lowestX  = lowestX  > x ? x : lowestX;
+                    lowestY  = lowestY  > y ? y : lowestY;
+                    highestX = highestX < x ? x : highestX;
+                    highestY = highestY < y ? y : highestY;
+                }
+            }
+        }
+        
+        // Sanity check
+        if (highestX - lowestX >= 0 && highestY - lowestY >= 0) {
+            this.width = highestX - lowestX + 1;
+            this.height = highestY - lowestY + 1;
+        }
+        
+        // Update our absolute offset from the image top-left corner.
+        this.x = lowestX;
+        this.y = lowestY;
+        
+        collisionMatrix = new float[this.width][this.height];
+        
+        // Now go through again and, using our new bounding box, correct offsets
+        try {
+            for (CollisionPoint cp : collisionPoints) {
+                cp.point.x -= lowestX;
+                cp.point.y -= lowestY;
+                collisionMatrix[cp.point.x][cp.point.y] = cp.damageMultiplier;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        flippedBlob = new CollisionBlob(this, width, height);
+    }
+
     public Rectangle getIntersection(Rectangle other) {
         Rectangle intersection = new Rectangle(0, 0, width, height).intersection(new Rectangle(other.x, other.y, other.width, other.height));
         
@@ -272,6 +338,35 @@ public class CollisionBlob {
             collisionArc[x] = new CollisionBlob(ss.getSprite(x, 0));
         }
         
+        return collisionArc;
+    }
+
+    /**
+     * Generates an array of collisions from a sprite sheet node.  This should be
+     * used when you need all of the collision blobs for an animation (for
+     * example, SwordHorizontalAttack).
+     * 
+     * Note:  The spritesheet must be horizontal ONLY.
+     * @param node The spritesheet node containing the width, height, and resource
+     *             name needed to generate the collision arc.
+     * @return collisionArc.  If SpriteSheet is null, an empty array is returned.
+     */
+    public static CollisionBlob[] generateCollisionArc(SpriteSheetNode node) {
+        if (node == null) { // Guard
+            return new CollisionBlob[0];
+        }
+        CollisionBlob[] collisionArc;
+        try {
+            BufferedImage image = null;
+            image = ImageIO.read(ResourceLoader.getResourceAsStream(node.getResourceName()));
+            int horizontalCount = image.getWidth() / node.getWidth();
+            collisionArc = new CollisionBlob[horizontalCount];
+            for (int x=0; x < horizontalCount; ++x) {
+                collisionArc[x] = new CollisionBlob(image, node.getWidth(), node.getHeight(), x);
+            }
+        } catch (Throwable t) {
+            return new CollisionBlob[0];
+        }
         return collisionArc;
     }
 }

@@ -57,6 +57,9 @@ public class StringNode implements Node {
      * @param str The string to split.
      */
     private void splitString(String str) {
+        if (str == null) { // Guard
+            return;
+        }
         lines.clear();
         if (font.getWidth(str) > maxWidth || str.contains("\n")) {
             String[] stringLines = str.split("\n");

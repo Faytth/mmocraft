@@ -12,7 +12,7 @@ import org.newdawn.slick.SpriteSheet;
  */
 public class SpriteHandler {
     
-    private Map<String, SpriteSheet> sprites = new HashMap<String, SpriteSheet>();
+    private Map<String, SpriteSheetNode> sprites = new HashMap<String, SpriteSheetNode>();
     
     private SpriteHandler() {
         init();
@@ -47,7 +47,7 @@ public class SpriteHandler {
         } catch (Throwable t) {
             spriteSheet = null;
         }
-        sprites.put(id, spriteSheet);
+        sprites.put(id, new SpriteSheetNode(spriteSheet, width, height, resourceName));
     }
     
     /**
@@ -135,9 +135,30 @@ public class SpriteHandler {
      * Returns the sprite sheet containing the given key.  If no spritesheet
      * is found, then it is queried from the server.
      * @param key the string that references this sprite sheet
-     * @return sprite sheet if key exists, else null
+     * @return spriteSheet if key exists, else null
      */
     public SpriteSheet get(String key) {
+        // Guard
+        if (key == null) {
+            return null;
+        }
+        
+        if (sprites.containsKey(key)) {
+            return sprites.get(key).sheet;
+        }
+        // Doesn't exist, so query it
+        
+        return null;
+    }
+    
+    /**
+     * Returns a node containing the sprite sheet as well as the sprite sheet's
+     * width, height, and resource name.  This is useful in the event that the
+     * sprite sheet failed to load (if the sprite sheet is null).
+     * @param key the string that references this sprite sheet
+     * @return spriteSheetNode if key exists, else null
+     */
+    public SpriteSheetNode getNode(String key) {
         // Guard
         if (key == null) {
             return null;

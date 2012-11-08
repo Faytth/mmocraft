@@ -26,7 +26,7 @@ public abstract class Block implements Collidable {
      * serialize across a network).
      * @return type of block
      */
-    protected abstract BlockType getType();
+    public abstract BlockType getType();
     
     /**
      * 

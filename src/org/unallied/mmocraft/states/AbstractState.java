@@ -5,7 +5,9 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.GameState;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.gui.GUIElement;
+import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.GUIElement.EventIntf;
 import org.unallied.mmocraft.gui.frame.Frame;
 import org.unallied.mmocraft.gui.frame.FrameZOrdering;
@@ -18,6 +20,12 @@ import org.unallied.mmocraft.gui.frame.FrameZOrdering;
 public abstract class AbstractState implements GameState {
 
 	FrameZOrdering orderedFrames = null;
+	
+	/** The width that the game was in when it was last windowed. */
+	protected static int windowedWidth = Game.SCREEN_WIDTH;
+	
+	/** The height that the game was in when it was last windowed. */
+	protected static int windowedHeight = Game.SCREEN_HEIGHT;
 	
     public AbstractState(Frame parent, EventIntf intf,
             GameContainer container, float x, float y, int width, int height) {
@@ -48,6 +56,41 @@ public abstract class AbstractState implements GameState {
         container.getGraphics().setDimensions(Display.getWidth(), Display.getHeight());
     }
 
+    /**
+     * Toggles fullscreen, turning it on and off.  Also saves the width and
+     * height when the game is not in fullscreen so that it can restore itself
+     * to the proper width / height next time it exits fullscreen.
+     * @param container The game container.
+     */
+    public void toggleFullscreen(GameContainer container) {
+        try {
+            if (container.isFullscreen()) {
+                if (container instanceof org.newdawn.slick.AppGameContainer) {
+                    ((org.newdawn.slick.AppGameContainer)container).setDisplayMode(
+                            windowedWidth, windowedHeight, false);
+                } else if (container instanceof org.newdawn.slick.AppletGameContainer.Container) {
+                    ((org.newdawn.slick.AppletGameContainer.Container)container).setDisplayMode(
+                            windowedWidth, windowedHeight, false, true);
+                }
+            } else {
+                windowedWidth = container.getWidth();
+                windowedHeight = container.getHeight();
+                if (container instanceof org.newdawn.slick.AppGameContainer) {
+                    ((org.newdawn.slick.AppGameContainer)container).setDisplayMode(
+                            Display.getDesktopDisplayMode().getWidth(), 
+                            Display.getDesktopDisplayMode().getHeight(), true);
+                    container.setVSync(true);
+                } else if (container instanceof org.newdawn.slick.AppletGameContainer.Container) {
+                    ((org.newdawn.slick.AppletGameContainer.Container)container).setDisplayMode(
+                            Display.getDesktopDisplayMode().getWidth(), 
+                            Display.getDesktopDisplayMode().getHeight(), true);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+        
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount) {
 		for (GUIElement element : orderedFrames.getFramesList()) {

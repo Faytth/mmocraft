@@ -4,6 +4,7 @@ import org.lwjgl.opengl.Display;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.Game;
@@ -26,6 +27,20 @@ public class RegisterState extends AbstractState {
 		super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
 	}
 
+	public void keyPressed(int key, char c) {
+	    GameContainer container = Game.getInstance().getContainer();
+	    Input input = container.getInput();
+	    
+	    // Check for fullscreen.
+        if (key == Input.KEY_ENTER && (input.isKeyDown(Input.KEY_LALT) || input.isKeyDown(Input.KEY_RALT))) {
+            toggleFullscreen(container);
+            resetGUI(container);
+            return;
+        }
+        
+        super.keyPressed(key, c);
+	}
+	
 	public void resetGUI(GameContainer container) {
 	    resize(container);
 	    

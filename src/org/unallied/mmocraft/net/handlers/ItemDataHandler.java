@@ -6,6 +6,12 @@ import org.unallied.mmocraft.items.ItemManager;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 
+/**
+ * Handler for item data.  Item data is information about an item.  It is not
+ * an item that is being added to the inventory.
+ * @author Alexandria
+ *
+ */
 public class ItemDataHandler extends AbstractPacketHandler {
 
     @Override
