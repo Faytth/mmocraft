@@ -32,6 +32,11 @@ public class AirRedBlock extends Block {
     public boolean isCollidable() {
         return true; // You can't collide with air!
     }
+    
+    @Override
+    public long getMaximumHealth() {
+    	return 0;
+    }
 
     @Override
     public Block getCopy() {

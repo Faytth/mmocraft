@@ -129,8 +129,7 @@ public class PacketCreator {
 		return writer.getPacket();
 	}
 
-    public static Packet getBlockCollisionPacket(AnimationType animation,
-            int startingIndex, int endingIndex, float horizontalOffset,
+    public static Packet getBlockCollisionPacket(int startingIndex, int endingIndex, float horizontalOffset,
             float verticalOffset) {
         PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
         
@@ -139,7 +138,6 @@ public class PacketCreator {
         writer.writeInt(endingIndex);
         writer.writeFloat(horizontalOffset);
         writer.writeFloat(verticalOffset);
-        writer.writeShort(animation.getValue());
         
         return writer.getPacket();
     }

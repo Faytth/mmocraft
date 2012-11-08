@@ -12,6 +12,8 @@ import org.unallied.mmocraft.Collidable;
  */
 public abstract class Block implements Collidable {
     
+	private static final long DEFAULT_BLOCK_MAXIMUM_HEALTH = 1;
+	
     /**
      * Implements the Template Method pattern for image
      * @return color
@@ -52,4 +54,12 @@ public abstract class Block implements Collidable {
      * @return block
      */
     public abstract Block getCopy();
+    
+    /**
+     * Gets the maximum health of the block type
+     * @return
+     */
+    public long getMaximumHealth() {
+    	return DEFAULT_BLOCK_MAXIMUM_HEALTH;
+    }
 }

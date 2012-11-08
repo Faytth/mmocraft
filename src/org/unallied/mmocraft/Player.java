@@ -840,7 +840,7 @@ public class Player extends Living implements Serializable {
                     }
                 }
                 if (sendCollisionPacket) {
-                    Game.getInstance().getClient().announce(PacketCreator.getBlockCollisionPacket(current.getId(), startingIndex, endingIndex, horizontalOffset, verticalOffset));
+                    Game.getInstance().getClient().announce(PacketCreator.getBlockCollisionPacket(startingIndex, endingIndex, horizontalOffset, verticalOffset));
                 }
             } while (curIndex != endingIndex);
         } catch (ArrayIndexOutOfBoundsException e) {

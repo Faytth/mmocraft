@@ -1,5 +1,7 @@
 package org.unallied.mmocraft;
 
+import org.unallied.mmocraft.utils.HashCodeUtil;
+
 /**
  * Point2D was insufficient because I needed subpixel-perfect points.  Since
  * Location defines a minimum granularity for these points, it makes sense, then,
@@ -11,6 +13,8 @@ package org.unallied.mmocraft;
 public class RawPoint {
     private long x;
     private long y;
+    
+    private int hashCodeValue;
     
     /**
      * Creates a new raw point at (0, 0).
@@ -86,5 +90,17 @@ public class RawPoint {
         RawPoint o = (RawPoint)obj;
         
         return x == o.x && y == o.y;
+    }
+    
+    @Override
+    public int hashCode() {
+        if (hashCodeValue == 0) {
+            int result = 0;
+            result = HashCodeUtil.hash(result, x);
+            result = HashCodeUtil.hash(result, y);
+            hashCodeValue = result;
+        }
+        
+        return hashCodeValue;
     }
 }

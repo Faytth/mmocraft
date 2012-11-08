@@ -20,7 +20,8 @@ public enum RecvOpcode {
     CHAT_MESSAGE(0x0A), 
     ITEM_DATA(0x0B),
     PLAYER_INFO(0x0C), 
-    SKILL_EXPERIENCE(0x0D);
+    SKILL_EXPERIENCE(0x0D),
+    BLOCK_CHANGED(0x0E);
     private int code = 0;
     
     private RecvOpcode(int code) {

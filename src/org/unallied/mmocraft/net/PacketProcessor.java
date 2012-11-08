@@ -70,5 +70,6 @@ public class PacketProcessor {
         registerHandler(RecvOpcode.ITEM_DATA, new ItemDataHandler());
         registerHandler(RecvOpcode.PLAYER_INFO, new PlayerInfoHandler());
         registerHandler(RecvOpcode.SKILL_EXPERIENCE, new SkillExperienceHandler());
+        registerHandler(RecvOpcode.BLOCK_CHANGED, new BlockChangedHandler());
     }
 }
