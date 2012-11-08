@@ -14,46 +14,51 @@ import org.unallied.mmocraft.blocks.*;
  *
  */
 public enum BlockType {
-    AIR(0x00, new AirBlock()),
-    DIRT(0x01, new DirtBlock()),
-    //WOOD(0x02, new WoodBlock()),
-    STONE(0x03, new StoneBlock()),
-    IRON(0x04, new IronBlock()), 
-    CLAY(0x05, new ClayBlock()),
-    GRAVEL(0x06, new GravelBlock()),
-    SANDSTONE(0x07, new SandstoneBlock()),
-    SAND(0x08, new SandBlock()),
-    GRASS(0x09, new GrassBlock());
-    int value = 0;
-    Block block;
-    
-    BlockType(int value, Block block) {
-        this.value = value;
-        this.block = block;
-    }
-    
-    public byte getValue() {
-        return (byte) value;
-    }
-    
-    public static BlockType fromValue(int value) {
-        for (BlockType bt : BlockType.values()) {
-            if (bt.value == value) {
-                return bt;
-            }
-        }
-        
-        return null; // not found
-    }
-    
-    /**
-     * Retrieves a copy of a block that goes with this block type.
-     * 
-     * This can be used when you only have a block type but want the Block
-     * class that it refers to.
-     * @return block
-     */
-    public Block getBlock() {
-        return block.getCopy();
-    }
+	AIR(0x00, AirBlock.class),
+	DIRT(0x01, DirtBlock.class),
+	//WOOD(0x02, WoodBlock.class),
+	STONE(0x03, StoneBlock.class),
+	IRON(0x04, IronBlock.class), 
+	CLAY(0x05, ClayBlock.class),
+	GRAVEL(0x06, GravelBlock.class),
+	SANDSTONE(0x07, SandstoneBlock.class),
+	SAND(0x08, SandBlock.class),
+	GRASS(0x09, GrassBlock.class);
+	int value = 0;
+	Class block;
+
+	BlockType(int value, Class block) {
+		this.value = value;
+		this.block = block;
+	}
+
+	public byte getValue() {
+		return (byte) value;
+	}
+
+	public static BlockType fromValue(int value) {
+		for (BlockType bt : BlockType.values()) {
+			if (bt.value == value) {
+				return bt;
+			}
+		}
+
+		return null; // not found
+	}
+
+	/**
+	 * Retrieves a copy of a block that goes with this block type.
+	 * 
+	 * This can be used when you only have a block type but want the Block
+	 * class that it refers to.
+	 * @return block
+	 */
+	public Block getBlock() {
+		try {
+			return (Block)block.newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
