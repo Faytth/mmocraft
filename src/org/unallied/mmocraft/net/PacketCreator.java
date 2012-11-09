@@ -130,6 +130,14 @@ public class PacketCreator {
 		return writer.getPacket();
 	}
 
+	/**
+	 * 
+	 * @param startingIndex The starting index of the collision arc
+	 * @param endingIndex The ending index of the collision arc
+	 * @param horizontalOffset The horizontal offset to use in placement.
+	 * @param verticalOffset The vertical offset to use in placement.
+	 * @return
+	 */
     public static Packet getBlockCollisionPacket(int startingIndex, int endingIndex, float horizontalOffset,
             float verticalOffset) {
         PacketLittleEndianWriter writer = new PacketLittleEndianWriter();

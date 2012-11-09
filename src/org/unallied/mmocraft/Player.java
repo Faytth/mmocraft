@@ -473,7 +473,9 @@ public class Player extends Living implements Serializable {
         fallSpeed = -300.0f - movementSpeed * 0.251f;
         
         try {
-            Game.getInstance().getClient().announce(PacketCreator.getMovement(this));
+            if (this == Game.getInstance().getClient().getPlayer()) {
+                Game.getInstance().getClient().announce(PacketCreator.getMovement(this));
+            }
         } catch (Throwable t) {
             // We don't care if this fails.
         }
@@ -839,7 +841,7 @@ public class Player extends Living implements Serializable {
                         }
                     }
                 }
-                if (sendCollisionPacket) {
+                if (sendCollisionPacket && this == Game.getInstance().getClient().getPlayer()) {
                     Game.getInstance().getClient().announce(PacketCreator.getBlockCollisionPacket(startingIndex, endingIndex, horizontalOffset, verticalOffset));
                 }
             } while (curIndex != endingIndex);
