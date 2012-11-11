@@ -21,7 +21,9 @@ public enum RecvOpcode {
     ITEM_DATA(0x0B),
     PLAYER_INFO(0x0C), 
     SKILL_EXPERIENCE(0x0D),
-    BLOCK_CHANGED(0x0E);
+    BLOCK_CHANGED(0x0E), 
+    PVP_TOGGLE_RESPONSE(0x0F), 
+    PVP_PLAYER_DAMAGED(0x10);
     private int code = 0;
     
     private RecvOpcode(int code) {

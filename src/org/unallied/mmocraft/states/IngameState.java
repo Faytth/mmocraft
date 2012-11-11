@@ -28,8 +28,9 @@ import org.unallied.mmocraft.gui.frame.ToolbarFrame;
 import org.unallied.mmocraft.items.ItemData;
 import org.unallied.mmocraft.items.ItemQuality;
 import org.unallied.mmocraft.items.ItemType;
+import org.unallied.mmocraft.net.Heartbeat;
 import org.unallied.mmocraft.net.PacketCreator;
-import org.unallied.mmocraft.net.handlers.PvPToggleHandler;
+import org.unallied.mmocraft.net.handlers.PvPToggleResponseHandler;
 
 public class IngameState extends AbstractState {
 
@@ -221,14 +222,14 @@ public class IngameState extends AbstractState {
         		Game.getInstance().getWidth() - 300 - 10, toolbarFrame.getAbsoluteHeight() - 100 - 10, 300, 100);
         
         // Controls.  Add these in the order you would like to see them appear.
+        orderedFrames.addFrame(inventoryFrame);
+        orderedFrames.addFrame(characterFrame);
+        
         orderedFrames.addFrame(chatFrame);
         orderedFrames.addFrame(miniMapFrame);
         orderedFrames.addFrame(statusFrame);
         orderedFrames.addFrame(toolbarFrame);
-        orderedFrames.addFrame(itemsReceivedFrame);
- 
-        orderedFrames.addFrame(characterFrame);
-        orderedFrames.addFrame(inventoryFrame);
+        orderedFrames.addFrame(itemsReceivedFrame);        
 
         // Start off with the game focused
         GUIUtility.getInstance().setActiveElement(null);
@@ -252,15 +253,13 @@ public class IngameState extends AbstractState {
                 chatFrame.addMessage(new ChatMessage(author, type, 
                         String.format("Window size: (%d, %d)", container.getWidth(), container.getHeight())));
                 chatFrame.addMessage(new ChatMessage(author, type, 
-                        String.format("Graphics size: (%d, %d)", container.getGraphics().getWidth(), 
-                                container.getGraphics().getHeight())));
-                chatFrame.addMessage(new ChatMessage(author, type, 
                         String.format("FPS: %d", container.getFPS())));
                 chatFrame.addMessage(new ChatMessage(author, type, 
                         String.format("Target FPS: %d", container.getTargetFrameRate())));
                 chatFrame.addMessage(new ChatMessage(author, type, "Fullscreen: " + container.isFullscreen()));
                 chatFrame.addMessage(new ChatMessage(author, type, "Received bytes: " + Game.getInstance().getClient().getSession().getReadBytes()));
                 chatFrame.addMessage(new ChatMessage(author, type, "Sent bytes: " + Game.getInstance().getClient().getSession().getWrittenBytes()));
+                chatFrame.addMessage(new ChatMessage(author, type, "Latency: " + Heartbeat.getInstance().getAverageLatency() + " ms"));
                 break;
             case HELP:
                 author = "Help";
@@ -272,7 +271,11 @@ public class IngameState extends AbstractState {
                 }
                 break;
             case PVP:
-                Game.getInstance().getClient().announce(PacketCreator.getPvPToggle(PvPToggleHandler.getPvPEnabled()));
+                author = "PvP";
+                boolean pvpEnabled = !PvPToggleResponseHandler.getPvPToggled();
+                chatFrame.addMessage(new ChatMessage(author, type, 
+                        String.format(StringConstants.PVP_TOGGLE, pvpEnabled ? StringConstants.ENABLED : StringConstants.DISABLED)));
+                Game.getInstance().getClient().announce(PacketCreator.getPvPToggle(pvpEnabled));
                 break;
             case RELOAD_GUI:
                 Game game = Game.getInstance();

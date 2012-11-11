@@ -19,4 +19,9 @@ public abstract class StringConstants {
     public static final String HELP_SELECT_SAY = "Changes the chat type to /say.";
     public static final String HELP_SELECT_WORLD = "Changes the chat type to /world.";
     public static final String HELP_PVP = "Toggles PvP on/off.";
+    public static final String PVP_FLAG_DISABLE_TEXT = "PvP is enabled.  When PvP is enabled, you can be attacked by other players who have their PvP enabled as well.  To disable PvP, type /pvp in the chat box.";
+    public static final String PVP_FLAG_DISABLING_TEXT = "PvP will be disabled in %d seconds.";
+    public static final String PVP_TOGGLE = "PvP has been %s.";
+    public static final String ENABLED = "enabled";
+    public static final String DISABLED = "disabled";
 }

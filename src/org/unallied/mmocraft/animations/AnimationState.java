@@ -149,6 +149,9 @@ public abstract class AnimationState implements Serializable {
      */
     public abstract void fall();
     
+    /** Called when the player dies. */
+    public abstract void die();
+    
     /**
      * Renders the animation to the screen
      * @param x The x location from the left side of the screen to draw at

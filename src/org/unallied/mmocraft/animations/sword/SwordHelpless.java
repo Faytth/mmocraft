@@ -121,4 +121,9 @@ public class SwordHelpless extends AnimationState {
     public AnimationType getId() {
         return AnimationType.SWORD_HELPLESS;
     }
+
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
 }

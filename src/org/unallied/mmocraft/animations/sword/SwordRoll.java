@@ -185,4 +185,9 @@ public class SwordRoll extends Roll {
                     y - verticalOffset);
         }
     }
+
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
 }

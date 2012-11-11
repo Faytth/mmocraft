@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.net;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.unallied.mmocraft.client.Game;
@@ -25,9 +26,16 @@ public class Heartbeat implements Runnable {
     private static final int MAX_LATENCIES = 5;
     
     /** A list of the past x number of latencies. */
-    private static List<Long> latencies = new ArrayList<Long>();
+    private List<Long> latencies = new ArrayList<Long>();
+    private List<Long> orderedLatencies = new ArrayList<Long>();
+    
+    /** The time difference between the client and server. */
+    private long timeOffset = 0;
     
     @Override
+    /**
+     * Starts listening for packets.
+     */
     public void run() {
         boolean keepRunning = true;
         while (keepRunning) {
@@ -46,13 +54,69 @@ public class Heartbeat implements Runnable {
     }
 
     /**
-     * Updates the 
+     * Retrieves the average latency between the client and the server.  The
+     * round trip time is twice this latency.  The latency is the time it takes
+     * for the client to contact the server or vice versa.
+     * @return averageLatency
+     */
+    public long getAverageLatency() {
+        if (!orderedLatencies.isEmpty()) {
+            return orderedLatencies.get(orderedLatencies.size() / 2); // return median (latencies are always sorted)
+        } else {
+            return 0;
+        }
+    }
+    
+    /**
+     * Retrieves the time offset between the client and the server.
+     * @return timeOffset
+     */
+    public long getTimeOffset() {
+        return timeOffset;
+    }
+    
+    /**
+     * Updates the latency based on a client start time, server response time,
+     * and the current time.  The client start time is the time that the
+     * packet was sent to the server, the server time is the time that the
+     * server received the packet
+     * @param clientTime
      * @param serverTime
      */
-    public static void updatePing(long clientTime, long serverTime) {
-        if (latencies.size() > MAX_LATENCIES) {
-            latencies.remove(0);
+    public void updateLatency(long clientTime, long serverTime) {
+        synchronized (this) {
+            if (latencies.size() > MAX_LATENCIES) {
+                latencies.remove(0);
+            }
+            latencies.add((System.currentTimeMillis() - clientTime) / 2);
+            orderedLatencies = new ArrayList<Long>(latencies);
+            Collections.sort(orderedLatencies);
         }
-        latencies.add(serverTime - clientTime);
+        timeOffset = (serverTime - getAverageLatency()) - clientTime;
+    }
+    
+    private static class HeartbeatHolder {
+        private static Heartbeat instance = new Heartbeat();
+    }
+    
+    public static Heartbeat getInstance() {
+        return HeartbeatHolder.instance;
+    }
+    
+    /**
+     * Retrieves a local timestamp from a server timestamp.  This is calculated
+     * from the latency information retrieved from ping-pong events.  The local
+     * timestamp is roughly the equivalent of having called 
+     * {@link System#currentTimeMillis()} on the client.  Returns -1 if timestamp
+     * is -1.
+     * @param timestamp The server timestamp
+     * @return localTime Returns -1 if timestamp is -1, else returns the local
+     *                   time.
+     */
+    public long getLocalTimestamp(long timestamp) {
+        if (timestamp == -1) {
+            return timestamp;
+        }
+        return timestamp - timeOffset - getAverageLatency();
     }
 }

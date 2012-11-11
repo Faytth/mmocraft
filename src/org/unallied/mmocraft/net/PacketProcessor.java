@@ -58,6 +58,7 @@ public class PacketProcessor {
     public void reset() {
         handlers.clear();
         
+        registerHandler(RecvOpcode.PONG, new PongHandler());
         registerHandler(RecvOpcode.CHALLENGE, new ChallengeHandler());
         registerHandler(RecvOpcode.VERIFY, new VerifyHandler());
         registerHandler(RecvOpcode.LOGIN_ERROR, new LoginErrorHandler());
@@ -71,5 +72,7 @@ public class PacketProcessor {
         registerHandler(RecvOpcode.PLAYER_INFO, new PlayerInfoHandler());
         registerHandler(RecvOpcode.SKILL_EXPERIENCE, new SkillExperienceHandler());
         registerHandler(RecvOpcode.BLOCK_CHANGED, new BlockChangedHandler());
+        registerHandler(RecvOpcode.PVP_TOGGLE_RESPONSE, new PvPToggleResponseHandler());
+        registerHandler(RecvOpcode.PVP_PLAYER_DAMAGED, new PvPPlayerDamagedHandler());
     }
 }

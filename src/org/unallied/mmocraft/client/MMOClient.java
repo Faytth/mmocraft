@@ -17,6 +17,7 @@ import org.unallied.mmocraft.sessions.NPCSession;
 import org.unallied.mmocraft.sessions.ObjectSession;
 import org.unallied.mmocraft.sessions.PlayerPoolSession;
 import org.unallied.mmocraft.sessions.TerrainSession;
+import org.unallied.mmocraft.tools.Authenticator;
 
 /**
  * This class houses the Player as well as some important account information.
@@ -31,7 +32,6 @@ public class MMOClient {
     private int accountId;            // Player's account id
     private boolean loggedIn = false; // Whether this account is logged in
     private String accountName; // The username of the logged in account
-    private long lastPing = 0;  // The time that the last ping was received from the server
     
     private Camera camera = null;
     
@@ -144,13 +144,6 @@ public class MMOClient {
         session = null;
     }
     
-    /**
-     * Update the time that the last ping was received to the current time
-     */
-    public void pingReceived() {
-        lastPing = System.currentTimeMillis();
-    }
-    
     public void announce(Packet packet) {
         PacketSender.addPacket(packet);
     }
@@ -242,31 +235,35 @@ public class MMOClient {
             // These next checks are only if the main game is focused and not a GUI control
             if (GUIUtility.getInstance().getActiveElement() == null) {
                 // Perform movement
-                if (controls.isMovingLeft(input)) {
-                    idle &= !player.tryMoveLeft(delta);
-                }
-                if (controls.isMovingRight(input)) {
-                    idle &= !player.tryMoveRight(delta);
-                }
-                if (idle && player.getState().canChangeVelocity()) {
-                    player.setVelocity(0, player.getVelocity().getY());
-                }
-                if (controls.isMovingUp(input)) {
-                    player.tryMoveUp(delta);
-                    idle = false;
-                }
-                if (controls.isMovingDown(input)) {
-                    player.tryMoveDown(delta);
-                    idle = false;
-                }
-                if (!controls.isMovingUp(input) && !controls.isMovingDown(input)) {
-                    if (player.getState().canChangeVelocity()) {
-                        player.setVelocity(player.getVelocity().getX(), 0);
+                if (Authenticator.canPlayerMove(player)) {
+                    if (controls.isMovingLeft(input)) {
+                        idle &= !player.tryMoveLeft(delta);
+                    }
+                    if (controls.isMovingRight(input)) {
+                        idle &= !player.tryMoveRight(delta);
+                    }
+                    if (idle && player.getState().canChangeVelocity()) {
+                        player.setVelocity(0, player.getVelocity().getY());
+                    }
+                    if (controls.isMovingUp(input)) {
+                        player.tryMoveUp(delta);
+                        idle = false;
+                    }
+                    if (controls.isMovingDown(input)) {
+                        player.tryMoveDown(delta);
+                        idle = false;
+                    }
+                    if (!controls.isMovingUp(input) && !controls.isMovingDown(input)) {
+                        if (player.getState().canChangeVelocity()) {
+                            player.setVelocity(player.getVelocity().getX(), 0);
+                        }
                     }
                 }
                 
                 // perform attacks
-                player.attackUpdate(controls.isBasicAttack(input));
+                if (Authenticator.canPlayerAttack(player)) {
+                    player.attackUpdate(controls.isBasicAttack(input));
+                }
             }
             
             if (idle) {
@@ -278,17 +275,5 @@ public class MMOClient {
             player.update(delta);
         }
         playerPoolSession.update(container,  game, delta);
-    }
-
-    /**
-     * Retrieves a local timestamp from a server timestamp.  This is calculated
-     * from the latency information retrieved from ping-pong events.  The local
-     * timestamp is roughly the equivalent of having called 
-     * {@link System#currentTimeMillis()} on the client.
-     * @param timestamp The server timestamp
-     * @return localTime
-     */
-    public long getLocalTimestamp(long timestamp) {
-        return timestamp; // TODO:  Latency not implemented yet.
     }
 }

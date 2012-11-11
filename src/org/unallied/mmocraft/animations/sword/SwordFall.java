@@ -137,4 +137,9 @@ public class SwordFall extends AnimationState {
         return AnimationType.SWORD_FALL;
     }
 
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
+
 }

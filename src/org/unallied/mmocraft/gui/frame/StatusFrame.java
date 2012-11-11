@@ -6,10 +6,13 @@ import org.newdawn.slick.Graphics;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
+import org.unallied.mmocraft.constants.ClientConstants;
+import org.unallied.mmocraft.constants.StringConstants;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.control.Gauge;
 import org.unallied.mmocraft.gui.control.StaticText;
 import org.unallied.mmocraft.gui.tooltips.ToolTip;
+import org.unallied.mmocraft.net.handlers.PvPToggleResponseHandler;
 
 /**
  * A frame showing the player's status.  This includes information such as the
@@ -23,7 +26,7 @@ public class StatusFrame extends Frame {
     private Gauge healthGauge;
     private StaticText playerNameStaticText;
     private StaticText playerHPPercentStaticText;
-    
+        
     public StatusFrame(Frame parent, EventIntf intf, GameContainer container,
             float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
@@ -46,10 +49,21 @@ public class StatusFrame extends Frame {
             Player p = Game.getInstance().getClient().getPlayer();
             healthGauge.setRange(p.getHpMax());
             healthGauge.setValue(p.getHpCurrent());
-            if (p.getHpMax() < 9999) {
-                p.setHpMax(9999);
-            }
+
             playerNameStaticText.setLabel(p.getName());
+            long pvpFlagDuration = PvPToggleResponseHandler.getPvPFlagDuration();
+            if (pvpFlagDuration == -1 || pvpFlagDuration > 0) {
+                playerNameStaticText.setColor(ClientConstants.PLAYER_NAME_PVP);
+                if (pvpFlagDuration == -1) {
+                    playerNameStaticText.setToolTip(new ToolTip(StringConstants.PVP_FLAG_DISABLE_TEXT));
+                } else {
+                    playerNameStaticText.setToolTip(new ToolTip(String.format(StringConstants.PVP_FLAG_DISABLING_TEXT, pvpFlagDuration / 1000)));
+                }
+            } else {
+                playerNameStaticText.setColor(ClientConstants.PLAYER_NAME_NORMAL);
+                playerNameStaticText.setToolTip(null);
+            }
+            
             double hpPercent = 100.0 * p.getHpCurrent() / p.getHpMax();
             if (hpPercent > 0 && hpPercent < 100) {
                 // Ensure that only 0 and 100 are represented as 0% / 100%
@@ -60,7 +74,6 @@ public class StatusFrame extends Frame {
             } else { // Either 0% or 100%
                 playerHPPercentStaticText.setLabel(String.format("%d%%", (int)hpPercent));
             }
-            p.setHpCurrent(p.getHpCurrent() + 1);
             
             // Iterate over all GUI controls and inform them of input
             for( GUIElement element : elements ) {

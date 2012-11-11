@@ -127,4 +127,9 @@ public class SwordHorizontalAttack2 extends Rollable {
         return AnimationType.SWORD_HORIZONTAL_ATTACK_2;
     }
 
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
+
 }

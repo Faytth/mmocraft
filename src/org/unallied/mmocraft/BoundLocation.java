@@ -270,4 +270,16 @@ public class BoundLocation extends Location implements Serializable {
         this.y = y;
         fixBorders();
     }
+
+    /**
+     * Returns whether this location is contained in the rectangle specified by
+     * topLeft and bottomRight.  Points on the line of the rectangle are counted.
+     * @param topLeft The top left corner of the rectangle.
+     * @param bottomRight The bottom right corner of the rectangle.
+     * @return true if this location is contained in the rectangle, else false.
+     */
+    public boolean contains(Location topLeft, Location bottomRight) {
+        return getRawDeltaX(topLeft) >= 0 && getRawDeltaX(bottomRight) <= 0 &&
+               getRawDeltaY(topLeft) >= 0 && getRawDeltaY(bottomRight) <= 0;
+    }
 }

@@ -1,7 +1,6 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
-import org.unallied.mmocraft.Direction;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
@@ -9,19 +8,20 @@ import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
 
+
 /**
- * Animation state when a sword user is not in motion or attacking.
+ * Animation state when a sword user is dead (0 HP).
  * @author Faythless
  *
  */
-public class SwordIdle extends AnimationState {
-    
+public class SwordDead extends AnimationState {
+
     /**
      * 
      */
-    private static final long serialVersionUID = 6341914772010394027L;
+    private static final long serialVersionUID = -6110866984051635635L;
 
-    public SwordIdle(Player player, AnimationState last) {
+    public SwordDead(Player player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -37,40 +37,22 @@ public class SwordIdle extends AnimationState {
 
     @Override
     public void idle() {
-        // We're already idle, so do nothing
     }
 
     @Override
     public void moveLeft(boolean smash) {
-        player.updateDirection( Direction.LEFT );
-        
-        if (smash) {
-            player.setState( new SwordRun(player, this) );
-        } else {
-            player.setState( new SwordWalk(player, this) );
-        }
     }
 
     @Override
     public void moveRight(boolean smash) {
-        player.updateDirection( Direction.RIGHT );
-        
-        if (smash) {
-            player.setState( new SwordRun(player, this) );
-        } else {
-            player.setState( new SwordWalk(player, this) );
-        }
     }
 
     @Override
     public void moveUp(boolean smash) {
-        player.setState(new SwordJump(player, this));
     }
 
     @Override
     public void moveDown(boolean smash) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
@@ -97,7 +79,7 @@ public class SwordIdle extends AnimationState {
      * @return
      */
     public boolean canMoveUp() {
-        return true;
+        return false;
     }
     
     @Override
@@ -109,44 +91,36 @@ public class SwordIdle extends AnimationState {
      * @return downMultiplier
      */
     public float moveDownMultiplier() {
-        return 1.0f;
+        return 0;
     }
     
     @Override
     public void attack() {
-        player.setState(new SwordHorizontalAttack(player, this));
     }
 
     @Override
     public void shield() {
-        player.setState(new SwordShield(player, this));
     }
 
     @Override
     public void land() {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void fall() {
-        player.setState(new SwordFall(player, this));
     }
 
     @Override
     public void shieldOff() {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public AnimationType getId() {
-        return AnimationType.SWORD_IDLE;
+        return AnimationType.SWORD_DEAD;
     }
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
     }
 
 }

@@ -118,4 +118,9 @@ public class SwordWalk extends AnimationState {
     public AnimationType getId() {
         return AnimationType.SWORD_WALK;
     }
+
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
 }

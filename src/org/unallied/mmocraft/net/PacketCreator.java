@@ -166,6 +166,12 @@ public class PacketCreator {
         return writer.getPacket();
     }
 
+    /**
+     * Sends an enable or disable request for PvP to the server.  When enabled,
+     * the player is able to be attacked by other players in PvP.
+     * @param pvpEnabled True if PvP should be enabled, else false.
+     * @return packet
+     */
     public static Packet getPvPToggle(boolean pvpEnabled) {
         PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
         

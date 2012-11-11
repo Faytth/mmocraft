@@ -111,4 +111,9 @@ public class SwordRun extends AnimationState {
     public AnimationType getId() {
         return AnimationType.SWORD_RUN;
     }
+
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
 }

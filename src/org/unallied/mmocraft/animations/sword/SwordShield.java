@@ -160,4 +160,9 @@ public class SwordShield extends AnimationState {
         return AnimationType.SWORD_SHIELD;
     }
 
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
+
 }

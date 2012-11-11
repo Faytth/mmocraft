@@ -3,6 +3,7 @@ package org.unallied.mmocraft.tools;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.chat.ChatCommand;
 
 /**
@@ -88,5 +89,18 @@ public class Authenticator {
      */
     public static boolean isValidChatMessage(String message) {
     	return message.length() <= MAX_MESSAGE_LENGTH && !ChatCommand.isCommand(message);
+    }
+
+    /**
+     * Returns true if the player is able to move, else false.
+     * @param p The player
+     * @return playerCanMove True if the player can move, else false.
+     */
+    public static boolean canPlayerMove(Player player) {
+        return player.getHpCurrent() > 0;
+    }
+
+    public static boolean canPlayerAttack(Player player) {
+        return player.getHpCurrent() > 0;
     }
 }

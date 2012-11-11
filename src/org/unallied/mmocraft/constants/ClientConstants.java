@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 import org.newdawn.slick.Color;
 
 public abstract class ClientConstants {
-    public static final String HOST = "localhost";  //"www.unallied.com";
+    public static final String HOST = "localhost"; //"www.unallied.com";
     public static final int PACKET_TIMEOUT = 30; // 30 seconds timeout for packets
     public static final int SERVER_PORT = 27300; // the port to listen for connections on
     
@@ -60,5 +60,29 @@ public abstract class ClientConstants {
     public static final long ROLL_COOLDOWN = 330;
     
     /** The color that other player's damage is rendered in. */
-    public static final Color DAMAGE_OTHER_PLAYER_COLOR = new Color(160, 160, 160, 150);
+    public static final Color DAMAGE_BLOCK_OTHER_PLAYER_COLOR = new Color(160, 160, 160, 150);
+    
+    /** The color that damage you deal is rendered in. */
+    public static final Color DAMAGE_DEALT_COLOR = new Color(238, 118, 11);
+    
+    /** The color that damage you take is rendered in. */
+    public static final Color DAMAGE_RECEIVED_COLOR = new Color(214, 78, 78);
+    
+    /** The color that other people's damage received is rendered in. */
+    public static final Color DAMAGE_RECEIVED_OTHER_PLAYER_COLOR = new Color(214, 106, 106, 150);
+    
+    /** The color of the player's name if their PvP flag is enabled. */
+    public static final Color PLAYER_NAME_PVP = new Color(231, 24, 14);
+    
+    /** The color of the player's name if their PvP flag is disabled. */
+    public static final Color PLAYER_NAME_NORMAL = new Color(238, 238, 238);
+    
+    /** The time in milliseconds that the PvP flag persists after disabling PvP. */
+    public static final long PVP_FLAG_DURATION = 300000L;
+    
+    /** 
+     * The amount in pixels to increase the collision box for when checking if
+     * the player should send an attack packet to the server.
+     */
+    public static final float PLAYER_COLLISION_CHECK_RADIUS = 0;
 }

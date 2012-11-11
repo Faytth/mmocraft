@@ -190,4 +190,9 @@ public class SwordAirDodge extends AnimationState {
     public boolean isInvincible() {
         return elapsedTime >= INVINCIBILITY_START && elapsedTime <= INVINCIBILITY_END;
     }
+
+    @Override
+    public void die() {
+        player.setState(new SwordDead(player, this));
+    }
 }

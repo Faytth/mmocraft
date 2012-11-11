@@ -24,7 +24,8 @@ public enum AnimationType {
     SWORD_SHIELD_COOLDOWN(0x09), // No longer exists
     SWORD_WALK(0x0A), 
     SWORD_AIR_DODGE(0x0B), 
-    SWORD_HELPLESS(0x0C);
+    SWORD_HELPLESS(0x0C), 
+    SWORD_DEAD(0x0D);
     int value = 0;
     
     AnimationType(int value) {
@@ -84,6 +85,9 @@ public enum AnimationType {
             break;
         case SWORD_HELPLESS:
             result = new SwordHelpless(player, prev);
+            break;
+        case SWORD_DEAD:
+            result = new SwordDead(player, prev);
             break;
         }
         

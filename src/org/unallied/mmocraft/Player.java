@@ -20,11 +20,16 @@ import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.constants.WorldConstants;
 import org.unallied.mmocraft.gui.GUIUtility;
+import org.unallied.mmocraft.gui.fills.BarFill;
 import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.items.ItemRequirement;
+import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketCreator;
+import org.unallied.mmocraft.net.handlers.PvPToggleResponseHandler;
 import org.unallied.mmocraft.sessions.TerrainSession;
+import org.unallied.mmocraft.skills.SkillType;
 import org.unallied.mmocraft.skills.Skills;
+import org.unallied.mmocraft.tools.Authenticator;
 
 /**
  * Contains all information for a given player.
@@ -82,10 +87,26 @@ public class Player extends Living implements Serializable {
     
     /** The player's skills. */
     protected transient Skills skills = new Skills();
+
+    /** 
+     * The time at which the player's PvP will expire. A value of -1 indicates 
+     * indefinite.  This only counts for other players.
+     */
+    protected long pvpToggleTime = 0;
     
     public Player() {
         super();
         current = new SwordIdle(this, null);
+    }
+    
+    /**
+     * Sends a packet to the server if this player is the client's player.
+     * @param packet The packet to send
+     */
+    protected void sendPacket(Packet packet) {
+        if (this == Game.getInstance().getClient().getPlayer()) {
+            Game.getInstance().getClient().announce(packet);
+        }
     }
     
     /**
@@ -119,10 +140,7 @@ public class Player extends Living implements Serializable {
     public void setState(AnimationState newState) {
         if (this.current != newState) {
             this.current = newState;
-            if (this == Game.getInstance().getClient().getPlayer()) {
-                Game.getInstance().getClient().announce(
-                        PacketCreator.getMovement(this) );
-            }
+            sendPacket(PacketCreator.getMovement(this));
         }
     }
     
@@ -145,12 +163,31 @@ public class Player extends Living implements Serializable {
         
         current.render(x, y, direction == Direction.LEFT);
         
-        // Render player name if this player is not the current player.
         try {
             if (Game.getInstance().getClient().getPlayer() != this) {
+                // Render player name if this player is not the current player.
                 final String NAME_FONT = FontID.STATIC_TEXT_SMALL_BOLD.toString();
                 float centeredX = (int)(x + collisionWidth / 2 - FontHandler.getInstance().getMaxWidth(NAME_FONT, name) / 2);
-                FontHandler.getInstance().draw(NAME_FONT, name, centeredX, y + collisionHeight + 5, new Color(255, 255, 255), -1, -1, false);
+                Color nameColor = isPvPFlagEnabled() ? ClientConstants.PLAYER_NAME_PVP : ClientConstants.PLAYER_NAME_NORMAL;
+                FontHandler.getInstance().draw(NAME_FONT, name, centeredX, 
+                        y + collisionHeight + 5, nameColor, -1, -1, false);
+                // Render HP bar
+                if (this.hpCurrent != this.hpMax) {
+                    final int HP_HEIGHT = 2;
+                    float hpWidth = collisionWidth * 1.5f;
+                    g.fill(new org.newdawn.slick.geom.Rectangle(centeredX, y - HP_HEIGHT, hpWidth, HP_HEIGHT), 
+                            new BarFill(new Color(255, 0, 0)));
+                    if (hpCurrent > 0) {
+                        float remainingHpWidth = 1.0f * hpWidth * hpCurrent / hpMax;
+                        remainingHpWidth = remainingHpWidth < 1 ? 1 : remainingHpWidth;
+                        g.fill(new org.newdawn.slick.geom.Rectangle(centeredX - 1, y - HP_HEIGHT, 
+                                remainingHpWidth + 2, HP_HEIGHT), new BarFill(new Color(0, 180, 0)));
+                    }
+                    Color oldColor = g.getColor();
+                    g.setColor(new Color(0, 0, 0));
+                    g.drawRect(centeredX, y - HP_HEIGHT - 1, hpWidth, HP_HEIGHT + 1);
+                    g.setColor(oldColor);
+                }
             }
         } catch (Throwable t) {
             // We really don't care about rendering errors.
@@ -171,6 +208,10 @@ public class Player extends Living implements Serializable {
         accelerateDown((int)delta, ClientConstants.FALL_ACCELERATION * current.moveDownMultiplier(), 
                 ClientConstants.FALL_TERMINAL_VELOCITY * current.moveDownMultiplier());
         
+        if (this.getHpCurrent() <= 0) {
+            current.die(); // No need to announce.  Server doesn't accept changes if you're dead.
+        }
+        
         /*
          *  TODO:  This is a pretty big kludge.  When a collision occurs, move 
          *         needs to use proper physics to fix the destination.
@@ -188,15 +229,17 @@ public class Player extends Living implements Serializable {
         velocity.setX(xVelocity);
         
         // Perform player-based controls
-        try {
-            if (Game.getInstance().getClient().getPlayer() == this) {
-                if (GUIUtility.getInstance().getActiveElement() == null) {
-                    // Perform shielding
-                    shieldUpdate(controls.isShielding(input));
+        if (Authenticator.canPlayerMove(this)) {
+            try {
+                if (Game.getInstance().getClient().getPlayer() == this) {
+                    if (GUIUtility.getInstance().getActiveElement() == null) {
+                        // Perform shielding
+                        shieldUpdate(controls.isShielding(input));
+                    }
                 }
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
-        } catch (Throwable t) {
-            t.printStackTrace();
         }
 
         current.update(delta);
@@ -473,9 +516,7 @@ public class Player extends Living implements Serializable {
         fallSpeed = -300.0f - movementSpeed * 0.251f;
         
         try {
-            if (this == Game.getInstance().getClient().getPlayer()) {
-                Game.getInstance().getClient().announce(PacketCreator.getMovement(this));
-            }
+            sendPacket(PacketCreator.getMovement(this));
         } catch (Throwable t) {
             // We don't care if this fails.
         }
@@ -569,10 +610,7 @@ public class Player extends Living implements Serializable {
         // If we need to update the direction
         if (this.direction != direction) {
             this.direction = direction;
-            if (this == Game.getInstance().getClient().getPlayer()) {
-                Game.getInstance().getClient().announce(
-                        PacketCreator.getMovement(this) );
-            }
+            sendPacket(PacketCreator.getMovement(this));
         }
     }
     
@@ -745,13 +783,17 @@ public class Player extends Living implements Serializable {
 		return true;
 	}
 	
+    public double getPvPDamageMultiplier() {
+        return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 50.0;
+    }
+	
 	/**
 	 * Retrieves the damage multiplier based on the player's gear, primary
 	 * skills, secondary skills, and buffs
 	 * @return damageMultiplier
 	 */
-	public double getDamageMultiplier() {
-	    return 1000.0;
+	public double getBlockDamageMultiplier() {
+	    return 1000.0 + this.getSkills().getLevel(SkillType.MINING) * 50.0;
 	}
 	
 	/**
@@ -765,7 +807,7 @@ public class Player extends Living implements Serializable {
 	    if (this == client.getPlayer()) {
 	        client.damageSession.addDamage(new Location(x, y), damage);
 	    } else {
-	        client.damageSession.addDamage(new Location(x, y), damage, ClientConstants.DAMAGE_OTHER_PLAYER_COLOR);
+	        client.damageSession.addDamage(new Location(x, y), damage, ClientConstants.DAMAGE_BLOCK_OTHER_PLAYER_COLOR);
 	    }
 	}
 	
@@ -773,7 +815,7 @@ public class Player extends Living implements Serializable {
 	 * Performs the collision checks from startingIndex to endingIndex.
 	 * 
 	 * This code may look ugly, but it's very fast.  On an i7-2600k, performing
-	 * a single collision check on a 15x15 block takes roughly 8 microseconds.
+	 * a single collision check on a 16x16 block takes roughly 8 microseconds.
 	 * There are about 12 such checks needed per collision animation.
 	 * 
 	 * @param collisionArc All of the blobs that make up the animation's collision arc.
@@ -796,7 +838,7 @@ public class Player extends Living implements Serializable {
                 curIndex = (curIndex + 1) % collisionArc.length;
                 
                 TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
-                Location topLeft = new Location(this.location);
+                Location topLeft = new Location(this.location); // top left corner of our collision box
                 if (direction == Direction.RIGHT) {
                     topLeft.moveDown(verticalOffset + collisionArc[curIndex].getYOffset());
                     topLeft.moveRight(horizontalOffset + collisionArc[curIndex].getXOffset());
@@ -804,7 +846,7 @@ public class Player extends Living implements Serializable {
                     topLeft.moveDown(verticalOffset + collisionArc[curIndex].getYOffset());
                     topLeft.moveRight(getWidth() - horizontalOffset - collisionArc[curIndex].getXOffset() - collisionArc[curIndex].getWidth());
                 }
-                Location bottomRight = new Location(topLeft);
+                Location bottomRight = new Location(topLeft); // bottom right corner of our collision box
                 bottomRight.moveDown(collisionArc[curIndex].getHeight());
                 bottomRight.moveRight(collisionArc[curIndex].getWidth());
                 
@@ -833,7 +875,7 @@ public class Player extends Living implements Serializable {
                                 if (damage > 0) {
                                     sendCollisionPacket = true;
                                     // display damage
-                                    displayBlockDamage(x, y, (int)Math.round(getDamageMultiplier() * damage));
+                                    displayBlockDamage(x, y, (int)Math.round(getBlockDamageMultiplier() * damage));
     //                                ts.setBlock(x, y, new AirBlock());
                                 }
                             }
@@ -841,8 +883,13 @@ public class Player extends Living implements Serializable {
                         }
                     }
                 }
-                if (sendCollisionPacket && this == Game.getInstance().getClient().getPlayer()) {
-                    Game.getInstance().getClient().announce(PacketCreator.getBlockCollisionPacket(startingIndex, endingIndex, horizontalOffset, verticalOffset));
+                if (this == Game.getInstance().getClient().getPlayer()) {
+                    long pvpDuration = PvPToggleResponseHandler.getPvPFlagDuration();
+                    // If our PvP is enabled, then that means we might have hit someone with their PvP enabled.
+                    if (sendCollisionPacket || pvpDuration == -1 || pvpDuration > 0) {
+                        sendPacket(PacketCreator.getBlockCollisionPacket(
+                                startingIndex, endingIndex, horizontalOffset, verticalOffset));
+                    }
                 }
             } while (curIndex != endingIndex);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -871,9 +918,7 @@ public class Player extends Living implements Serializable {
             velocity.setX(x);
             velocity.setY(y);
             try {
-                if (Game.getInstance().getClient().getPlayer() == this) {
-                    Game.getInstance().getClient().announce(PacketCreator.getMovement(this));
-                }
+                sendPacket(PacketCreator.getMovement(this));
             } catch (Throwable t) {
                 // We don't care if this fails.
             }
@@ -930,4 +975,34 @@ public class Player extends Living implements Serializable {
     public float getFallSpeed() {
         return fallSpeed;
     }
+    
+    /**
+     * Sets the PvP flag timer.
+     * @param toggleTime The time in milliseconds at which the PvP flag will
+     *                   expire.  A value of -1 indicates that the PvP flag
+     *                   will not expire.
+     */
+    public void setPvPTime(long toggleTime) {
+        this.pvpToggleTime = toggleTime;
+    }
+    
+    /**
+     * Retrieves the PvP flag timer.
+     * @return pvpFlagTimer A value of -1 indicates that the PvP flag will not
+     *                      expire.  Otherwise this is the time since the Epoch
+     *                      in milliseconds at which the PvP flag will expire.
+     */
+    public long getPvPTime() {
+        return this.pvpToggleTime;
+    }
+    
+    /**
+     * Retrieves whether the player's PvP flag is on.
+     * @return pvpFlagEnabled
+     */
+    public boolean isPvPFlagEnabled() {
+        return this.pvpToggleTime == -1 || 
+                this.pvpToggleTime > System.currentTimeMillis();
+    }
+
 }

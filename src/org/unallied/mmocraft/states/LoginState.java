@@ -16,6 +16,7 @@ import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.gui.GUIElement.Event;
 import org.unallied.mmocraft.gui.GUIElement.EventIntf;
 import org.unallied.mmocraft.gui.frame.LoginFrame;
+import org.unallied.mmocraft.net.Heartbeat;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.PacketSender;
 import org.unallied.mmocraft.sessions.LoginSession;
@@ -109,6 +110,7 @@ public class LoginState extends AbstractState {
 			throws SlickException {
 		// Initialize the packet sending thread
 		(new Thread(new PacketSender())).start();
+		(new Thread(Heartbeat.getInstance())).start();
 		SpriteHandler.getInstance(); // init
 		if (container != null) {
 			container.setVerbose(false);
