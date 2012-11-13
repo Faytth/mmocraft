@@ -248,6 +248,8 @@ public class MMOClient {
                     if (controls.isMovingUp(input)) {
                         player.tryMoveUp(delta);
                         idle = false;
+                    } else {
+                    	player.setMovingUp(false); // Have to tell the player that we're not moving up
                     }
                     if (controls.isMovingDown(input)) {
                         player.tryMoveDown(delta);

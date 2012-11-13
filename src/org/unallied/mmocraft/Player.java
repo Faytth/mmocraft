@@ -94,6 +94,9 @@ public class Player extends Living implements Serializable {
      */
     protected long pvpToggleTime = 0;
     
+    /** True if the key for moving up is down or not. */
+    protected transient boolean movingUp = false;
+    
     public Player() {
         super();
         current = new SwordIdle(this, null);
@@ -514,7 +517,6 @@ public class Player extends Living implements Serializable {
     public void moveUp(int delta) {
         // these constants are determined experimentally
         fallSpeed = -300.0f - movementSpeed * 0.251f;
-        
         try {
             sendPacket(PacketCreator.getMovement(this));
         } catch (Throwable t) {
@@ -527,10 +529,13 @@ public class Player extends Living implements Serializable {
      * @param delta The time in milliseconds since the last update
      */
     public void tryMoveUp(int delta) {
-        if (current.canMoveUp() && current.canChangeVelocity()) {
-            moveUp(delta);
-        }
-        current.moveUp(true); // This ordering is NOT a mistake!
+    	if (!movingUp) {
+	        if (current.canMoveUp() && current.canChangeVelocity()) {
+	            moveUp(delta);
+	        }
+	        current.moveUp(true); // This ordering is NOT a mistake!
+    	}
+    	movingUp = true;
     }
     
     /**
@@ -1005,4 +1010,11 @@ public class Player extends Living implements Serializable {
                 this.pvpToggleTime > System.currentTimeMillis();
     }
 
+    /**
+     * Sets whether the player is currently attempting to move up.
+     * @param movingUp True if the player is attempting to move up, else false.
+     */
+    public void setMovingUp(boolean movingUp) {
+    	this.movingUp = movingUp;
+    }
 }

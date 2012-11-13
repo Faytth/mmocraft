@@ -24,10 +24,10 @@ public class Gauge extends Control {
     private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 100);
     
     /** The maximum value (or range) of the gauge. */
-    protected int range = 0;
+    protected long range = 0;
     
     /** The current value of the gauge.  Minimum value is 0, maximum is range. */
-    protected int value = 0;
+    protected long value = 0;
     
     /** The font to use for rendering the value / range for all gauges. */
     public static final FontID fontID = FontID.STATIC_TEXT_SMALL_BOLD;
@@ -43,7 +43,7 @@ public class Gauge extends Control {
      * @param height The height of the control.
      * @param color The color to show the gauge in.
      */
-    public Gauge(GUIElement parent, GameContainer container, int range,
+    public Gauge(GUIElement parent, GameContainer container, long range,
             float x, float y, int width, int height, Color color) {
         super(parent, null, container, x, y, width, height, null, null, null);
         this.color = color;
@@ -98,7 +98,7 @@ public class Gauge extends Control {
      * Returns the maximum value of the gauge.
      * @return range
      */
-    public int getRange() {
+    public long getRange() {
         return range;
     }
     
@@ -106,7 +106,7 @@ public class Gauge extends Control {
      * Returns the current value of the gauge.
      * @return value
      */
-    public int getValue() {
+    public long getValue() {
         return value;
     }
     
@@ -134,8 +134,8 @@ public class Gauge extends Control {
      * Tells the gauge to refresh if value changed.
      * @param value The new value.  Negative values will result in a value of 0.
      */
-    public void setValue(int value) {
-        int newValue = value;
+    public void setValue(long value) {
+        long newValue = value;
         newValue = value > 0 ? value : 0;
         newValue = newValue > range ? range : newValue;
         needsRefresh |= this.value != newValue;

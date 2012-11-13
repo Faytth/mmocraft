@@ -1,9 +1,13 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.Input;
+import org.unallied.mmocraft.Controls;
+import org.unallied.mmocraft.Direction;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
@@ -49,8 +53,7 @@ public class SwordJump extends AnimationState {
 
     @Override
     public void moveUp(boolean smash) {
-        // TODO Auto-generated method stub
-
+        player.setState(new SwordDoubleJump(player, this));
     }
 
     @Override
@@ -61,8 +64,28 @@ public class SwordJump extends AnimationState {
 
     @Override
     public void attack() {
-        // TODO Auto-generated method stub
-
+    	Input input = Game.getInstance().getContainer().getInput();
+    	Controls controls = Game.getInstance().getControls();
+    	// TODO:  Make this capable of using a switch statement?
+    	if (controls.isMovingDown(input)) {
+    		player.setState(new SwordNeutralAir(player, this));
+    	} else if (controls.isMovingUp(input)) {
+    		player.setState(new SwordUpAir(player, this));
+    	} else if (controls.isMovingRight(input)) {
+    		if (player.getDirection() == Direction.LEFT) {
+    			player.setState(new SwordBackAir(player, this));
+    		} else {
+    			player.setState(new SwordFrontAir(player, this));
+    		}
+    	} else if (controls.isMovingLeft(input)) {
+    		if (player.getDirection() == Direction.LEFT) {
+    			player.setState(new SwordFrontAir(player, this));
+    		} else {
+    			player.setState(new SwordBackAir(player, this));
+    		}
+    	} else {
+    		player.setState(new SwordNeutralAir(player, this));
+    	}
     }
 
     @Override
@@ -92,7 +115,7 @@ public class SwordJump extends AnimationState {
      * @return
      */
     public boolean canMoveUp() {
-        return false;
+        return canDoubleJump;
     }
     
     @Override

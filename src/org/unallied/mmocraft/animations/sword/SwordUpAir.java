@@ -1,36 +1,34 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
-import org.newdawn.slick.Input;
-import org.unallied.mmocraft.Controls;
-import org.unallied.mmocraft.Direction;
+import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
-import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
 
-public class SwordFall extends AnimationState {
+public class SwordUpAir extends AnimationState {
 
-    /**
+	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5593631637120296340L;
+	private static final long serialVersionUID = 5114370627958768724L;
 
-	public SwordFall(Player player, AnimationState last) {
+	public SwordUpAir(Player player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
-        SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_FALL.toString());
+        animation.setLooping(false);
+        SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_UP_AIR.toString());
+        this.collision = Collision.SWORD_UP_AIR;
         width = node.getWidth();
         height = node.getHeight();
         setAnimation(node.getSpriteSheet());
         animation.start();
-        horizontalOffset = 15;
-        verticalOffset = 27;
+        horizontalOffset = 40;
+        verticalOffset = 49;
     }
 
     @Override
@@ -53,7 +51,6 @@ public class SwordFall extends AnimationState {
 
     @Override
     public void moveUp(boolean smash) {
-    	player.setState(new SwordDoubleJump(player, this));
     }
 
     @Override
@@ -64,34 +61,12 @@ public class SwordFall extends AnimationState {
 
     @Override
     public void attack() {
-    	Input input = Game.getInstance().getContainer().getInput();
-    	Controls controls = Game.getInstance().getControls();
-    	// TODO:  Make this capable of using a switch statement?
-    	if (controls.isMovingDown(input)) {
-    		player.setState(new SwordNeutralAir(player, this));
-    	} else if (controls.isMovingUp(input)) {
-    		player.setState(new SwordUpAir(player, this));
-    	} else if (controls.isMovingRight(input)) {
-    		if (player.getDirection() == Direction.LEFT) {
-    			player.setState(new SwordBackAir(player, this));
-    		} else {
-    			player.setState(new SwordFrontAir(player, this));
-    		}
-    	} else if (controls.isMovingLeft(input)) {
-    		if (player.getDirection() == Direction.LEFT) {
-    			player.setState(new SwordFrontAir(player, this));
-    		} else {
-    			player.setState(new SwordBackAir(player, this));
-    		}
-    	} else {
-    		player.setState(new SwordNeutralAir(player, this));
-    	}
+        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void shield() {
-        player.setState(new SwordAirDodge(player, this));
     }
 
     /**
@@ -99,7 +74,7 @@ public class SwordFall extends AnimationState {
      * @return
      */
     public boolean canMoveLeft() {
-        return true;
+        return false;
     }
     
     /**
@@ -107,7 +82,7 @@ public class SwordFall extends AnimationState {
      * @return
      */
     public boolean canMoveRight() {
-        return true;
+        return false;
     }
     
     @Override
@@ -116,7 +91,7 @@ public class SwordFall extends AnimationState {
      * @return
      */
     public boolean canMoveUp() {
-        return canDoubleJump;
+        return false;
     }
     
     @Override
@@ -128,7 +103,7 @@ public class SwordFall extends AnimationState {
      * @return downMultiplier
      */
     public float moveDownMultiplier() {
-        return 1.0f;
+        return 0.5f;
     }
 
     @Override
@@ -148,22 +123,22 @@ public class SwordFall extends AnimationState {
     
     @Override
     public void fall() {
+    	if (animation.isStopped()) {
+    		player.setState(new SwordFall(player, this));
+    	}
     }
 
     @Override
     public void shieldOff() {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public AnimationType getId() {
-        return AnimationType.SWORD_FALL;
+        return AnimationType.SWORD_UP_AIR;
     }
 
     @Override
     public void die() {
         player.setState(new SwordDead(player, this));
     }
-
 }

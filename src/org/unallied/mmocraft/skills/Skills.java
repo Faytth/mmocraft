@@ -180,4 +180,31 @@ public class Skills {
         int level = getLevel(skills[type]);
         return skills[type] - experienceChart[level-1];
     }
+
+    /**
+     * Retrieves the amount of experience needed to go from the last level to
+     * the next level.  If the player is the max level, returns 0.
+     * @param type The skill to retrieve the level experience for.
+     * @return levelExperience
+     */
+	public long getLevelExperience(SkillType type) {
+		if (type == null) {
+			return 0;
+		}
+		return getLevelExperience(type.getValue());
+	}
+
+    /**
+     * Retrieves the amount of experience needed to go from the last level to
+     * the next level.  If the player is the max level, returns 0.
+     * @param type The skill id to retrieve the level experience for.
+     * @return levelExperience
+     */
+	public long getLevelExperience(int type) {
+		if (type < 0 || type >= skills.length) {
+            return 0;
+        }
+        int level = getLevel(skills[type]);
+        return level >= experienceChart.length ? 0: experienceChart[level] - experienceChart[level-1];
+	}
 }

@@ -2,12 +2,11 @@ package org.unallied.mmocraft.states;
 
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.GameState;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.gui.GUIElement;
-import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.GUIElement.EventIntf;
 import org.unallied.mmocraft.gui.frame.Frame;
 import org.unallied.mmocraft.gui.frame.FrameZOrdering;

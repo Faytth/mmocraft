@@ -72,6 +72,9 @@ public abstract class AnimationState implements Serializable {
      */
     protected transient long cooldownTime = 0;
     
+    /** True if the player is able to jump a second time. */
+    protected boolean canDoubleJump = true;
+    
     public AnimationState(Player player, AnimationState last) {
         this.player = player;
         this.last   = last;
@@ -86,6 +89,9 @@ public abstract class AnimationState implements Serializable {
         }
         if (index != null) {
             index.last = null;
+        }
+        if (last != null) {
+        	this.canDoubleJump = last.canDoubleJump;
         }
     }
     

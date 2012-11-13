@@ -25,7 +25,12 @@ public enum AnimationType {
     SWORD_WALK(0x0A), 
     SWORD_AIR_DODGE(0x0B), 
     SWORD_HELPLESS(0x0C), 
-    SWORD_DEAD(0x0D);
+    SWORD_DEAD(0x0D), 
+    SWORD_DOUBLE_JUMP(0x0E), 
+    SWORD_BACK_AIR(0x0F), 
+    SWORD_FRONT_AIR(0x11), 
+    SWORD_UP_AIR(0x12), 
+    SWORD_NEUTRAL_AIR(0x13);
     int value = 0;
     
     AnimationType(int value) {
@@ -89,6 +94,21 @@ public enum AnimationType {
         case SWORD_DEAD:
             result = new SwordDead(player, prev);
             break;
+        case SWORD_DOUBLE_JUMP:
+        	result = new SwordDoubleJump(player, prev);
+        	break;
+        case SWORD_BACK_AIR:
+        	result = new SwordBackAir(player, prev);
+        	break;
+        case SWORD_FRONT_AIR:
+        	result = new SwordFrontAir(player, prev);
+        	break;
+        case SWORD_UP_AIR:
+        	result = new SwordUpAir(player, prev);
+        	break;
+        case SWORD_NEUTRAL_AIR:
+        	result = new SwordNeutralAir(player, prev);
+        	break;
         }
         
         return result;

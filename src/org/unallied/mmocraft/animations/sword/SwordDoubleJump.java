@@ -12,25 +12,26 @@ import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
 
-public class SwordFall extends AnimationState {
+public class SwordDoubleJump extends AnimationState {
 
     /**
 	 * 
 	 */
-	private static final long serialVersionUID = 5593631637120296340L;
+	private static final long serialVersionUID = 319036629449398230L;
 
-	public SwordFall(Player player, AnimationState last) {
+    public SwordDoubleJump(Player player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
         animation.setLooping(true);
-        SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_FALL.toString());
+        SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_DOUBLE_JUMP.toString());
         width = node.getWidth();
         height = node.getHeight();
         setAnimation(node.getSpriteSheet());
         animation.start();
-        horizontalOffset = 15;
-        verticalOffset = 27;
+        horizontalOffset = 19;
+        verticalOffset = 14;
+        canDoubleJump = false;
     }
 
     @Override
@@ -53,7 +54,6 @@ public class SwordFall extends AnimationState {
 
     @Override
     public void moveUp(boolean smash) {
-    	player.setState(new SwordDoubleJump(player, this));
     }
 
     @Override
@@ -148,22 +148,21 @@ public class SwordFall extends AnimationState {
     
     @Override
     public void fall() {
+        player.setState(new SwordFall(player, this));
     }
 
     @Override
     public void shieldOff() {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public AnimationType getId() {
-        return AnimationType.SWORD_FALL;
+        return AnimationType.SWORD_DOUBLE_JUMP;
     }
 
     @Override
     public void die() {
         player.setState(new SwordDead(player, this));
     }
-
 }
+

@@ -8,7 +8,7 @@ import org.newdawn.slick.SlickException;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
-import org.unallied.mmocraft.gui.StringNode;
+import org.unallied.mmocraft.gui.node.StringNode;
 import org.unallied.mmocraft.items.Item;
 import org.unallied.mmocraft.items.ItemData;
 import org.unallied.mmocraft.items.ItemEffect;
@@ -55,41 +55,41 @@ public class ItemToolTip extends ToolTip {
         ItemToolTip tip = new ItemToolTip();
         
         // Add item name
-        tip.addNode(new StringNode(item.getName(), item.getQuality().getColor(), nameFont, tip.maxWidth));
+        tip.addNode(new StringNode(null, null, item.getName(), item.getQuality().getColor(), nameFont, tip.maxWidth));
         
         // Add item type
-        tip.addNode(new StringNode(item.getType().toString(), STAT_COLOR, detailFont, tip.maxWidth));
+        tip.addNode(new StringNode(null, null, item.getType().toString(), STAT_COLOR, detailFont, tip.maxWidth));
         
         // Add item stats
         for (ItemStat stat : item.getStats()) {
-        	tip.addNode(new StringNode(stat.toString(), STAT_COLOR, detailFont, tip.maxWidth));
+        	tip.addNode(new StringNode(null, null, stat.toString(), STAT_COLOR, detailFont, tip.maxWidth));
         }
         
         // Add item effects
         for (ItemEffect effect : item.getEffects()) {
-        	tip.addNode(new StringNode(effect.toString(), EFFECT_COLOR, detailFont, tip.maxWidth));
+        	tip.addNode(new StringNode(null, null, effect.toString(), EFFECT_COLOR, detailFont, tip.maxWidth));
         }
         
         // Add item requirements
         for (ItemRequirement requirement : item.getRequirements()) {
-        	tip.addNode(new StringNode(requirement.toString(), 
+        	tip.addNode(new StringNode(null, null, requirement.toString(), 
         			Game.getInstance().getClient().getPlayer().meetsRequirement(requirement) ? STAT_COLOR : REQUIREMENT_COLOR, 
         					detailFont, tip.maxWidth));
         }
         
         // Add item flavor text
-        tip.addNode(new StringNode(item.getDescription(), FLAVOR_COLOR, detailFont, tip.maxWidth));
+        tip.addNode(new StringNode(null, null, item.getDescription(), FLAVOR_COLOR, detailFont, tip.maxWidth));
         
         // Add item quantity
         tip.addNodes(new StringNode[]{
-        		new StringNode("Quantity: ", STAT_COLOR, detailFont, tip.maxWidth),
-        		new StringNode(String.format("%,d", quantity), Item.getQuantityColor(quantity), detailFont, tip.maxWidth)
+        		new StringNode(null, null, "Quantity: ", STAT_COLOR, detailFont, tip.maxWidth),
+        		new StringNode(null, null, String.format("%,d", quantity), Item.getQuantityColor(quantity), detailFont, tip.maxWidth)
         		});
         
         // Add item sell price
         tip.addNodes(new StringNode[]{
-        		new StringNode("Sell: ", STAT_COLOR, detailFont, tip.maxWidth),
-        		new StringNode(String.format("%,d", item.getSellPrice()), Item.getQuantityColor(item.getSellPrice()), detailFont, tip.maxWidth )
+        		new StringNode(null, null, "Sell: ", STAT_COLOR, detailFont, tip.maxWidth),
+        		new StringNode(null, null, String.format("%,d", item.getSellPrice()), Item.getQuantityColor(item.getSellPrice()), detailFont, tip.maxWidth )
         		});
         
         try {

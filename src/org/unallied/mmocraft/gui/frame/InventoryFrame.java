@@ -20,9 +20,9 @@ import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
-import org.unallied.mmocraft.gui.StringNode;
 import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.StaticText;
+import org.unallied.mmocraft.gui.node.StringNode;
 import org.unallied.mmocraft.gui.tooltips.ItemToolTip;
 import org.unallied.mmocraft.gui.tooltips.ToolTip;
 import org.unallied.mmocraft.items.Inventory;
@@ -145,7 +145,7 @@ public class InventoryFrame extends Frame {
                 "" + playerGold, 145, 1, 100, 14, 
                 FontID.STATIC_TEXT_LARGE_BOLD, Item.getQuantityColor(playerGold));
         ToolTip moneyTip = new ToolTip();
-        moneyTip.addNode(new StringNode(String.format("%,d", playerGold), 
+        moneyTip.addNode(new StringNode(this, null, String.format("%,d", playerGold), 
                 Item.getQuantityColor(playerGold), 
                 FontHandler.getInstance().getFont(FontID.STATIC_TEXT_MEDIUM.toString()), 
                 moneyTip.getMaxWidth()));
@@ -171,7 +171,7 @@ public class InventoryFrame extends Frame {
         moneyValueStaticText.setLabel("" + Item.getShortQuantityName(playerGold));
         moneyValueStaticText.setColor(Item.getQuantityColor(playerGold));
         ToolTip moneyTip = new ToolTip();
-        moneyTip.addNode(new StringNode(String.format("%,d", playerGold), 
+        moneyTip.addNode(new StringNode(this, null, String.format("%,d", playerGold), 
                 Item.getQuantityColor(playerGold), 
                 FontHandler.getInstance().getFont(FontID.STATIC_TEXT_MEDIUM.toString()), 
                 moneyTip.getMaxWidth()));

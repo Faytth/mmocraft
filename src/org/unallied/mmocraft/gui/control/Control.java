@@ -2,7 +2,6 @@ package org.unallied.mmocraft.gui.control;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.gui.GUIElement;
@@ -64,12 +63,6 @@ public abstract class Control extends GUIElement {
      */
     public void render(GameContainer container, StateBasedGame game, Graphics g) {
     	if (!hidden) {
-	        boolean newActiveState;
-	        
-	        GUIUtility util = GUIUtility.getInstance();
-	        newActiveState = util.isActiveElement(this);
-	        
-	
 	        // Perform normal render stuff
             g.translate(getAbsoluteWidth(), getAbsoluteHeight());
             renderImage(g);

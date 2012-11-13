@@ -1,23 +1,16 @@
 package org.unallied.mmocraft.gui.frame;
 
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.state.StateBasedGame;
-import org.unallied.mmocraft.client.FontHandler;
-import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.gui.GUIElement;
-import org.unallied.mmocraft.gui.StringNode;
 import org.unallied.mmocraft.gui.control.ListCtrl;
+import org.unallied.mmocraft.gui.node.SkillNode;
 import org.unallied.mmocraft.skills.SkillType;
 import org.unallied.mmocraft.skills.Skills;
 
 public class SkillFrame extends Frame {
-    
-    /** The font to render the skill names in. */
-    private static final String SKILL_FONT = FontID.STATIC_TEXT_MEDIUM_BOLD.toString();
-    
     /** A list control containing all of the skill nodes. */
     private ListCtrl skillListCtrl;
     
@@ -57,9 +50,7 @@ public class SkillFrame extends Frame {
         skillListCtrl.clear();
         long[] skillExperience = skills.getSkills();
         for (int i=0; i < skillExperience.length; ++i) {
-            skillListCtrl.addNode(new StringNode(
-                    SkillType.fromValue(i).toString() + ": " + skillExperience[i],
-                    new Color(220, 220, 220), FontHandler.getInstance().getFont(SKILL_FONT), width));
+            skillListCtrl.addNode(new SkillNode(this, null, skills, skillExperience[i], SkillType.fromValue(i), width));
         }
     }
     

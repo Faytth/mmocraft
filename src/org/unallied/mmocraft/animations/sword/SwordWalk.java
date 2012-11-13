@@ -33,6 +33,7 @@ public class SwordWalk extends AnimationState {
         animation.start();
         horizontalOffset = 25;
         verticalOffset = 2;
+        canDoubleJump = true; // reset double jump.
     }
 
     @Override

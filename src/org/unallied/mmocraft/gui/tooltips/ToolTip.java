@@ -14,8 +14,8 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
-import org.unallied.mmocraft.gui.Node;
-import org.unallied.mmocraft.gui.StringNode;
+import org.unallied.mmocraft.gui.node.Node;
+import org.unallied.mmocraft.gui.node.StringNode;
 
 public class ToolTip {
 
@@ -49,7 +49,7 @@ public class ToolTip {
     }
     
     public ToolTip(String tip) {
-        nodes.add(new NodeContainer(new StringNode(tip, new Color(200, 248, 220), 
+        nodes.add(new NodeContainer(new StringNode(null, null, tip, new Color(200, 248, 220), 
                 FontHandler.getInstance().getFont(FontID.TOOLTIP_DEFAULT.toString()), maxWidth - tipOffsetX*2), null));
         toolWidth  = nodes.get(0).node.getWidth() + tipOffsetX*2;
         toolHeight = nodes.get(0).node.getHeight() + tipOffsetY*2;

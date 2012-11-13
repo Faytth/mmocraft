@@ -33,6 +33,7 @@ public class SwordDead extends AnimationState {
         animation.start();
         horizontalOffset = 26;
         verticalOffset = 6;
+        canDoubleJump = true; // reset double jump.
     }
 
     @Override

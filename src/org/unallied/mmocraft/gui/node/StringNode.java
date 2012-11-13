@@ -1,20 +1,22 @@
-package org.unallied.mmocraft.gui;
+package org.unallied.mmocraft.gui.node;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
+import org.unallied.mmocraft.gui.GUIElement;
 
 /**
  * A node that is used to render strings.
  * @author Alexandria
  *
  */
-public class StringNode implements Node {
+public class StringNode extends Node {
    
     /** The color of the string to display. */
     private Color color = new Color(255, 255, 255, 255);
@@ -35,7 +37,8 @@ public class StringNode implements Node {
      * @param font The font to render the string in.
      * @param maxWidth The maximum width before this string has to wrap.
      */
-    public StringNode(String str, Color color, Font font, int maxWidth) {
+    public StringNode(GUIElement parent, EventIntf intf, String str, Color color, Font font, int maxWidth) {
+    	super(parent, intf);
         if (color != null) {
             this.color = color;
         }
@@ -116,5 +119,35 @@ public class StringNode implements Node {
             curHeight += lineHeight;
         }
     }
+
+	@Override
+	public void update(GameContainer container) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void renderImage(Graphics g) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isAcceptingTab() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isAcceptingFocus() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isAcceptingInput() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

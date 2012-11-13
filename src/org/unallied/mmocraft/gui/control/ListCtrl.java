@@ -1,13 +1,10 @@
 package org.unallied.mmocraft.gui.control;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.gui.GUIElement;
-import org.unallied.mmocraft.gui.Node;
+import org.unallied.mmocraft.gui.node.Node;
 
 public class ListCtrl extends Control {
     
@@ -15,9 +12,6 @@ public class ListCtrl extends Control {
      * The top node to render.
      */
 //    private int position = 0;
-    
-    /** All of the nodes in this list control. */
-    private List<Node> nodes = new ArrayList<Node>();
 
     /**
      * 
@@ -53,7 +47,7 @@ public class ListCtrl extends Control {
      */
     public void addNode(Node node) {
         if (node != null) {
-            nodes.add(node);
+            elements.add(node);
         }
     }
     
@@ -63,17 +57,21 @@ public class ListCtrl extends Control {
                 
         // Now render the nodes
         int heightNodeOffset = 0;
-        for (Node node : nodes) {
-            int lineOffset = 0;
-            node.render(g,  offX, heightNodeOffset + offY, height - heightNodeOffset);
-            lineOffset = node.getHeight() > lineOffset ? node.getHeight() : lineOffset;
-            heightNodeOffset += lineOffset;
+        for (GUIElement element : elements) {
+        	if (element instanceof Node) {
+        		Node node = (Node)element;
+	            int lineOffset = 0;
+	            node.render(g,  offX, heightNodeOffset + offY, height - heightNodeOffset);
+	            lineOffset = node.getHeight() > lineOffset ? node.getHeight() : lineOffset;
+	            heightNodeOffset += lineOffset;
+	            node.render(container, game, g);
+        	}
         }
     }
 
     @Override
     public boolean isAcceptingFocus() {
-        return true;
+        return false;
     }
 
     @Override
@@ -84,6 +82,6 @@ public class ListCtrl extends Control {
      * Clears all of the nodes in the ListCtrl.
      */
     public void clear() {
-        nodes.clear();
+        elements.clear();
     }
 }

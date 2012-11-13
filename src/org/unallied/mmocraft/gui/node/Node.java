@@ -1,6 +1,7 @@
-package org.unallied.mmocraft.gui;
+package org.unallied.mmocraft.gui.node;
 
 import org.newdawn.slick.Graphics;
+import org.unallied.mmocraft.gui.GUIElement;
 
 /**
  * A node which knows its width and height.  Nodes are used for drawing elements
@@ -11,17 +12,17 @@ import org.newdawn.slick.Graphics;
  * @author Alexandria
  *
  */
-public interface Node {
-    public int getWidth();
-    
-    public int getHeight();
-    
-    /**
+public abstract class Node extends GUIElement {
+    public Node(GUIElement parent, EventIntf intf) {
+		super(parent, intf, null, 0, 0, -1, -1);
+	}
+
+	/**
      * Renders this node to the given graphics context.
      * @param g The graphic context to render to
      * @param offX The starting x position of the screen in pixels to begin rendering.
      * @param offY The starting y position of the screen in pixels to begin rendering.
      * @param maxHeight The maximum height that this node should take up.
      */
-    public void render(Graphics g, int offX, int offY, int maxHeight);
+    public abstract void render(Graphics g, int offX, int offY, int maxHeight);
 }
