@@ -1,10 +1,14 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.Input;
 import org.unallied.mmocraft.Collision;
+import org.unallied.mmocraft.Controls;
+import org.unallied.mmocraft.Direction;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
@@ -25,6 +29,7 @@ public class SwordUpAir extends AnimationState {
         this.collision = Collision.SWORD_UP_AIR;
         width = node.getWidth();
         height = node.getHeight();
+        duration = 500;
         setAnimation(node.getSpriteSheet());
         animation.start();
         horizontalOffset = 40;
@@ -61,8 +66,30 @@ public class SwordUpAir extends AnimationState {
 
     @Override
     public void attack() {
-        // TODO Auto-generated method stub
-
+        if (elapsedTime > duration) {
+            Input input = Game.getInstance().getContainer().getInput();
+            Controls controls = Game.getInstance().getControls();
+            // TODO:  Make this capable of using a switch statement?
+            if (controls.isMovingDown(input)) {
+                player.setState(new SwordNeutralAir(player, this));
+            } else if (controls.isMovingUp(input)) {
+                player.setState(new SwordUpAir(player, this));
+            } else if (controls.isMovingRight(input)) {
+                if (player.getDirection() == Direction.LEFT) {
+                    player.setState(new SwordBackAir(player, this));
+                } else {
+                    player.setState(new SwordFrontAir(player, this));
+                }
+            } else if (controls.isMovingLeft(input)) {
+                if (player.getDirection() == Direction.LEFT) {
+                    player.setState(new SwordFrontAir(player, this));
+                } else {
+                    player.setState(new SwordBackAir(player, this));
+                }
+            } else {
+                player.setState(new SwordNeutralAir(player, this));
+            }
+        }
     }
 
     @Override
@@ -103,7 +130,13 @@ public class SwordUpAir extends AnimationState {
      * @return downMultiplier
      */
     public float moveDownMultiplier() {
-        return 0.5f;
+        /*
+         *  Up Air is the easiest way to "extend" your jump distance, so it 
+         *  should have a higher move down multiplier so that the more difficult
+         *  aerial attacks can propel the player higher up if they can perform
+         *  them.
+         */
+        return 0.7f;
     }
 
     @Override
@@ -123,7 +156,7 @@ public class SwordUpAir extends AnimationState {
     
     @Override
     public void fall() {
-    	if (animation.isStopped()) {
+    	if (elapsedTime > duration) {
     		player.setState(new SwordFall(player, this));
     	}
     }

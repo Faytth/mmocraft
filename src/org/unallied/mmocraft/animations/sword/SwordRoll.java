@@ -36,11 +36,11 @@ public class SwordRoll extends Roll {
         SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_ROLL.toString());
         width = node.getWidth();
         height = node.getHeight();
+        duration = 200;
         setAnimation(node.getSpriteSheet());
         animation.start();
         horizontalOffset = 21;
         verticalOffset = 3;
-        duration = 200;
         
         switch (player.getDirection()) {
         case LEFT:

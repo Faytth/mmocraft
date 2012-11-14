@@ -40,6 +40,7 @@ public class SwordHorizontalAttack extends Rollable {
         this.collision = Collision.SWORD_HORIZONTAL_ATTACK;
         width = node.getWidth();
         height = node.getHeight();
+        duration = 500;
         setAnimation(node.getSpriteSheet());
         animation.start();
         horizontalOffset = 53;
@@ -117,7 +118,7 @@ public class SwordHorizontalAttack extends Rollable {
         super.update(delta);
         
         // If we're done, then we want to return to idle.
-        if (animation.isStopped()) {
+        if (elapsedTime > duration) {
             if (player.isShielding()) {
                 player.setState(new SwordShield(player, this));
             } else if (performNextAttack) {

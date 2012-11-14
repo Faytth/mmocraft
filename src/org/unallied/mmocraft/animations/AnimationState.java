@@ -25,7 +25,7 @@ public abstract class AnimationState implements Serializable {
     private static final int MAX_CHAIN = 10;
     
     /** The number of milliseconds that this animation lasts. */
-    protected transient int duration = 0;
+    protected transient int duration = -1;
 
     /** 
      * The number of milliseconds that have elapsed.  When this reaches
@@ -196,6 +196,7 @@ public abstract class AnimationState implements Serializable {
             int startingIndex = animation.getFrame();
             animation.update(delta);
             int endingIndex = animation.getFrame();
+            // If our frame changed and it has collision
             if (startingIndex != endingIndex && collision != null) {
                 player.doCollisionChecks(collision.getCollisionArc(), startingIndex+1, 
                         endingIndex, -horizontalOffset, -verticalOffset);
@@ -215,8 +216,8 @@ public abstract class AnimationState implements Serializable {
             int verticalCount = ss.getVerticalCount();
             int horizontalCount = ss.getHorizontalCount();
             
-            // Guard against 0 duration.
-            if (duration == 0) {
+            // Guard against -1 duration.
+            if (duration == -1) {
                 duration = verticalCount * horizontalCount * 50;
             }
             
