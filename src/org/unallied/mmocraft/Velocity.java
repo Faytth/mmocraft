@@ -25,6 +25,11 @@ public class Velocity {
         this.y = y;
     }
     
+    public Velocity(Velocity velocity) {
+        this.x = velocity.x;
+        this.y = velocity.y;
+    }
+
     /**
      * Retrieves the x component of the velocity.  This is the number of horizontal
      * pixels that should be traversed per millisecond.

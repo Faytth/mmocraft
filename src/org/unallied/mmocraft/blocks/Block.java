@@ -4,6 +4,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.unallied.mmocraft.BlockType;
 import org.unallied.mmocraft.Collidable;
+import org.unallied.mmocraft.items.ItemData;
+import org.unallied.mmocraft.items.ItemManager;
 
 /**
  * A parent class that all blocks inherit from.
@@ -13,6 +15,12 @@ import org.unallied.mmocraft.Collidable;
 public abstract class Block implements Collidable {
     
 	private static final long DEFAULT_BLOCK_MAXIMUM_HEALTH = 1;
+	
+	/** 
+	 * The maximum health of the block. The block must take this amount of 
+	 * damage before breaking.
+	 */
+	protected long maximumHealth = DEFAULT_BLOCK_MAXIMUM_HEALTH;
 	
     /**
      * Implements the Template Method pattern for image
@@ -60,6 +68,13 @@ public abstract class Block implements Collidable {
      * @return
      */
     public long getMaximumHealth() {
-    	return DEFAULT_BLOCK_MAXIMUM_HEALTH;
+    	return maximumHealth;
     }
+    
+    /**
+     * Retrieves the item associated with this block.<br />
+     * Returns null if there is no item associated with the block.
+     * @return item
+     */
+    public abstract ItemData getItem();
 }

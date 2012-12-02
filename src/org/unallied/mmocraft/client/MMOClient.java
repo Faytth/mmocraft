@@ -30,7 +30,7 @@ public class MMOClient {
     private IoSession session; // The current session
     private org.unallied.mmocraft.Player player; // The player associated with this account
     private int accountId;            // Player's account id
-    private boolean loggedIn = false; // Whether this account is logged in
+
     private String accountName; // The username of the logged in account
     
     private Camera camera = null;
@@ -92,7 +92,7 @@ public class MMOClient {
     }
         
     public boolean isLoggedIn() {
-        return loggedIn;
+        return Game.getInstance().getCurrentStateID() == GameState.INGAME;
     }
     
     public void login(String username, String password) {
@@ -233,7 +233,7 @@ public class MMOClient {
             Controls controls = Game.getInstance().getControls();
                 
             // These next checks are only if the main game is focused and not a GUI control
-            if (GUIUtility.getInstance().getActiveElement() == null) {
+            if (GUIUtility.getInstance().getActiveElement() == null && container.hasFocus()) {
                 // Perform movement
                 if (Authenticator.canPlayerMove(player)) {
                     if (controls.isMovingLeft(input)) {

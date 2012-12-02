@@ -1,7 +1,7 @@
 package org.unallied.mmocraft.client;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.SpriteSheet;
 
@@ -12,7 +12,8 @@ import org.newdawn.slick.SpriteSheet;
  */
 public class SpriteHandler {
     
-    private Map<String, SpriteSheetNode> sprites = new HashMap<String, SpriteSheetNode>();
+    private Map<String, SpriteSheetNode> sprites = 
+            new ConcurrentHashMap<String, SpriteSheetNode>(8, 0.9f, 1);
     
     private SpriteHandler() {
         init();

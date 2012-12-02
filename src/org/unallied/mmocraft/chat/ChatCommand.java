@@ -41,7 +41,7 @@ public enum ChatCommand {
         int currentMatched = 0; // The current number of characters matched.
         
         for (ChatCommand cc : ChatCommand.values()) {
-            if (cc != NONE && cc.name.contains(message) && message.length() > currentMatched) {
+            if (cc != NONE && cc.name.startsWith(message) && message.length() > currentMatched) {
                 currentMatched = message.length();
                 result = cc;
             }

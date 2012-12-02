@@ -40,12 +40,14 @@ public class Heartbeat implements Runnable {
         boolean keepRunning = true;
         while (keepRunning) {
             try {
-                Game.getInstance().getClient().announce(PacketCreator.getPing());
-                Thread.sleep(SLEEP_TIME);
-                try {
-                    keepRunning = Game.getInstance().getContainer().running();
-                } catch (NullPointerException e) {
-                    keepRunning = false; // Critical error
+                if (Game.getInstance().getClient().isLoggedIn()) {
+                    Game.getInstance().getClient().announce(PacketCreator.getPing());
+                    Thread.sleep(SLEEP_TIME);
+                    try {
+                        keepRunning = Game.getInstance().getContainer().running();
+                    } catch (NullPointerException e) {
+                        keepRunning = false; // Critical error
+                    }
                 }
             } catch (Exception e) {
                 // No one cares if it failed

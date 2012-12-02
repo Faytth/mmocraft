@@ -1,9 +1,13 @@
 package org.unallied.mmocraft.net.handlers;
 
+import org.unallied.mmocraft.chat.ChatMessage;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.MMOClient;
+import org.unallied.mmocraft.constants.StringConstants;
+import org.unallied.mmocraft.gui.MessageType;
 import org.unallied.mmocraft.net.AbstractPacketHandler;
 import org.unallied.mmocraft.skills.SkillType;
+import org.unallied.mmocraft.skills.Skills;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 
 public class SkillExperienceHandler extends AbstractPacketHandler {
@@ -14,8 +18,19 @@ public class SkillExperienceHandler extends AbstractPacketHandler {
      */
     public void handlePacket(SeekableLittleEndianAccessor slea, MMOClient client) {
         try {
-            Game.getInstance().getClient().getPlayer().getSkills().setExperience(
-                    SkillType.fromValue(slea.readByte()), slea.readLong());
+            SkillType skillType = SkillType.fromValue(slea.readByte());
+            long experience = slea.readLong();
+            // Check to see if we leveled up.
+            Skills skills = Game.getInstance().getClient().getPlayer().getSkills();
+            int oldLevel = skills.getLevel(skillType);
+            skills.setExperience(skillType, experience);
+            
+            // If we leveled up
+            int newLevel = skills.getLevel(skillType);
+            if (oldLevel < newLevel) {
+                ChatMessageHandler.addMessage(new ChatMessage(StringConstants.SYSTEM, MessageType.SYSTEM, 
+                        String.format(StringConstants.SKILL_LEVEL_UP, skillType.toString(), newLevel)));
+            }
         } catch (Throwable t) {
         }
     }

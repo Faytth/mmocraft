@@ -3,18 +3,25 @@ package org.unallied.mmocraft.items;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.util.ResourceLoader;
+import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.constants.ServerConstants;
+import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.tools.IOUtils;
 import org.unallied.mmocraft.tools.input.ByteArrayByteStream;
 import org.unallied.mmocraft.tools.input.GenericSeekableLittleEndianAccessor;
 
+/**
+ * Contains all of the item data about all items.
+ * @author Alexandria
+ *
+ */
 public class ItemManager {
 
-    private Map<Integer, ItemData> items = new HashMap<Integer, ItemData>();
+    private Map<Integer, ItemData> items = new ConcurrentHashMap<Integer, ItemData>(8, 0.9f,1);
     
     private ItemManager() {
         init();
@@ -29,24 +36,33 @@ public class ItemManager {
     
     public static void add(ItemData itemData) {
         if (itemData != null) {
-            synchronized(ItemManagerHolder.instance) {
-                ItemManagerHolder.instance.items.put(itemData.getId(), itemData);
-            }
+            ItemManagerHolder.instance.items.put(itemData.getId(), itemData);
         }
     }
 
     /**
      * Attempts to retrieve the item's data.  If the item can't be found, null
      * is returned instead.
-     * @param id
+     * @param itemId
      * @return The item's data or null if it can't be found.
      */
-    public static ItemData getItemData(Integer id) {
-        if (id == null) {
+    public static ItemData getItemData(Integer itemId) {
+        if (itemId == null) {
             return null;
         }
+        ItemData result = ItemManagerHolder.instance.items.get(itemId);
+        if (result == null) {
+            // Enter a placeholder value
+            ItemManagerHolder.instance.items.put(itemId, new ItemData(itemId, "", "", ItemQuality.JUNK, 
+                    ItemType.UNASSIGNED, 0, 0));
+            // Query the real data from the server
+            Game.getInstance().getClient().announce(PacketCreator.getItemData(itemId));
+        } else if (result.getType() == ItemType.UNASSIGNED) {
+            // Result was a placeholder value.
+            result = null;
+        }
         
-        return ItemManagerHolder.instance.items.get(id);
+        return result;
     }
     
     /**

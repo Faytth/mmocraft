@@ -22,6 +22,7 @@ import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.gui.control.Button;
 import org.unallied.mmocraft.gui.control.StaticText;
+import org.unallied.mmocraft.gui.node.ItemNode;
 import org.unallied.mmocraft.gui.node.StringNode;
 import org.unallied.mmocraft.gui.tooltips.ItemToolTip;
 import org.unallied.mmocraft.gui.tooltips.ToolTip;
@@ -85,9 +86,6 @@ public class InventoryFrame extends Frame {
 
 	/** The font that items, such as Flimsy Broadsword, should be displayed in. */
 	private static final String ITEM_FONT = FontID.STATIC_TEXT_MEDIUM.toString();
-	
-	/** The color that items, such as Flimsy Broadsword, should be displayed in. */
-	private static final Color ITEM_COLOR = new Color(222, 222, 222);
 	
 	/** 
 	 * A priority queue of all elements that are to be drawn to the screen.
@@ -222,7 +220,7 @@ public class InventoryFrame extends Frame {
                 // Now find all items with that type
                 for (Item item : items) {
                     ItemData itemData = ItemManager.getItemData(item.getId());
-                    if (itemData.getType() == type) {
+                    if (itemData != null && itemData.getType() == type) {
                         itemElements.add(new ItemElement(itemData, 
                                 itemData.getName(),
                                 ItemCategory.ITEM, item.getQuantity(), yOffset));
@@ -316,8 +314,8 @@ public class InventoryFrame extends Frame {
             // Render the backdrop for the item
             g.fill(new Rectangle(offX, itemYOffset + yOffset + offY, 
                     width - scrollbarWidth, itemHeight),
-                    new GradientFill(0, 0, new Color(0, 154, 200, 180),
-                            (width - scrollbarWidth)/2, 0, new Color(0, 154, 200, 0), true));
+                    new GradientFill(0, 0, new Color(0, 133, 207, 180),
+                            (width - scrollbarWidth)/2, 0, new Color(0, 133, 207, 0), true));
             return true;
         }
         
@@ -365,21 +363,11 @@ public class InventoryFrame extends Frame {
                     if (curOffset + itemYOffset + itemHeight > height) { // Not enough space
                         break;
                     }
-                    Color itemColor = element.data.getQuality().getColor();
                     if (renderItemBackground(g, input, element, curOffset)) {
                         elementForTooltip = element;
                     }
-                    FontHandler.getInstance().draw(ITEM_FONT, element.name, itemXOffset + offX, 
-                            itemYOffset + curOffset + offY, itemColor, width - itemXOffset, 
-                            height - curOffset - itemYOffset, false);
-                    int itemWidth = itemFont.getWidth(element.name);
-                    FontHandler.getInstance().draw(ITEM_FONT, " x ", itemXOffset + offX + itemWidth, 
-                            itemYOffset + curOffset + offY, ITEM_COLOR, width - itemXOffset - itemWidth, 
-                            height - curOffset - itemYOffset, false);
-                    itemWidth += itemFont.getWidth(" x ");
-                    FontHandler.getInstance().draw(ITEM_FONT, Item.getShortQuantityName(element.quantity), itemXOffset + offX + itemWidth, 
-                            itemYOffset + curOffset + offY, Item.getQuantityColor(element.quantity), width - itemXOffset - itemWidth, 
-                            height - curOffset - itemYOffset, false);
+                    (new ItemNode(this, null, new Item(element.data.getId(), element.quantity))).
+                            render(g, itemXOffset + offX, itemYOffset + curOffset + offY, -1);
                     curOffset += itemHeight;
                 }
             }

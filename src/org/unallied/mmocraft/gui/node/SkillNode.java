@@ -4,8 +4,14 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.fills.GradientFill;
+import org.newdawn.slick.geom.Rectangle;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
+import org.unallied.mmocraft.client.Game;
+import org.unallied.mmocraft.client.ImageHandler;
+import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.control.Gauge;
 import org.unallied.mmocraft.gui.tooltips.ToolTip;
@@ -57,16 +63,17 @@ public class SkillNode extends Node {
     	
     	experienceBar = new Gauge(this, null, 
     			this.skills.getLevelExperience(this.skillType), experienceX, experienceY, maxWidth - experienceX - 5, 12,
-    			EXPERIENCE_BAR_COLOR);
+    			EXPERIENCE_BAR_COLOR, Gauge.SHOW_PERCENT);
     	experienceBar.setValue(this.skills.getExperience(this.skillType));
     	ToolTip expTooltip = new ToolTip();
     	expTooltip.addNode(new StringNode(null, null, 
 				String.format("Total Experience: %,d", 
 						this.skills.getTotalExperience(this.skillType)),
 				SKILL_NAME_COLOR, DETAILS_FONT, maxWidth));
+    	long remainingExp = this.skills.getLevelExperience(this.skillType) - this.skills.getExperience(this.skillType);
+    	remainingExp = remainingExp < 0 ? 0 : remainingExp;
     	expTooltip.addNode(new StringNode(null, null, 
-				String.format("Experience Remaining: %,d", 
-						this.skills.getLevelExperience(this.skillType) - this.skills.getExperience(this.skillType)),
+				String.format("Experience Remaining: %,d", remainingExp),
 				SKILL_NAME_COLOR, DETAILS_FONT, maxWidth));
     	experienceBar.setToolTip(expTooltip);
     	elements.add(experienceBar);
@@ -82,13 +89,64 @@ public class SkillNode extends Node {
     }
 
     @Override
-    public void render(Graphics g, int offX, int offY, int maxHeight) {
-    	x = offX - getAbsoluteWidth();
+    public void render(Graphics g, int offX, int offY, int maxHeight) {        
+    	
+        // Update the x and y coords
+        x = offX - getAbsoluteWidth();
     	y = offY - getAbsoluteHeight();
+    	
+        // Render background if needed
+        Input input = Game.getInstance().getContainer().getInput();
+        
+        int mouseX = input.getMouseX();
+        int mouseY = input.getMouseY();
+        if (containsPoint(mouseX, mouseY)) {
+            g.fill(new Rectangle(offX, offY, getWidth(), getHeight()), 
+                    new GradientFill(0, 0, new Color(0, 133, 207, 180),
+                            (getWidth())/2, 0, new Color(0, 133, 207, 0), true));
+        }
+    	
+        // Render the rest of the stuff
     	int curHeight = 0;
-    	SKILL_NAME_FONT.drawString(offX, offY + curHeight, skillType.toString(), SKILL_NAME_COLOR);
+    	String imageKey = getImageId(skillType).toString();
+    	ImageHandler.getInstance().draw(imageKey, offX, offY + curHeight);
+    	int iconWidth = ImageHandler.getInstance().getWidth(imageKey);
+    	SKILL_NAME_FONT.drawString(offX + iconWidth + 5, offY + curHeight, skillType.toString(), SKILL_NAME_COLOR);
     	curHeight += SKILL_NAME_FONT.getLineHeight();
     	DETAILS_FONT.drawString(offX, offY + curHeight, "Lv. " + skills.getLevel(skillExperience), SKILL_NAME_COLOR);
+    }
+    
+    public static ImageID getImageId(SkillType skillType) {
+        ImageID result = null;
+        
+        switch (skillType) {
+        case CONSTITUTION:
+            result = ImageID.ICON_SKILL_CONSTITUTION;
+            break;
+        case STRENGTH:
+            result = ImageID.ICON_SKILL_STRENGTH;
+            break;
+        case DEFENSE:
+            result = ImageID.ICON_SKILL_DEFENSE;
+            break;
+        case MINING:
+            result = ImageID.ICON_SKILL_MINING;
+            break;
+        case SMITHING:
+            result = ImageID.ICON_SKILL_SMITHING;
+            break;
+        case FISHING:
+            result = ImageID.ICON_SKILL_FISHING;
+            break;
+        case COOKING:
+            result = ImageID.ICON_SKILL_COOKING;
+            break;
+        default:
+            result = ImageID.ICON_SKILL_SMITHING;
+            break;
+        }
+        
+        return result;
     }
     
 	@Override

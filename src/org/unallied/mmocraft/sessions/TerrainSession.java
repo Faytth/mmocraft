@@ -1,7 +1,7 @@
 package org.unallied.mmocraft.sessions;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -26,7 +26,7 @@ public class TerrainSession {
      *  Contains all terrain chunks in the world.  These are culled from time to time.
      *  The key is a unique to the chunk and is based on the x and y coords of the chunk.
      */
-    private Map<Long, TerrainChunk> chunks = new HashMap<Long, TerrainChunk>();
+    private Map<Long, TerrainChunk> chunks = new ConcurrentHashMap<Long, TerrainChunk>(8, 0.9f, 1);
     
     /**
      * Culls terrain that is no longer needed

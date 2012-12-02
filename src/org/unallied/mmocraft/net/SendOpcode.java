@@ -8,17 +8,28 @@ package org.unallied.mmocraft.net;
  *
  */
 public enum SendOpcode {
-    PING(0x00), /** Sent in response to a server ping request. */
-    LOGON(0x01), /** Sent to initialize the login process. */
-    CREDS(0x02), /** Sent when the player is logging in after being challenged by the server. */
-    CHUNK(0x03), /** Sent when the player needs to load a chunk. */
-    MOVEMENT(0x04), /** Sent when the player changes velocity or animation state. */
-    REGISTER(0x05), /** Sent when the player is trying to register for an account. */
-    CHAT_MESSAGE(0x06),/** Sent when the player is sending a chat message. */
-    ITEM_DATA(0x07), /** Sent when the client is requesting information about an item. */
-    BLOCK_COLLISION(0x08), /** Sent when the client's attack hits a block. */
-    PLAYER_INFO(0x09), /** Sent when requesting player information about someone. */
-    PVP_TOGGLE(0x0A); /** Sent when enabling or disabling PvP. */
+    /** Sent in response to a server ping request. */
+    PING(0x00),
+    /** Sent to initialize the login process. */
+    LOGON(0x01),
+    /** Sent when the player is logging in after being challenged by the server. */
+    CREDS(0x02),
+    /** Sent when the player needs to load a chunk. */
+    CHUNK(0x03),
+    /** Sent when the player changes velocity or animation state. */
+    MOVEMENT(0x04),
+    /** Sent when the player is trying to register for an account. */
+    REGISTER(0x05),
+    /** Sent when the player is sending a chat message. */
+    CHAT_MESSAGE(0x06),
+    /** Sent when the client is requesting information about an item. */
+    ITEM_DATA(0x07),
+    /** Sent when the client's attack hits a block. */
+    BLOCK_COLLISION(0x08),
+    /** Sent when requesting player information about someone. */
+    PLAYER_INFO(0x09),
+    /** Sent when enabling or disabling PvP. */
+    PVP_TOGGLE(0x0A);
     private int code = 0;
     
     private SendOpcode(int code) {

@@ -25,9 +25,6 @@ import org.unallied.mmocraft.gui.frame.LootFrame;
 import org.unallied.mmocraft.gui.frame.MiniMapFrame;
 import org.unallied.mmocraft.gui.frame.StatusFrame;
 import org.unallied.mmocraft.gui.frame.ToolbarFrame;
-import org.unallied.mmocraft.items.ItemData;
-import org.unallied.mmocraft.items.ItemQuality;
-import org.unallied.mmocraft.items.ItemType;
 import org.unallied.mmocraft.net.Heartbeat;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.handlers.PvPToggleResponseHandler;
@@ -73,7 +70,6 @@ public class IngameState extends AbstractState {
     public void keyPressed(int key, char c) {
         GameContainer container = Game.getInstance().getContainer();
         Input input = container.getInput();
-    	itemsReceivedFrame.addItem(new ItemData(0, "Test Item A", "a test", ItemQuality.EPIC, ItemType.EQUIPMENT, 100, 100));
     	
         // Be careful about using this function, because it occurs BEFORE child elements
     	Controls controls = Game.getInstance().getControls();

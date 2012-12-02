@@ -4,6 +4,7 @@ import org.newdawn.slick.Animation;
 import org.newdawn.slick.Input;
 import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Velocity;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.Game;
@@ -58,11 +59,11 @@ public class SwordAirDodge extends AnimationState {
             } else if (controls.isMovingDown(input)) {
                 yVelocity = MOVE_DISTANCE;
             }
-            player.setVelocity(xVelocity, yVelocity);
+            player.setVelocity(0, 0);
+            Velocity tempVelocity = new Velocity(xVelocity, yVelocity);
             player.setFallSpeed(0);
             
-            player.move(1000); // Using 1 for milliseconds so that MOVE_DISTANCE is pixels
-            player.setVelocity(0, 0);
+            player.move(1000, tempVelocity, 0, 0); // Using 1 for milliseconds so that MOVE_DISTANCE is pixels
         } catch (NullPointerException e) {
         }
     }

@@ -1,7 +1,7 @@
 package org.unallied.mmocraft.client;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.Image;
 
@@ -19,7 +19,7 @@ public class ImageHandler {
     /* A map of all images currently loaded in the game.  These images should
      * never be freed from memory.
      */
-    private Map<String, Image> images = new HashMap<String, Image>();
+    private Map<String, Image> images = new ConcurrentHashMap<String, Image>(8, 0.9f, 1);
     
     /**
      * Initializes the ImageHandler with the default images.
@@ -86,8 +86,22 @@ public class ImageHandler {
             images.put( ImageID.BLOCK_SANDSTONE.toString(), new Image("resources/images/blocks/sandstone.png"));
             images.put( ImageID.BLOCK_SAND.toString(),      new Image("resources/images/blocks/sand.png"));
             
-        } catch (Throwable t) {
+            // Skills
+            images.put( ImageID.ICON_SKILL_CONSTITUTION.toString(), new Image("resources/images/icons/skill/constitution.png"));
+            images.put( ImageID.ICON_SKILL_COOKING.toString(), new Image("resources/images/icons/skill/cooking.png"));
+            images.put( ImageID.ICON_SKILL_DEFENSE.toString(), new Image("resources/images/icons/skill/defense.png"));
+            images.put( ImageID.ICON_SKILL_FISHING.toString(), new Image("resources/images/icons/skill/fishing.png"));
+            images.put( ImageID.ICON_SKILL_MINING.toString(), new Image("resources/images/icons/skill/mining.png"));
+            images.put( ImageID.ICON_SKILL_SMITHING.toString(), new Image("resources/images/icons/skill/smithing.png"));
+            images.put( ImageID.ICON_SKILL_STRENGTH.toString(), new Image("resources/images/icons/skill/strength.png"));
             
+        } catch (RuntimeException e) {
+            /*
+             *  Do nothing.  This is a server only thrown exception, because 
+             *  the server doesn't have OpenGL.
+             */
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
     

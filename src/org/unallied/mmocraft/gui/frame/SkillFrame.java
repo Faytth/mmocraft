@@ -32,8 +32,7 @@ public class SkillFrame extends Frame {
     }
     
     @Override
-    public void update(GameContainer container) {
-
+    public void update(GameContainer container) {       
         // Iterate over all GUI controls and inform them of input
         for( GUIElement element : elements ) {
             element.update(container);
@@ -42,7 +41,6 @@ public class SkillFrame extends Frame {
 
     @Override
     public boolean isAcceptingTab() {
-        // TODO Auto-generated method stub
         return false;
     }
     

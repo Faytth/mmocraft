@@ -37,6 +37,8 @@ public class PacketSender implements Runnable {
                             packetsToSend.remove(0);
                         }
                     }
+                } else { // No packets, sleep
+                    Thread.sleep(1);
                 }
                 
                 keepRunning = Game.getInstance().getContainer().running();

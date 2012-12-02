@@ -31,6 +31,7 @@ public class SwordJump extends AnimationState {
         animation.start();
         horizontalOffset = 19;
         verticalOffset = 14;
+        player.setFallSpeed(-300f - player.getMovementSpeed() * 0.251f);
     }
 
     @Override

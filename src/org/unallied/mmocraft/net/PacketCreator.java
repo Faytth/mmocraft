@@ -87,6 +87,7 @@ public class PacketCreator {
         writer.write((byte)player.getDirection().ordinal()); // right is 0, left is 1
         writer.write(player.getVelocity().getBytes());
         writer.writeFloat(player.getFallSpeed());
+        writer.writeFloat(player.getInitialVelocity());
 
         return writer.getPacket();
     }
@@ -177,6 +178,20 @@ public class PacketCreator {
         
         writer.write(SendOpcode.PVP_TOGGLE);
         writer.write((byte)(pvpEnabled ? 1 : 0));
+        
+        return writer.getPacket();
+    }
+
+    /**
+     * Sends a request for item data to the server.
+     * @param itemId The id of the item being requested.
+     * @return packet
+     */
+    public static Packet getItemData(int itemId) {
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.ITEM_DATA);
+        writer.writeInt(itemId);
         
         return writer.getPacket();
     }

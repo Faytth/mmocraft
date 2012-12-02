@@ -326,7 +326,7 @@ public abstract class AnimationState implements Serializable {
      */
     public CollisionBlob[] getCollisionArc() {
         if (collision == null) {
-            throw new NullPointerException("Animation type doesn't have collision information.");
+            throw new NullPointerException("Animation type doesn't have collision information: " + this.toString());
         }
         return collision.getCollisionArc();
     }

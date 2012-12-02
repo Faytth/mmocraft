@@ -19,19 +19,36 @@ public class Item {
     /** The quantity of this item. */
 	private long quantity = 0;
     
+	/**
+	 * Creates an item with a quantity of 0.
+	 * @param id The id of the item to create.
+	 */
 	public Item(final int id) {
         this(id, 0);
     }
 
+	/**
+	 * Creates an item with the specified quantity.
+	 * @param id The id of the item to create.
+	 * @param quantity The quantity of items to start with.
+	 */
 	public Item(final int id, final long quantity) {
 		this.id = id;
 		this.quantity = quantity;
 	}
 
+	/**
+	 * Retrieves the id of the item.
+	 * @return id
+	 */
 	public int getId() {
 		return id;
 	}
 	
+	/**
+	 * Retrieves the quantity of the item.
+	 * @return quantity
+	 */
     public long getQuantity() {
         return quantity;
     }
@@ -179,5 +196,21 @@ public class Item {
         }
         
         return result;
+    }
+
+    /**
+     * Sets the item quantity to the specified amount.  This should be used
+     * with caution.  This does not have any guards other than ensuring that
+     * the new quantity isn't below 0 (in which case this will set the quantity
+     * to 0).  This function also ensures that the new quantity is not above
+     * the max item stack.  If the quantity *is* above the max item stack,
+     * the quantity is set to the max item stack.
+     * @param quantity The new item quantity.
+     */
+    public void setQuantity(long quantity) {
+        quantity = quantity < 0 ? 0 : quantity;
+        quantity = quantity > ClientConstants.MAX_ITEM_STACK ? 
+                ClientConstants.MAX_ITEM_STACK : quantity;
+        this.quantity = quantity;
     }
 }

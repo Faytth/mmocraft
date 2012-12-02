@@ -1,7 +1,7 @@
 package org.unallied.mmocraft.client;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
@@ -15,7 +15,7 @@ import org.newdawn.slick.TrueTypeFont;
  *
  */
 public class FontHandler {
-    private Map<String, Font> fonts = new HashMap<String, Font>();
+    private Map<String, Font> fonts = new ConcurrentHashMap<String, Font>(8, 0.9f, 1);
     
     /**
      * Initializes the FontHandler with the default fonts.
@@ -135,7 +135,8 @@ public class FontHandler {
     }
 
     /**
-     * Returns the maximum width needed to draw this <code>message</code>.
+     * Returns the maximum width needed to draw this <code>message</code>.<br />
+     * If the key isn't found, 0 is returned.
      * @param key The string identifier of the font to draw.
      * @param message The message to get the width of.
      * @return width
@@ -176,5 +177,18 @@ public class FontHandler {
      */
     public Font getFont(String key) {
         return fonts.get(key);
+    }
+
+    /**
+     * Retrieve the maximum height of any line drawn by this font.  If the font
+     * doesn't exist, 0 is returned.
+     * @param key The string identifier of the font to get the line height of.
+     * @return lineHeight
+     */
+    public int getLineHeight(String key) {
+        if (fonts.containsKey(key) && fonts.get(key) != null) {
+            return fonts.get(key).getLineHeight();
+        }
+        return 0;
     }
 }

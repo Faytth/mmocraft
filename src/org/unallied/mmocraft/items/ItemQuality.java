@@ -31,7 +31,11 @@ public enum ItemQuality {
 	    return null; // not found
 	}
 	
+	/**
+	 * Returns a copy of the item color.
+	 * @return color
+	 */
 	public Color getColor() {
-	    return qualityColor;
+	    return new Color(qualityColor);
 	}
 }

@@ -21,7 +21,9 @@ public abstract class StringConstants {
     public static final String HELP_PVP = "Toggles PvP on/off.";
     public static final String PVP_FLAG_DISABLE_TEXT = "PvP is enabled.  When PvP is enabled, you can be attacked by other players who have their PvP enabled as well.  To disable PvP, type /pvp in the chat box.";
     public static final String PVP_FLAG_DISABLING_TEXT = "PvP will be disabled in %d seconds.";
-    public static final String PVP_TOGGLE = "PvP has been %s.";
+    public static final String PVP_TOGGLE = "PvP has been %s.  To toggle PvP on / off, type /pvp again.";
     public static final String ENABLED = "enabled";
     public static final String DISABLED = "disabled";
+    public static final String SKILL_LEVEL_UP = "Congratulations!  Your skill in %s has reached level %d.";
+    public static final String SYSTEM = "System";
 }

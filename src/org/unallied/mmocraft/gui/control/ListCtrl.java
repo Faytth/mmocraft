@@ -61,6 +61,9 @@ public class ListCtrl extends Control {
         	if (element instanceof Node) {
         		Node node = (Node)element;
 	            int lineOffset = 0;
+	            if (heightNodeOffset + node.getHeight() > height) {
+	                break;
+	            }
 	            node.render(g,  offX, heightNodeOffset + offY, height - heightNodeOffset);
 	            lineOffset = node.getHeight() > lineOffset ? node.getHeight() : lineOffset;
 	            heightNodeOffset += lineOffset;

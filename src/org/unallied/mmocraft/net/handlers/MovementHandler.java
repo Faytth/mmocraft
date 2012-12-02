@@ -35,6 +35,7 @@ public class MovementHandler extends AbstractPacketHandler {
                 p.init();
                 p.setVelocity(Velocity.fromBytes(slea));
                 p.setFallSpeed(slea.readFloat());
+                p.setInitialVelocity(slea.readFloat());
                 //p.update(Heartbeat.getInstance().getAverageLatency()); // account for latency
                 client.playerPoolSession.addPlayer(p);
                 // Request player info from server
@@ -45,6 +46,7 @@ public class MovementHandler extends AbstractPacketHandler {
                 p.setDirection(slea.readByte() == 0 ? Direction.RIGHT : Direction.LEFT);
                 p.setVelocity(Velocity.fromBytes(slea));
                 p.setFallSpeed(slea.readFloat());
+                p.setInitialVelocity(slea.readFloat());
                 //p.update(Heartbeat.getInstance().getAverageLatency()); // account for latency
             }
         } catch (Throwable t) {

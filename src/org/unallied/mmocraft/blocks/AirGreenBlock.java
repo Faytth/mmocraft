@@ -8,6 +8,7 @@ import org.newdawn.slick.geom.Rectangle;
 import org.unallied.mmocraft.BlockType;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
+import org.unallied.mmocraft.items.ItemData;
 
 public class AirGreenBlock extends Block {
     private static final Image image = ImageHandler.getInstance().getImage(
@@ -55,5 +56,10 @@ public class AirGreenBlock extends Block {
         g.translate(x, y);
         g.fill(new Rectangle(0, 0, 16, 16), new GradientFill(0, 0, new Color(0, 255, 0), 8, 8, new Color(0, 150, 0)) );
         g.translate(-x, -y);
+    }
+
+    @Override
+    public ItemData getItem() {
+        return null;
     }
 }

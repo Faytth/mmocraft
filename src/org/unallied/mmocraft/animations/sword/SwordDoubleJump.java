@@ -32,6 +32,7 @@ public class SwordDoubleJump extends AnimationState {
         horizontalOffset = 19;
         verticalOffset = 14;
         canDoubleJump = false;
+        player.setFallSpeed(-300f - player.getMovementSpeed() * 0.251f);
     }
 
     @Override

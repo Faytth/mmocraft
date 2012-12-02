@@ -1,6 +1,6 @@
 package org.unallied.mmocraft.items;
 
-import org.unallied.mmocraft.RequirementType;
+import org.unallied.mmocraft.skills.SkillType;
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
@@ -12,19 +12,19 @@ import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
  *
  */
 public class ItemRequirement {
-    private RequirementType type;
+    private SkillType type;
     private short value;
     
-    public ItemRequirement(RequirementType type, short value) {
+    public ItemRequirement(SkillType type, short value) {
         this.type = type;
         this.value = value;
     }
     
-    public RequirementType getType() {
+    public SkillType getType() {
         return type;
     }
     
-    public void setType(RequirementType type) {
+    public void setType(SkillType type) {
         this.type = type;
     }
     
@@ -53,7 +53,7 @@ public class ItemRequirement {
      * @return itemRequirement
      */
     public static ItemRequirement fromBytes(SeekableLittleEndianAccessor slea) {
-        RequirementType type = RequirementType.fromValue(slea.readByte());
+        SkillType type = SkillType.fromValue(slea.readByte());
         short value = slea.readShort();
         
         return new ItemRequirement(type, value);

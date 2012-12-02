@@ -2,6 +2,7 @@ package org.unallied.mmocraft.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -44,7 +45,7 @@ public class ImagePool {
     }
     
     // The pool of images
-    private Map<Integer, ImageNode[]> images = new HashMap<Integer, ImageNode[]>();
+    private Map<Integer, ImageNode[]> images = new ConcurrentHashMap<Integer, ImageNode[]>(8, 0.9f, 1);
     
     /** An offscreen buffer of 1024 x 1024 pixels. */
     private Image offscreenBuffer;

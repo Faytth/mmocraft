@@ -8,7 +8,7 @@ package org.unallied.mmocraft.skills;
 public enum SkillType {
     CONSTITUTION(0x00, "Constitution"),
     STRENGTH(0x01, "Strength"),
-    DEFENCE(0x02, "Defence"),
+    DEFENSE(0x02, "Defense"),
     MINING(0x03, "Mining"),
     SMITHING(0x04, "Smithing"),
     FISHING(0x05, "Fishing"),

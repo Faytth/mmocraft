@@ -12,7 +12,7 @@ public class PvPToggleResponseHandler extends AbstractPacketHandler {
      * disabled.  A time of -1 means that the PvP flag is not in the process
      * of being disabled.
      */
-    private static long pvpExpireTime = 0;
+    private static volatile long pvpExpireTime = 0;
     
     @Override
     /**
@@ -20,17 +20,15 @@ public class PvPToggleResponseHandler extends AbstractPacketHandler {
      * @param slea
      * @param client
      */
-    public void handlePacket(SeekableLittleEndianAccessor slea, MMOClient client) {
-        synchronized (this) {
-            int playerId = slea.readInt();
-            long serverTime = slea.readLong();
-            if (playerId == client.getPlayer().getId()) { // This is us!
-                pvpExpireTime = Heartbeat.getInstance().getLocalTimestamp(serverTime);
-            } else { // This is someone else
-                Player p = client.playerPoolSession.getPlayer(playerId);
-                if (p != null) {
-                    p.setPvPTime(Heartbeat.getInstance().getLocalTimestamp(serverTime));
-                }
+    public synchronized void handlePacket(SeekableLittleEndianAccessor slea, MMOClient client) {
+        int playerId = slea.readInt();
+        long serverTime = slea.readLong();
+        if (playerId == client.getPlayer().getId()) { // This is us!
+            pvpExpireTime = Heartbeat.getInstance().getLocalTimestamp(serverTime);
+        } else { // This is someone else
+            Player p = client.playerPoolSession.getPlayer(playerId);
+            if (p != null) {
+                p.setPvPTime(Heartbeat.getInstance().getLocalTimestamp(serverTime));
             }
         }
     }
@@ -68,7 +66,7 @@ public class PvPToggleResponseHandler extends AbstractPacketHandler {
     public static long getPvPFlagDuration() {
         long result = pvpExpireTime;
         if (result != -1) {
-            result = pvpExpireTime - System.currentTimeMillis();
+            result -= System.currentTimeMillis();
             result = result < 0 ? 0 : result;
         }
         

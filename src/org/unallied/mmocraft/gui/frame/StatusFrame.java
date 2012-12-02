@@ -25,21 +25,23 @@ public class StatusFrame extends Frame {
     /** Contains the actual values for the coordinates, e.g. "(4, 27)". */
     private Gauge healthGauge;
     private StaticText playerNameStaticText;
-    private StaticText playerHPPercentStaticText;
         
     public StatusFrame(Frame parent, EventIntf intf, GameContainer container,
             float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
         
-        playerNameStaticText = new StaticText(this, null, container, "", 0, 0, -1, -1, FontID.STATIC_TEXT_MEDIUM_BOLD, new Color(238, 238, 238));
-        healthGauge = new Gauge(this, container, 0, 0, playerNameStaticText.getHeight(), 150, 13, new Color(200, 30, 25));
+        playerNameStaticText = new StaticText(this, null, container, "", 0, 0, 
+                -1, -1, FontID.STATIC_TEXT_MEDIUM_BOLD, new Color(238, 238, 238));
+
+        healthGauge = new Gauge(this, container, 0, 0, 
+                playerNameStaticText.getHeight(), 200, 13, 
+                new Color(200, 30, 25), Gauge.SHOW_PERCENT);
         healthGauge.setToolTip(new ToolTip("The player's HP.  If this reaches 0, you DIE!  BWAHAHAHAHA!!!"));
-        playerHPPercentStaticText = new StaticText(this, null, container, "100%", healthGauge.getWidth() + healthGauge.getX() + 3, healthGauge.getY(), -1, -1, FontID.STATIC_TEXT_SMALL_BOLD, new Color(238, 238, 238));
+        
         elements.add(playerNameStaticText);
-        elements.add(playerHPPercentStaticText);
         elements.add(healthGauge);
         this.height = healthGauge.getY() + healthGauge.getHeight();
-        this.width = playerHPPercentStaticText.getX() + playerHPPercentStaticText.getWidth();
+        this.width = healthGauge.getX() + healthGauge.getWidth();
     }
     
     @Override
@@ -62,17 +64,6 @@ public class StatusFrame extends Frame {
             } else {
                 playerNameStaticText.setColor(ClientConstants.PLAYER_NAME_NORMAL);
                 playerNameStaticText.setToolTip(null);
-            }
-            
-            double hpPercent = 100.0 * p.getHpCurrent() / p.getHpMax();
-            if (hpPercent > 0 && hpPercent < 100) {
-                // Ensure that only 0 and 100 are represented as 0% / 100%
-                hpPercent = hpPercent < 0.1 ? 0.1 : hpPercent;
-                hpPercent = hpPercent > 99.9 ? 99.9 : hpPercent;
-                // Update it
-                playerHPPercentStaticText.setLabel(String.format("%.1f%%", hpPercent));
-            } else { // Either 0% or 100%
-                playerHPPercentStaticText.setLabel(String.format("%d%%", (int)hpPercent));
             }
             
             // Iterate over all GUI controls and inform them of input

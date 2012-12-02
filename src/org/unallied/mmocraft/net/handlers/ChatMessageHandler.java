@@ -60,4 +60,16 @@ public class ChatMessageHandler extends AbstractPacketHandler {
     	return result;
     }
 
+    /**
+     * Adds a message to the queue of messages that need to be displayed.
+     * This can be used to indirectly add messages to the chat frame.
+     */
+    public static void addMessage(ChatMessage message) {
+        writeLock.lock();
+        try {
+            messageQueue.add(message);
+        } finally {
+            writeLock.unlock();
+        }
+    }
 }

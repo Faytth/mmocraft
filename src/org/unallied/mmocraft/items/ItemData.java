@@ -62,34 +62,72 @@ public class ItemData {
         this.sellPrice = sellPrice;
     }
 
+    /**
+     * Retrieves the price that 1 of this item can be sold to the store at.
+     * @return sellPrice
+     */
     public Integer getSellPrice() {
         return sellPrice;
     }
 
+    /**
+     * Retrieves the price that 1 of this item can be purchased from the store 
+     * at.
+     * @return buyPrice
+     */
     public Integer getBuyPrice() {
         return buyPrice;
     }
 
+    /**
+     * Retrieves the quality of the item, such as Junk, Common, Uncommon,
+     * Superor, Epic, or Legendary.
+     * @return quality
+     */
     public ItemQuality getQuality() {
         return quality;
     }
 
+    /**
+     * Retrieves the description of the item.  This is the description that
+     * appears when the player mouses over an item.
+     * @return description
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Sets the description of the item.  This is the description that appears
+     * when the player mouses over an item.
+     * @param description The description of an item.
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     * Retrieves the item name.  This is the name that the player sees, such as
+     * "Dirt Block."
+     * @return name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Retrieves the type of the item, such as Block, Head, Chest, 
+     * Miscellaneous.
+     * @return type
+     */
     public ItemType getType() {
         return type;
     }
 
+    /**
+     * Retrieves the id of the item.
+     * @return id The id of the item.
+     */
     public int getId() {
         return id;
     }
@@ -178,26 +216,54 @@ public class ItemData {
         }
     }
 
+    /**
+     * Retrieves the requirements needed to wield / use this item.
+     * @return requirements
+     */
     public List<ItemRequirement> getRequirements() {
         return requirements;
     }
 
+    /**
+     * Sets the requirements needed to wield / use this item.
+     * @param requirements The requirements for this item.
+     */
     public void setRequirements(List<ItemRequirement> requirements) {
         this.requirements = requirements;
     }
 
+    /**
+     * Retrieves the stats that this item grants.  This is mainly just for
+     * equipment.  Stats will boost a player's stats by the amount specified.
+     * @return stats
+     */
     public List<ItemStat> getStats() {
         return stats;
     }
 
+    /**
+     * Sets the stats that this item grants.  This is mainly just for
+     * equipment.  Stats will boost a player's stats by the amount specified.
+     * @param stats The stats to set for this item.
+     */
     public void setStats(List<ItemStat> stats) {
         this.stats = stats;
     }
 
+    /**
+     * Retrieves the effects for this item.  Effects are typically found on
+     * consumables.  They occur when a player "uses" the item.
+     * @return effects
+     */
     public List<ItemEffect> getEffects() {
         return effects;
     }
 
+    /**
+     * Sets the effects for this item.  Effects are typically found on
+     * consumables.  They occur when a player "uses" the item.
+     * @param effects The effects to set for this item.
+     */
     public void setEffects(List<ItemEffect> effects) {
         this.effects = effects;
     }

@@ -3,13 +3,16 @@ package org.unallied.mmocraft.gui.frame;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
+import org.unallied.mmocraft.gui.node.ItemNode;
+import org.unallied.mmocraft.items.Item;
 import org.unallied.mmocraft.items.ItemData;
+import org.unallied.mmocraft.items.ItemManager;
+import org.unallied.mmocraft.net.handlers.SetItemHandler;
 
 
 public class LootFrame extends Frame {
@@ -23,10 +26,10 @@ public class LootFrame extends Frame {
 	 * represents a item to fade in/out
 	 */
 	protected class FadingItem {
-		public ItemData item; //the item that was received
+		public Item item; //the item that was received
 		public long creationTime; //when the item was received
 		
-		public FadingItem(ItemData item, long creationTime) {
+		public FadingItem(Item item, long creationTime) {
 			this.item = item;
 			this.creationTime = creationTime;
 		}
@@ -39,12 +42,24 @@ public class LootFrame extends Frame {
 		super(parent, intf, container, x, y, width, height);
 	}
 	
+	@Override
+	public void update(GameContainer container) {
+	    
+	    // Poll the packet handler for new loot to add.
+	    Item item = null;
+	    while ((item = SetItemHandler.getNextItem()) != null) {
+	        addItem(item);
+	    }
+	    
+	    super.update(container);
+	}
+	
 	/**
-	 * Add an item to the list
-	 * @param item The item to add
-	 */
-	public void addItem(ItemData item) {
-		items.add(new FadingItem(item, System.currentTimeMillis()));
+     * Add an item to the list
+     * @param item The item to add
+     */
+	public void addItem(Item item) {
+	    items.add(new FadingItem(item, System.currentTimeMillis()));
 	}
 	
 	/**
@@ -70,13 +85,17 @@ public class LootFrame extends Frame {
 		int itemsToDisplay = this.height / lineHeight; 
 		
 		//display the items
-		for (int i = items.size() -1, j = 0; j < itemsToDisplay && i >= 0; --i, ++j, lineY -= lineHeight) {
-			Color c = new Color(items.get(i).item.getQuality().getColor());
-			c.a *= ((ITEM_FADE_LIFE - (System.currentTimeMillis() - items.get(i).creationTime)) / (double)ITEM_FADE_LIFE);
-			
-			//be sure to right justify the text
-			int stringWidth = FontHandler.getInstance().getMaxWidth(ITEM_FONT, items.get(i).item.getName());
-			FontHandler.getInstance().draw(ITEM_FONT, items.get(i).item.getName(), width - stringWidth - 3, lineY, c, width, height, false);
+		for (int i = items.size() -1, j = 0; j < itemsToDisplay && i >= 0; --i) {
+		    Item item = items.get(i).item;
+		    ItemData itemData = ItemManager.getItemData(item.getId());
+		    if (itemData != null) {
+		        ItemNode itemNode = new ItemNode(this, null, item);
+		        itemNode.setAlpha(((ITEM_FADE_LIFE - (System.currentTimeMillis() - 
+		                items.get(i).creationTime)) / (float)ITEM_FADE_LIFE));
+		        itemNode.render(g, width - itemNode.getWidth() - 3, lineY, -1);
+    			++j;
+    			lineY -= lineHeight;
+		    }
 		}
 	}
 	

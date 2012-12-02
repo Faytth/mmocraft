@@ -34,12 +34,21 @@ public class BoundLocation extends Location implements Serializable {
         fixBorders();
     }
 
+    /**
+     * Copy constructor.  Creates a specific Location in the world.
+     * @param location The location to create a bound location from.
+     */
     public BoundLocation(Location location) {
         super(location);
         
         fixBorders();
     }
 
+    /**
+     * Creates a specific Location in the world.
+     * @param x The x coordinate of a specific block
+     * @param y The y coordinate of a specific block
+     */
     public BoundLocation(long x, long y) {
         this(x, y, 0, 0);
     }

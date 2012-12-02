@@ -13,7 +13,7 @@ public class Skills {
     protected volatile long[] skills = new long[SkillType.values().length];
     
     /** You shouldn't increase this past 400 or an overflow can occur.  */
-    private static final int MAX_LEVEL = 400;
+    private static final int MAX_LEVEL = 150;
     
     /** The total experience needed to reach the next level. */
     private static final long[] experienceChart = new long[MAX_LEVEL];

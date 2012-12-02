@@ -4,6 +4,7 @@ import org.newdawn.slick.Image;
 import org.unallied.mmocraft.BlockType;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
+import org.unallied.mmocraft.items.ItemData;
 
 /**
  * An "air" block.  The most common type of block.  It is essentially the absence
@@ -42,5 +43,10 @@ public class AirBlock extends Block {
     @Override
     public Block getCopy() {
         return new AirBlock();
+    }
+
+    @Override
+    public ItemData getItem() {
+        return null;
     }
 }

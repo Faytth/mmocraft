@@ -74,5 +74,6 @@ public class PacketProcessor {
         registerHandler(RecvOpcode.BLOCK_CHANGED, new BlockChangedHandler());
         registerHandler(RecvOpcode.PVP_TOGGLE_RESPONSE, new PvPToggleResponseHandler());
         registerHandler(RecvOpcode.PVP_PLAYER_DAMAGED, new PvPPlayerDamagedHandler());
+        registerHandler(RecvOpcode.SET_ITEM, new SetItemHandler());
     }
 }

@@ -53,7 +53,9 @@ public class SwordFall extends AnimationState {
 
     @Override
     public void moveUp(boolean smash) {
-    	player.setState(new SwordDoubleJump(player, this));
+        if (canMoveUp()) {
+            player.setState(new SwordDoubleJump(player, this));
+        }
     }
 
     @Override

@@ -4,6 +4,8 @@ import org.newdawn.slick.Image;
 import org.unallied.mmocraft.BlockType;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
+import org.unallied.mmocraft.items.ItemData;
+import org.unallied.mmocraft.items.ItemManager;
 
 /**
  * A "clay" block.  Typically found underneath water or in the desert(?).
@@ -16,6 +18,7 @@ public class ClayBlock extends Block {
     private static final BlockType type = BlockType.CLAY;
 
     public ClayBlock() {
+        maximumHealth = 20;
     }
 
     @Override
@@ -31,5 +34,10 @@ public class ClayBlock extends Block {
     @Override
     public Block getCopy() {
         return new ClayBlock();
+    }
+
+    @Override
+    public ItemData getItem() {
+        return ItemManager.getItemData(ItemID.CLAY_BLOCK);
     }
 }

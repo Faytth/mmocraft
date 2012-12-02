@@ -2,6 +2,7 @@ package org.unallied.mmocraft.items;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class Inventory {
     private volatile long gold = 0;
     
     /** All of the items in the inventory. */
-    protected volatile Map<Integer, Item> items = new HashMap<Integer, Item>();
+    protected Map<Integer, Item> items = Collections.synchronizedMap(new HashMap<Integer, Item>());
 
     public Inventory() {
         init();
@@ -195,5 +196,33 @@ public class Inventory {
         }
         
         return result;
+    }
+
+    /**
+     * Retrieves the quantity of the item whose item ID matches 
+     * <code>itemId</code>.
+     * @param itemId The item ID of the item whose quantity is to be returned.
+     * @return quantity Returns 0 if the item ID wasn't found, else returns the
+     *                  quantity of the item on hand.
+     */
+    public long getQuantity(int itemId) {
+        Item item = items.get(itemId);
+        return item == null ? 0 : item.getQuantity();
+    }
+
+    /**
+     * Sets the quantity of an item.  This should probably only be used by the
+     * client.  Misuse of this could constitute a security vulnerability.
+     * @param itemId The item id whose quantity we're setting.
+     * @param quantity The quantity of the item.
+     */
+    public void setQuantity(int itemId, long quantity) {
+        synchronized (items) {
+            if (items.containsKey(itemId)) {
+                items.get(itemId).setQuantity(quantity);
+            } else {
+                items.put(itemId, new Item(itemId, quantity));
+            }
+        }
     }
 }
