@@ -2,9 +2,9 @@ package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
 import org.unallied.mmocraft.Direction;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
@@ -21,7 +21,7 @@ public class SwordCrouch extends AnimationState {
      */
     private static final long serialVersionUID = 6341914772010394027L;
 
-    public SwordCrouch(Player player, AnimationState last) {
+    public SwordCrouch(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -43,29 +43,29 @@ public class SwordCrouch extends AnimationState {
 
     @Override
     public void moveLeft(boolean smash) {
-        player.updateDirection( Direction.LEFT );
+        living.updateDirection( Direction.LEFT );
         
         if (smash) {
-            player.setState( new SwordRun(player, this) );
+            living.setState( new SwordRun(living, this) );
         } else {
-            player.setState( new SwordWalk(player, this) );
+            living.setState( new SwordWalk(living, this) );
         }
     }
 
     @Override
     public void moveRight(boolean smash) {
-        player.updateDirection( Direction.RIGHT );
+        living.updateDirection( Direction.RIGHT );
         
         if (smash) {
-            player.setState( new SwordRun(player, this) );
+            living.setState( new SwordRun(living, this) );
         } else {
-            player.setState( new SwordWalk(player, this) );
+            living.setState( new SwordWalk(living, this) );
         }
     }
 
     @Override
     public void moveUp(boolean smash) {
-        player.setState(new SwordJump(player, this));
+        living.setState(new SwordJump(living, this));
     }
 
     @Override
@@ -115,12 +115,12 @@ public class SwordCrouch extends AnimationState {
     
     @Override
     public void attack() {
-        player.setState(new SwordHorizontalAttack(player, this));
+        living.setState(new SwordHorizontalAttack(living, this));
     }
 
     @Override
     public void shield() {
-        player.setState(new SwordShield(player, this));
+        living.setState(new SwordShield(living, this));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class SwordCrouch extends AnimationState {
 
     @Override
     public void fall() {
-        player.setState(new SwordFall(player, this));
+        living.setState(new SwordFall(living, this));
     }
 
     @Override
@@ -141,13 +141,13 @@ public class SwordCrouch extends AnimationState {
     }
 
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_IDLE;
+    public short getId() {
+        return AnimationID.SWORD_IDLE.getValue();
     }
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
+        living.setState(new SwordDead(living, this));
     }
 
 }

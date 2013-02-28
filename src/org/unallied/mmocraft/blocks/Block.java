@@ -1,11 +1,11 @@
 package org.unallied.mmocraft.blocks;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.unallied.mmocraft.BlockType;
 import org.unallied.mmocraft.Collidable;
 import org.unallied.mmocraft.items.ItemData;
-import org.unallied.mmocraft.items.ItemManager;
 
 /**
  * A parent class that all blocks inherit from.
@@ -37,8 +37,8 @@ public abstract class Block implements Collidable {
     public abstract BlockType getType();
     
     /**
-     * 
-     * @param g
+     * Renders this block, displaying its image at the location specified.
+     * @param g The graphics context to render to.
      * @param x the x position (in pixels) to use when drawing this block.
      * Far left is 0 x.  (Screen coordinates)
      * @param y the y position (in pixels) to use when drawing this block.
@@ -46,6 +46,22 @@ public abstract class Block implements Collidable {
      */
     public void render(Graphics g, int x, int y) {
         g.drawImage(getImage(), x, y);
+    }
+    
+    /**
+     * Renders this block, displaying its image at the location specified.
+     * @param g The graphics context to render to.
+     * @param x the x position (in pixels) to use when drawing this block.
+     * Far left is 0 x.  (Screen coordinates)
+     * @param y the y position (in pixels) to use when drawing this block.
+     * Top is 0 y.  (Screen coordinates)
+     * @param filter The filter to apply to the image.  This is great for things
+     * like shadows or fiery effects.  A filter is the MAXIMUM value of a
+     * color that the image can have.  For example, a filter of 50,100,150,0.5f
+     * can be up to 50% opaque with up to 50 red, 100 green, and 150 blue.
+     */
+    public void render(Graphics g, int x, int y, Color filter) {
+        g.drawImage(getImage(), x, y, filter);
     }
     
     /**

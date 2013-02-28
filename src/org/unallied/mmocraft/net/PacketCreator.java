@@ -73,7 +73,7 @@ public class PacketCreator {
      * @param player
      * @return packet
      */
-    public static Packet getMovement(Player player) {
+    public static Packet getPlayerMovement(Player player) {
         // Guard
         if (player == null) {
             return null;
@@ -81,14 +81,33 @@ public class PacketCreator {
         
         PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
         
-        writer.write(SendOpcode.MOVEMENT);
+        writer.write(SendOpcode.PLAYER_MOVEMENT);
         writer.write(player.getLocation().getBytes());
-        writer.writeShort(player.getState().getId().getValue());
+        writer.writeShort(player.getState().getId());
         writer.write((byte)player.getDirection().ordinal()); // right is 0, left is 1
         writer.write(player.getVelocity().getBytes());
         writer.writeFloat(player.getFallSpeed());
         writer.writeFloat(player.getInitialVelocity());
 
+        return writer.getPacket();
+    }
+    
+    /**
+     * Returns a direction packet to the server, which contains the player's direction.
+     * @param player
+     * @return packet
+     */
+    public static Packet getPlayerDirection(Player player) {
+        // Guard
+        if (player == null) {
+            return null;
+        }
+        
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.PLAYER_DIRECTION);
+        writer.write((byte)player.getDirection().ordinal()); // right is 0, left is 1
+        
         return writer.getPacket();
     }
 
@@ -192,6 +211,20 @@ public class PacketCreator {
         
         writer.write(SendOpcode.ITEM_DATA);
         writer.writeInt(itemId);
+        
+        return writer.getPacket();
+    }
+
+    /**
+     * Request monster information from the server.
+     * @param monsterId The id of the monster being requested
+     * @return packet
+     */
+    public static Packet getMonsterInfo(int monsterId) {
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.MONSTER_INFO);
+        writer.writeInt(monsterId);
         
         return writer.getPacket();
     }

@@ -253,8 +253,12 @@ public class IngameState extends AbstractState {
                 chatFrame.addMessage(new ChatMessage(author, type, 
                         String.format("Target FPS: %d", container.getTargetFrameRate())));
                 chatFrame.addMessage(new ChatMessage(author, type, "Fullscreen: " + container.isFullscreen()));
-                chatFrame.addMessage(new ChatMessage(author, type, "Received bytes: " + Game.getInstance().getClient().getSession().getReadBytes()));
-                chatFrame.addMessage(new ChatMessage(author, type, "Sent bytes: " + Game.getInstance().getClient().getSession().getWrittenBytes()));
+                chatFrame.addMessage(new ChatMessage(author, type, 
+                        String.format("Received bytes: %d (%.2f B/s)", Game.getInstance().getClient().getSession().getReadBytes(),
+                                Game.getInstance().getClient().getSession().getReadBytes() / ((System.currentTimeMillis() - Game.startTime) / 1000.0f))));
+                chatFrame.addMessage(new ChatMessage(author, type, 
+                        String.format("Sent bytes: %d (%.2f B/s)", Game.getInstance().getClient().getSession().getWrittenBytes(),
+                                Game.getInstance().getClient().getSession().getWrittenBytes() / ((System.currentTimeMillis() - Game.startTime) / 1000.0f))));
                 chatFrame.addMessage(new ChatMessage(author, type, "Latency: " + Heartbeat.getInstance().getAverageLatency() + " ms"));
                 break;
             case HELP:
@@ -324,8 +328,6 @@ public class IngameState extends AbstractState {
         client.render(container, game, g);
         
         // Now render the GUI
-                                   
-        // Player is always at center, even at world's edge.
         orderedFrames.render(container, game, g);
     }
 

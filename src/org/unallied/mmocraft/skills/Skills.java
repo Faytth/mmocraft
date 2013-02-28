@@ -45,13 +45,18 @@ public class Skills {
      * Sets the experience for a single skill.  Negative values count as 0.
      * @param type The skill type to assign the experience for.
      * @param exp The new experience.
+     * @return returns true if the skill leveled up or down, else false
      */
-    public void setExperience(SkillType type, long exp) {
+    public boolean setExperience(SkillType type, long exp) {
         if (type == null) { // Guard
-            return;
+            return false;
         }
         exp = exp < 0 ? 0 : exp;
+        int oldLevel = getLevel(type);
         skills[type.getValue()] = exp;
+        int newLevel = getLevel(type);
+        
+        return newLevel != oldLevel;
     }
     
     /**
@@ -60,16 +65,21 @@ public class Skills {
      * Negative values are ignored.
      * @param type
      * @param exp
+     * @return returns true if the skill leveled up or down, else false
      */
-    public void addExperience(SkillType type, long exp) {
+    public boolean addExperience(SkillType type, long exp) {
         if (type == null || exp <= 0) { // Guard
-            return;
+            return false;
         }
+        int oldLevel = getLevel(type);
         if (skills[type.getValue()] + exp > 0) {
             skills[type.getValue()] += exp;
         } else {
             skills[type.getValue()] = Long.MAX_VALUE;
         }
+        int newLevel = getLevel(type);
+        
+        return newLevel != oldLevel;
     }
     
     /**
@@ -103,6 +113,7 @@ public class Skills {
     public byte[] getBytes() {
         GenericLittleEndianWriter writer = new GenericLittleEndianWriter();
         
+        writer.writeInt(skills.length);
         for (long skill : skills) {
             writer.writeLong(skill);
         }
@@ -120,7 +131,8 @@ public class Skills {
     public static Skills fromBytes(SeekableLittleEndianAccessor slea) {
         Skills result = new Skills();
         
-        for (int i=0; i < result.skills.length; ++i) {
+        int numberOfSkills = slea.readInt();
+        for (int i=0; i < result.skills.length && i < numberOfSkills; ++i) {
             result.skills[i] = slea.readLong();
         }
         

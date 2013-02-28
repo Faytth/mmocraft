@@ -6,7 +6,7 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.ImageID;
-import org.unallied.mmocraft.constants.DatabaseConstants;
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.constants.StringConstants;
 import org.unallied.mmocraft.gui.EventType;
 import org.unallied.mmocraft.gui.GUIElement;
@@ -208,9 +208,9 @@ public class RegisterFrame extends Frame {
         boolean result = false;
         if (!passTextCtrl.getLabel().equals(pass2TextCtrl.getLabel())) {
             successStaticText.setLabel(StringConstants.PASSWORD_MUST_MATCH);
-        } else if (userTextCtrl.getLabel().length() < DatabaseConstants.MINIMUM_USERNAME_LENGTH) {
+        } else if (userTextCtrl.getLabel().length() < ClientConstants.MINIMUM_USERNAME_LENGTH) {
             successStaticText.setLabel(StringConstants.USERNAME_TOO_SHORT);
-        } else if (userTextCtrl.getLabel().length() > DatabaseConstants.MAXIMUM_USERNAME_LENGTH) {
+        } else if (userTextCtrl.getLabel().length() > ClientConstants.MAXIMUM_USERNAME_LENGTH) {
             successStaticText.setLabel(StringConstants.USERNAME_TOO_LONG);
         } else if (!Authenticator.isValidUser(userTextCtrl.getLabel())) {
             successStaticText.setLabel(StringConstants.USERNAME_INVALID);

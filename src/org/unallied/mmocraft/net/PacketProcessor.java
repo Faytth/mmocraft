@@ -53,18 +53,19 @@ public class PacketProcessor {
     }
     
     /**
-     * Resets all handlers to the default
+     * Resets all handlers to the default.
      */
     public void reset() {
         handlers.clear();
         
+        // Please keep the same ordering here as found in RecvOpcode.
         registerHandler(RecvOpcode.PONG, new PongHandler());
         registerHandler(RecvOpcode.CHALLENGE, new ChallengeHandler());
         registerHandler(RecvOpcode.VERIFY, new VerifyHandler());
         registerHandler(RecvOpcode.LOGIN_ERROR, new LoginErrorHandler());
         registerHandler(RecvOpcode.PLAYER, new PlayerHandler());
         registerHandler(RecvOpcode.CHUNK, new ChunkHandler());
-        registerHandler(RecvOpcode.MOVEMENT, new MovementHandler());
+        registerHandler(RecvOpcode.PLAYER_MOVEMENT, new PlayerMovementHandler());
         registerHandler(RecvOpcode.PLAYER_DISCONNECT, new PlayerDisconnectHandler());
         registerHandler(RecvOpcode.REGISTRATION_ACK, new RegistrationAckHandler());
         registerHandler(RecvOpcode.CHAT_MESSAGE, new ChatMessageHandler());
@@ -75,5 +76,11 @@ public class PacketProcessor {
         registerHandler(RecvOpcode.PVP_TOGGLE_RESPONSE, new PvPToggleResponseHandler());
         registerHandler(RecvOpcode.PVP_PLAYER_DAMAGED, new PvPPlayerDamagedHandler());
         registerHandler(RecvOpcode.SET_ITEM, new SetItemHandler());
+        registerHandler(RecvOpcode.MONSTER_INFO, new MonsterInfoHandler());
+        registerHandler(RecvOpcode.MONSTER_MOVEMENT, new MonsterMovementHandler());
+        registerHandler(RecvOpcode.MONSTER_DAMAGED, new MonsterDamagedHandler());
+        registerHandler(RecvOpcode.SET_GOLD, new SetGoldHandler());
+        registerHandler(RecvOpcode.PLAYER_DIRECTION, new PlayerDirectionHandler());
+        registerHandler(RecvOpcode.MONSTER_DIRECTION, new MonsterDirectionHandler());
     }
 }

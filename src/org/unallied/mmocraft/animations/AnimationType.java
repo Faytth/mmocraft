@@ -1,36 +1,27 @@
 package org.unallied.mmocraft.animations;
 
-import org.unallied.mmocraft.Player;
-import org.unallied.mmocraft.animations.sword.*;
+import java.util.Map;
+
+import org.unallied.mmocraft.animations.generics.*;
+import org.unallied.mmocraft.monsters.ClientMonsterManager;
+import org.unallied.mmocraft.monsters.Monster;
+import org.unallied.mmocraft.monsters.MonsterData;
 
 /**
- * An enumeration of all animation types.  Each type is linked to a specific
- * animation state.
- * 
- * NOTE:  When you add a new state, you MUST add it here as well.
+ * The animation type, such as idle, walk, jump, or run.
  * @author Alexandria
  *
  */
 public enum AnimationType {
-    SWORD_FALL(0x00),
-    SWORD_HORIZONTAL_ATTACK(0x01),
-    SWORD_HORIZONTAL_ATTACK_2(0x02),
-    SWORD_IDLE(0x03),
-    SWORD_JUMP(0x04),
-    SWORD_ROLL(0x05),
-    SWORD_ROLL_COOLDOWN(0x06), // No longer exists
-    SWORD_RUN(0x07),
-    SWORD_SHIELD(0x08),
-    SWORD_SHIELD_COOLDOWN(0x09), // No longer exists
-    SWORD_WALK(0x0A), 
-    SWORD_AIR_DODGE(0x0B), 
-    SWORD_HELPLESS(0x0C), 
-    SWORD_DEAD(0x0D), 
-    SWORD_DOUBLE_JUMP(0x0E), 
-    SWORD_BACK_AIR(0x0F), 
-    SWORD_FRONT_AIR(0x11), 
-    SWORD_UP_AIR(0x12), 
-    SWORD_NEUTRAL_AIR(0x13);
+    IDLE(0x00),
+    WALK(0x01),
+    JUMP(0x02),
+    ATTACK(0x03),
+    RUN(0x04), 
+    SHIELD(0x05),
+    FALL(0x06),
+    DEAD(0x07);
+    
     int value = 0;
     
     AnimationType(int value) {
@@ -48,69 +39,56 @@ public enum AnimationType {
             }
         }
         
-        return null; // not found
+        return null;
+    }
+
+    public static AnimationState getState(Monster monster,
+            AnimationState prev, short value) {
+        return getState(monster, prev, fromValue(value));
     }
     
-    public static AnimationState getState(Player player, AnimationState prev, int value) {
-        return getState(player, prev, fromValue(value));
-    }
-    
-    public static AnimationState getState(Player player, AnimationState prev, AnimationType type) {
-        AnimationState result = null;
-        switch (type) {
-        case SWORD_FALL:
-            result = new SwordFall(player, prev);
-            break;
-        case SWORD_HORIZONTAL_ATTACK:
-            result = new SwordHorizontalAttack(player, prev);
-            break;
-        case SWORD_HORIZONTAL_ATTACK_2:
-            result = new SwordHorizontalAttack2(player, prev);
-            break;
-        case SWORD_IDLE:
-            result = new SwordIdle(player, prev);
-            break;
-        case SWORD_JUMP:
-            result = new SwordJump(player, prev);
-            break;
-        case SWORD_ROLL:
-            result = new SwordRoll(player, prev);
-            break;
-        case SWORD_RUN:
-            result = new SwordRun(player, prev);
-            break;
-        case SWORD_SHIELD:
-            result = new SwordShield(player, prev);
-            break;
-        case SWORD_WALK:
-            result = new SwordWalk(player, prev);
-            break;
-        case SWORD_AIR_DODGE:
-            result = new SwordAirDodge(player, prev);
-            break;
-        case SWORD_HELPLESS:
-            result = new SwordHelpless(player, prev);
-            break;
-        case SWORD_DEAD:
-            result = new SwordDead(player, prev);
-            break;
-        case SWORD_DOUBLE_JUMP:
-        	result = new SwordDoubleJump(player, prev);
-        	break;
-        case SWORD_BACK_AIR:
-        	result = new SwordBackAir(player, prev);
-        	break;
-        case SWORD_FRONT_AIR:
-        	result = new SwordFrontAir(player, prev);
-        	break;
-        case SWORD_UP_AIR:
-        	result = new SwordUpAir(player, prev);
-        	break;
-        case SWORD_NEUTRAL_AIR:
-        	result = new SwordNeutralAir(player, prev);
-        	break;
+    public static AnimationState getState(Monster monster,
+            AnimationState prev, AnimationType type) {
+        try {
+            AnimationState result = null;
+            MonsterData data = ClientMonsterManager.getInstance().getMonsterData(monster.getDataId());
+            
+            Map<AnimationType, String> animations = data.getAnimations();
+            
+            String key = animations.get(type);
+            if (key != null) {
+                switch (type) {
+                case IDLE:
+                    result = new GenericIdle(monster, prev, animations);
+                    break;
+                case WALK:
+                    result = new GenericWalk(monster, prev, animations);
+                    break;
+                case JUMP:
+                    result = new GenericJump(monster, prev, animations);
+                    break;
+                case ATTACK:
+                    result = new GenericAttack(monster, prev, animations);
+                    break;
+                case RUN:
+                    result = new GenericRun(monster, prev, animations);
+                    break;
+                case SHIELD:
+                    result = new GenericShield(monster, prev, animations);
+                    break;
+                case FALL:
+                    result = new GenericFall(monster, prev, animations);
+                    break;
+                case DEAD:
+                    result = new GenericDead(monster, prev, animations);
+                    break;
+                }
+            }
+            
+            return result;
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return null;
         }
-        
-        return result;
     }
 }

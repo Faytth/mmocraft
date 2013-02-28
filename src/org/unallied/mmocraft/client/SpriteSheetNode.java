@@ -15,6 +15,9 @@ public class SpriteSheetNode {
     protected int width;
     protected int height;
     protected String resource;
+    protected int horizontalOffset;
+    protected int verticalOffset;
+    protected int duration;
     
     /**
      * Creates a sprite sheet node.  A sprite sheet node combines a sprite sheet
@@ -24,11 +27,15 @@ public class SpriteSheetNode {
      * @param height The height of the sprite sheet
      * @param resource The resource name of the sprite sheet
      */
-    public SpriteSheetNode(SpriteSheet sheet, int width, int height, String resource) {
+    public SpriteSheetNode(SpriteSheet sheet, int width, int height, String resource,
+            int horizontalOffset, int verticalOffset, int duration) {
         this.sheet = sheet;
         this.width = width;
         this.height = height;
         this.resource = resource;
+        this.horizontalOffset = horizontalOffset;
+        this.verticalOffset = verticalOffset;
+        this.duration = duration;
     }
     
     /**
@@ -65,5 +72,29 @@ public class SpriteSheetNode {
      */
     public String getResourceName() {
         return resource;
+    }
+    
+    /**
+     * Returns the horizontal offset used when rendering this animation.
+     * @return horizontalOffset
+     */
+    public int getHorizontalOffset() {
+        return horizontalOffset;
+    }
+
+    /**
+     * Returns the vertical offset used when rendering this animation.
+     * @return verticalOffset
+     */
+    public int getVerticalOffset() {
+        return verticalOffset;
+    }
+
+    /**
+     * Returns the duration in milliseconds that this animation will run for.
+     * @return duration
+     */
+    public int getDuration() {
+        return duration;
     }
 }

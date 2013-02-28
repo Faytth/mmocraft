@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.sessions;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -10,6 +11,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.client.Game;
+import org.unallied.mmocraft.constants.ClientConstants;
 
 /**
  * Contains all players in close proximity to the player.
@@ -42,8 +45,12 @@ public class PlayerPoolSession {
             Graphics g, BoundLocation camera) {
         readLock.lock();
         try {
-            for (Player p : pool.values()) {
-                p.render(container, game, g, camera);
+            try {
+                for (Player p : pool.values()) {
+                    p.render(container, game, g, camera);
+                }
+            } catch (Throwable t) {
+                
             }
         } finally {
             readLock.unlock();
@@ -61,6 +68,19 @@ public class PlayerPoolSession {
         try {
             for (Player p : pool.values()) {
                 p.update(delta);
+            }
+            // Clear cache if too far away
+            try {
+                Iterator<Player> iter = pool.values().iterator();
+                while (iter.hasNext()) {
+                    Player player = iter.next();
+                    BoundLocation playerLocation = Game.getInstance().getClient().getPlayer().getLocation();
+                    if (player.getLocation().getDistance(playerLocation) > ClientConstants.OBJECT_DESPAWN_DISTANCE) {
+                        iter.remove();
+                    }
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
         } finally {
             readLock.unlock();

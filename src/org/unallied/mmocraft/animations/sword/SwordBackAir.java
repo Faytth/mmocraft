@@ -5,9 +5,10 @@ import org.newdawn.slick.Input;
 import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.Direction;
+import org.unallied.mmocraft.Living;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
@@ -20,7 +21,7 @@ public class SwordBackAir extends AnimationState {
 	 */
 	private static final long serialVersionUID = -8972016607371819982L;
 
-	public SwordBackAir(Player player, AnimationState last) {
+	public SwordBackAir(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -29,7 +30,7 @@ public class SwordBackAir extends AnimationState {
         this.collision = Collision.SWORD_BACK_AIR;
         width = node.getWidth();
         height = node.getHeight();
-        duration = 300;
+        duration = 220;
         setAnimation(node.getSpriteSheet());
         animation.start();
         horizontalOffset = 54;
@@ -71,23 +72,23 @@ public class SwordBackAir extends AnimationState {
             Controls controls = Game.getInstance().getControls();
             // TODO:  Make this capable of using a switch statement?
             if (controls.isMovingDown(input)) {
-                player.setState(new SwordNeutralAir(player, this));
+                living.setState(new SwordNeutralAir(living, this));
             } else if (controls.isMovingUp(input)) {
-                player.setState(new SwordUpAir(player, this));
+                living.setState(new SwordUpAir(living, this));
             } else if (controls.isMovingRight(input)) {
-                if (player.getDirection() == Direction.LEFT) {
-                    player.setState(new SwordBackAir(player, this));
+                if (living.getDirection() == Direction.LEFT) {
+                    living.setState(new SwordBackAir(living, this));
                 } else {
-                    player.setState(new SwordFrontAir(player, this));
+                    living.setState(new SwordFrontAir(living, this));
                 }
             } else if (controls.isMovingLeft(input)) {
-                if (player.getDirection() == Direction.LEFT) {
-                    player.setState(new SwordFrontAir(player, this));
+                if (living.getDirection() == Direction.LEFT) {
+                    living.setState(new SwordFrontAir(living, this));
                 } else {
-                    player.setState(new SwordBackAir(player, this));
+                    living.setState(new SwordBackAir(living, this));
                 }
             } else {
-                player.setState(new SwordNeutralAir(player, this));
+                living.setState(new SwordNeutralAir(living, this));
             }
         }
     }
@@ -145,13 +146,13 @@ public class SwordBackAir extends AnimationState {
     
     @Override
     public void land() {
-        player.setState(new SwordIdle(player, this));
+        living.setState(new SwordIdle(living, this));
     }
     
     @Override
     public void fall() {
     	if (elapsedTime > duration) {
-    		player.setState(new SwordFall(player, this));
+    		living.setState(new SwordFall(living, this));
     	}
     }
 
@@ -160,12 +161,12 @@ public class SwordBackAir extends AnimationState {
     }
 
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_BACK_AIR;
+    public short getId() {
+        return AnimationID.SWORD_BACK_AIR.getValue();
     }
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
+        living.setState(new SwordDead(living, this));
     }
 }

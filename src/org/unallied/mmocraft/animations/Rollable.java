@@ -1,7 +1,7 @@
 package org.unallied.mmocraft.animations;
 
 import org.unallied.mmocraft.Direction;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
 import org.unallied.mmocraft.constants.ClientConstants;
 
 /**
@@ -16,7 +16,7 @@ public abstract class Rollable extends AnimationState {
      */
     private static final long serialVersionUID = 1444818840737565262L;
 
-    public Rollable(Player player, AnimationState last) {
+    public Rollable(Living player, AnimationState last) {
         super(player, last);
     }
 
@@ -33,8 +33,8 @@ public abstract class Rollable extends AnimationState {
     public void moveLeft(boolean smash) {
         if (shieldTime > shieldOffTime || 
                 shieldOffTime + ClientConstants.SHIELD_ROLL_DELAY > System.currentTimeMillis()) {
-            player.updateDirection(Direction.LEFT);
-            player.setState(getRollState());
+            living.updateDirection(Direction.LEFT);
+            living.setState(getRollState());
         }
     }
     
@@ -42,8 +42,8 @@ public abstract class Rollable extends AnimationState {
     public void moveRight(boolean smash) {
         if (shieldTime > shieldOffTime || 
                 shieldOffTime + ClientConstants.SHIELD_ROLL_DELAY > System.currentTimeMillis()) {
-            player.updateDirection(Direction.RIGHT);
-            player.setState(getRollState());
+            living.updateDirection(Direction.RIGHT);
+            living.setState(getRollState());
         }
     }
     

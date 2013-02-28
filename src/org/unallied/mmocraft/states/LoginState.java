@@ -13,9 +13,11 @@ import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.client.SpriteHandler;
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.gui.GUIElement.Event;
 import org.unallied.mmocraft.gui.GUIElement.EventIntf;
 import org.unallied.mmocraft.gui.frame.LoginFrame;
+import org.unallied.mmocraft.monsters.ClientMonsterManager;
 import org.unallied.mmocraft.net.Heartbeat;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.net.PacketSender;
@@ -108,6 +110,7 @@ public class LoginState extends AbstractState {
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
+	    ClientMonsterManager.getInstance().load(ClientConstants.MONSTER_PACK_LOCATION);
 		// Initialize the packet sending thread
 		(new Thread(new PacketSender())).start();
 		(new Thread(Heartbeat.getInstance())).start();

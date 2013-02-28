@@ -1,9 +1,9 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.animations.Roll;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
@@ -20,7 +20,7 @@ public class SwordRoll extends Roll {
      * Determines the multiplier for roll speed.  Multiplier is based on normal
      * movement speed.
      */
-    private static final transient float ROLL_SPEED = 1.0f;
+    private static final transient float ROLL_SPEED = 1.1f;
     
     /** The start of invincibility in milliseconds. */
     private static final transient int MIN_INVINCIBLE_TIME = 30;
@@ -28,7 +28,7 @@ public class SwordRoll extends Roll {
     /** The end of invincibility in milliseconds. */
     private static final transient int MAX_INVINCIBLE_TIME = 130;
 
-    public SwordRoll(Player player, AnimationState last) {
+    public SwordRoll(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -74,12 +74,8 @@ public class SwordRoll extends Roll {
         
         // The player has exceeded their rolling time, so reset their state
         if (elapsedTime > duration) {
-            player.setVelocity(0, player.getVelocity().getY());
-            if (player.isShielding()) {
-                player.setState(new SwordShield(player, this));
-            } else {
-                player.setState(new SwordIdle(player, this));
-            }
+            living.setVelocity(0, living.getVelocity().getY());
+            living.setState(new SwordShield(living, this));
         }
     }
     
@@ -153,7 +149,7 @@ public class SwordRoll extends Roll {
 
     @Override
     public void fall() {
-        player.setState(new SwordFall(player, this));
+        living.setState(new SwordFall(living, this));
     }
 
     @Override
@@ -163,8 +159,8 @@ public class SwordRoll extends Roll {
     }
 
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_ROLL;
+    public short getId() {
+        return AnimationID.SWORD_ROLL.getValue();
     }
 
     @Override
@@ -181,13 +177,13 @@ public class SwordRoll extends Roll {
     public void render(float x, float y, boolean flipped) {
         if (animation != null) {
             animation.getCurrentFrame().getFlippedCopy(flipped, false).draw(
-                    flipped ? x - (animation.getWidth()-horizontalOffset-player.getWidth()) : x - horizontalOffset,
+                    flipped ? x - (animation.getWidth()-horizontalOffset-living.getWidth()) : x - horizontalOffset,
                     y - verticalOffset);
         }
     }
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
+        living.setState(new SwordDead(living, this));
     }
 }

@@ -89,8 +89,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
     }
 
     @Override
-    public void writeFloat(float f) {
-        writeInt(Float.floatToRawIntBits(f));
+    public void writeFloat(float value) {
+        writeInt(Float.floatToRawIntBits(value));
     }
     
     @Override
@@ -152,5 +152,10 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
     public void write7BitPrefixedAsciiString(String str) {
         write7BitEncodedInt(str.length());
         writeAsciiString(str);
+    }
+
+    @Override
+    public void writeDouble(double value) {
+        writeLong(Double.doubleToRawLongBits(value));
     }
 }

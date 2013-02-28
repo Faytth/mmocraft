@@ -1,5 +1,7 @@
 package org.unallied.mmocraft.constants;
 
+import org.newdawn.slick.Color;
+
 /**
  * Contains all world-related constants, such as number of blocks in a chunk, etc.
  * @author Alexandria
@@ -122,4 +124,19 @@ public abstract class WorldConstants {
      * You can think of this value as the "radius" in chunks between the player and whatever else.
      */
 	public static final int WORLD_DRAW_DISTANCE = 5;
+	
+	/** The maximum visible depth before all blocks are rendered with full shadows. */
+	public static final int WORLD_BLOCK_SHADOW_DEPTH = 9;
+	
+	/** 
+	 * The maximum amount of shadow to apply to a block.  Values range between 0 and 1 inclusive,
+	 * with 1 being pure black and 0 being no shadow at all. 
+	 */
+	public static final float WORLD_BLOCK_MAX_SHADOW = 0.976f;
+
+	/** 
+	 * True if we are displaying shadows of the world terrain, else false. 
+	 * Later on we should allow the player to decide through a configuration menu.
+	 */
+    public static final boolean WORLD_SHADOWS_ENABLED = true;
 }

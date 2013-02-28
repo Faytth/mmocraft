@@ -1,9 +1,9 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
@@ -15,7 +15,7 @@ public class SwordHelpless extends AnimationState {
      */
     private static final long serialVersionUID = 2346446800727669796L;
     
-    public SwordHelpless(Player player, AnimationState last) {
+    public SwordHelpless(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -106,7 +106,7 @@ public class SwordHelpless extends AnimationState {
     
     @Override
     public void land() {
-        player.setState(new SwordIdle(player, this));
+        living.setState(new SwordIdle(living, this));
     }
     
     @Override
@@ -118,12 +118,12 @@ public class SwordHelpless extends AnimationState {
     }
     
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_HELPLESS;
+    public short getId() {
+        return AnimationID.SWORD_HELPLESS.getValue();
     }
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
+        living.setState(new SwordDead(living, this));
     }
 }

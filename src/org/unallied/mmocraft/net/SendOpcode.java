@@ -17,7 +17,7 @@ public enum SendOpcode {
     /** Sent when the player needs to load a chunk. */
     CHUNK(0x03),
     /** Sent when the player changes velocity or animation state. */
-    MOVEMENT(0x04),
+    PLAYER_MOVEMENT(0x04),
     /** Sent when the player is trying to register for an account. */
     REGISTER(0x05),
     /** Sent when the player is sending a chat message. */
@@ -29,7 +29,11 @@ public enum SendOpcode {
     /** Sent when requesting player information about someone. */
     PLAYER_INFO(0x09),
     /** Sent when enabling or disabling PvP. */
-    PVP_TOGGLE(0x0A);
+    PVP_TOGGLE(0x0A),
+    /** Sent when the client is requesting information about an instance of a monster. */
+    MONSTER_INFO(0x0B), 
+    /** Sent when the player changes direction. */
+    PLAYER_DIRECTION(0x0C);
     private int code = 0;
     
     private SendOpcode(int code) {

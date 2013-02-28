@@ -6,7 +6,7 @@ import org.newdawn.slick.Animation;
 import org.newdawn.slick.SpriteSheet;
 import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.CollisionBlob;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
 
 /**
  * An animation state is what a player or object is currently in the process
@@ -37,7 +37,7 @@ public abstract class AnimationState implements Serializable {
     protected transient Animation animation = null;
     
     /** The player attached to this animation. */
-    protected transient Player player;
+    protected transient Living living;
     
     /** The last animation state. */
     protected transient AnimationState last;
@@ -75,8 +75,8 @@ public abstract class AnimationState implements Serializable {
     /** True if the player is able to jump a second time. */
     protected boolean canDoubleJump = true;
     
-    public AnimationState(Player player, AnimationState last) {
-        this.player = player;
+    public AnimationState(Living living, AnimationState last) {
+        this.living = living;
         this.last   = last;
         this.entryTime = System.currentTimeMillis();
         
@@ -166,7 +166,7 @@ public abstract class AnimationState implements Serializable {
     public void render(float x, float y, boolean flipped) {
         if (animation != null) {
             animation.getCurrentFrame().getFlippedCopy(flipped, false).draw(
-                    flipped ? x - (animation.getWidth()-horizontalOffset-player.getWidth()) : x - horizontalOffset,
+                    flipped ? x - (animation.getWidth()-horizontalOffset-living.getWidth()) : x - horizontalOffset,
                     y - verticalOffset);
         }
     }
@@ -198,7 +198,7 @@ public abstract class AnimationState implements Serializable {
             int endingIndex = animation.getFrame();
             // If our frame changed and it has collision
             if (startingIndex != endingIndex && collision != null) {
-                player.doCollisionChecks(collision.getCollisionArc(), startingIndex+1, 
+                living.doCollisionChecks(collision.getCollisionArc(), startingIndex+1, 
                         endingIndex, -horizontalOffset, -verticalOffset);
             }
         }
@@ -270,7 +270,7 @@ public abstract class AnimationState implements Serializable {
      * @return downMultiplier
      */
     public float moveDownMultiplier() {
-        return 0f;
+        return 1f;
     }
 
     /**
@@ -294,7 +294,7 @@ public abstract class AnimationState implements Serializable {
      * Retrieves the unique AnimationType ID for this AnimationState.
      * @return id
      */
-    public abstract AnimationType getId();
+    public abstract short getId();
         
     /**
      * Generates a collision body from the sprite sheet.  This body is needed for
@@ -324,7 +324,7 @@ public abstract class AnimationState implements Serializable {
      * indices.
      * @return collisionArc
      */
-    public CollisionBlob[] getCollisionArc() {
+    public CollisionBlob[] getCollisionArc() throws NullPointerException {
         if (collision == null) {
             throw new NullPointerException("Animation type doesn't have collision information: " + this.toString());
         }

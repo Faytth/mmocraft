@@ -1,9 +1,9 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
@@ -21,7 +21,7 @@ public class SwordDead extends AnimationState {
      */
     private static final long serialVersionUID = -6110866984051635635L;
 
-    public SwordDead(Player player, AnimationState last) {
+    public SwordDead(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -116,8 +116,8 @@ public class SwordDead extends AnimationState {
     }
 
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_DEAD;
+    public short getId() {
+        return AnimationID.SWORD_DEAD.getValue();
     }
 
     @Override

@@ -22,14 +22,12 @@ public class SkillExperienceHandler extends AbstractPacketHandler {
             long experience = slea.readLong();
             // Check to see if we leveled up.
             Skills skills = Game.getInstance().getClient().getPlayer().getSkills();
-            int oldLevel = skills.getLevel(skillType);
-            skills.setExperience(skillType, experience);
             
             // If we leveled up
-            int newLevel = skills.getLevel(skillType);
-            if (oldLevel < newLevel) {
+            if (skills.setExperience(skillType, experience)) {
+                Game.getInstance().getClient().getPlayer().recalculateStats();
                 ChatMessageHandler.addMessage(new ChatMessage(StringConstants.SYSTEM, MessageType.SYSTEM, 
-                        String.format(StringConstants.SKILL_LEVEL_UP, skillType.toString(), newLevel)));
+                        String.format(StringConstants.SKILL_LEVEL_UP, skillType.toString(), skills.getLevel(skillType))));
             }
         } catch (Throwable t) {
         }

@@ -2,9 +2,9 @@ package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
 import org.unallied.mmocraft.Direction;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.animations.Roll;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
@@ -18,7 +18,7 @@ public class SwordShield extends AnimationState {
      */
     private static final long serialVersionUID = 7802962161525790877L;
 
-    public SwordShield(Player player, AnimationState last) {
+    public SwordShield(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -47,56 +47,54 @@ public class SwordShield extends AnimationState {
         if (animation != null) {
             animation.update(delta);
         }
-        if (animation.isStopped()) {
-            player.setState(new SwordIdle(player, this));
+        if (animation.isStopped() || !living.isShielding()) {
+            living.setState(new SwordIdle(living, this));
         }
     }
     
-    @Override
-    public void moveLeft(boolean smash) {
-        boolean canRoll = true;
+    /**
+     * Returns true if the player is in control of their actions and is able to
+     * move.  This is used as a "cooldown" after a roll.  The player must recover
+     * before being able to move again.
+     * @return true if this player is able to move, else false.
+     */
+    public boolean canMove() {
+        boolean result = true;
         long lastRollExit = entryTime; // The time that the last roll exited
         AnimationState index = last;
-        for (int i=0; i < 6 && canRoll; ++i) {
+        for (int i=0; i < 6 && result; ++i) {
             if (index != null) {
                 if (index instanceof Roll) {
-                    canRoll = false;
+                    result = false;
                 } else {
                     lastRollExit = index.getEntryTime();
                 }
                 index = index.getPreviousState();
             }
         }
-        if (canRoll || (System.currentTimeMillis() - lastRollExit) > ClientConstants.ROLL_COOLDOWN) {
-            player.updateDirection(Direction.LEFT);
-            player.setState(new SwordRoll(player, this));
+        
+        return result || (System.currentTimeMillis() - lastRollExit) > ClientConstants.ROLL_COOLDOWN;
+    }
+    
+    @Override
+    public void moveLeft(boolean smash) {
+        if (canMove() && living.isShielding()) {
+            living.updateDirection(Direction.LEFT);
+            living.setState(new SwordRoll(living, this));
         }
     }
 
     @Override
     public void moveRight(boolean smash) {
-        boolean canRoll = true;
-        long lastRollExit = entryTime; // The time that the last roll exited
-        AnimationState index = last;
-        for (int i=0; i < 6 && canRoll; ++i) {
-            if (index != null) {                
-                if (index instanceof Roll) {
-                    canRoll = false;
-                } else {
-                    lastRollExit = index.getEntryTime();
-                }
-                index = index.getPreviousState();
-            }
-        }
-        if (canRoll || (System.currentTimeMillis() - lastRollExit) > ClientConstants.ROLL_COOLDOWN) {
-            player.updateDirection(Direction.RIGHT);
-            player.setState(new SwordRoll(player, this));
+        if (canMove() && living.isShielding()) {
+            living.updateDirection(Direction.RIGHT);
+            living.setState(new SwordRoll(living, this));
         }
     }
 
     @Override
     public void moveUp(boolean smash) {
-        player.setState(new SwordJump(player, this));
+        living.setState(new SwordJump(living, this));
     }
 
     @Override
@@ -134,7 +132,7 @@ public class SwordShield extends AnimationState {
     
     @Override
     public void attack() {
-        player.setState(new SwordHorizontalAttack(player, this));
+        living.setState(new SwordHorizontalAttack(living, this));
     }
 
     @Override
@@ -147,22 +145,22 @@ public class SwordShield extends AnimationState {
 
     @Override
     public void fall() {
-        player.setState(new SwordFall(player, this));
+        living.setState(new SwordFall(living, this));
     }
 
     @Override
     public void shieldOff() {
-        player.setState(new SwordIdle(player, this));
+        living.setState(new SwordIdle(living, this));
     }
 
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_SHIELD;
+    public short getId() {
+        return AnimationID.SWORD_SHIELD.getValue();
     }
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
+        living.setState(new SwordDead(living, this));
     }
 
 }

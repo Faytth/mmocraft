@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
@@ -13,7 +14,7 @@ import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 /** Inventory for the player.  Contains all items and inventory categories. */
 public class Inventory {
     /** The player's gold. */
-    private volatile long gold = 0;
+    private AtomicLong gold = new AtomicLong(0);
     
     /** All of the items in the inventory. */
     protected Map<Integer, Item> items = Collections.synchronizedMap(new HashMap<Integer, Item>());
@@ -79,7 +80,7 @@ public class Inventory {
     public byte[] getBytes() {
         GenericLittleEndianWriter writer = new GenericLittleEndianWriter();
         
-        writer.writeLong(gold);
+        writer.writeLong(gold.longValue());
         
         writer.writeInt(items.size());
         for (final Item item : items.values()) {
@@ -99,7 +100,7 @@ public class Inventory {
     public static Inventory fromBytes(SeekableLittleEndianAccessor slea) {
         Inventory result = new Inventory();
         
-        result.gold = slea.readLong();
+        result.gold.set(slea.readLong());
         
         int count = slea.readInt();
         for (int i=0; i < count; ++i) {
@@ -134,7 +135,7 @@ public class Inventory {
      * @return gold
      */
     public long getGold() {
-        return gold;
+        return gold.longValue();
     }
     
     /**
@@ -144,7 +145,7 @@ public class Inventory {
      * @param gold The new amount of gold.
      */
     public void setGold(long gold) {
-        this.gold = gold;
+        this.gold.set(gold);
     }
     
     /**
@@ -162,11 +163,13 @@ public class Inventory {
         
         long result = 0;
         
-        if (this.gold + gold < 0) {
-            result = this.gold + gold - Long.MAX_VALUE;
-            this.gold = Long.MAX_VALUE;
-        } else {
-            this.gold += gold;
+        synchronized (this.gold) {
+            if (this.gold.longValue() + gold < 0) {
+                result = this.gold.longValue() + gold - Long.MAX_VALUE;
+                this.gold.set(Long.MAX_VALUE);
+            } else {
+                this.gold.addAndGet(gold);
+            }
         }
         
         return result;
@@ -188,11 +191,13 @@ public class Inventory {
         
         long result = 0;
         
-        if (this.gold - gold < 0) {
-            result = gold - this.gold;
-            this.gold = 0;
-        } else {
-            this.gold -= gold;
+        synchronized (this.gold) {
+            if (this.gold.longValue() - gold < 0) {
+                result = gold - this.gold.longValue();
+                this.gold.set(0);
+            } else {
+                this.gold.addAndGet(-gold);
+            }
         }
         
         return result;

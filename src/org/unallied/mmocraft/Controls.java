@@ -12,7 +12,7 @@ import org.newdawn.slick.Input;
  * @author Alexandria
  *
  */
-public class Controls {
+public class Controls implements ControlIntf {
 	
 	private Map<ControlType, Integer[]> controls = new HashMap<ControlType, Integer[]>();
 	

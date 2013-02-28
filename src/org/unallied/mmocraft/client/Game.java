@@ -6,6 +6,7 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.Controls;
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.net.PacketSocket;
 import org.unallied.mmocraft.states.*;
 
@@ -13,6 +14,9 @@ public class Game extends StateBasedGame {
     public static final int SCREEN_WIDTH = 800;
     public static final int SCREEN_HEIGHT = 600;
     public static final int MAX_FPS = 60;
+    
+    /** The time that the game was started up. */
+    public static final long startTime = System.currentTimeMillis();
     
     /// We are not able to use the superior Singleton pattern for this due to applet complications
     protected static Game instance = null;
@@ -28,7 +32,7 @@ public class Game extends StateBasedGame {
      * DO NOT USE THE CONSTRUCTOR IN YOUR CODE!!!
      */
     public Game() {
-        super("MMOCraft");
+        super("MeleeCraft");
         instance = this;
 
         this.addState(new LoginState());
@@ -36,9 +40,30 @@ public class Game extends StateBasedGame {
         this.addState(new RegisterState());
     }
     
+    /**
+     * Parses program arguments, such as the host URL.
+     * @param args
+     */
+    public static void parseProgramArguments(String[] args) {
+        int i = 0;
+        try {
+            while (i < args.length) {
+                if (args[i].compareTo("host") == 0) {
+                    ClientConstants.HOST = args[i+1];
+                }
+                ++i;
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+    
     public static void main( String[] args ) {
     	// NOTE:  Most of the container initialization is performed in LoginState.init()
         try {
+            if (args.length > 0) {
+                parseProgramArguments(args);
+            }
             AppGameContainer app = new AppGameContainer( getInstance() );
             Display.setResizable(true);
             app.setDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, false);

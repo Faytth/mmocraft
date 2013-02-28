@@ -1,7 +1,7 @@
 package org.unallied.mmocraft.sessions;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -9,6 +9,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Location;
 import org.unallied.mmocraft.TerrainChunk;
+import org.unallied.mmocraft.TerrainChunkLoadBalancer;
 import org.unallied.mmocraft.blocks.AirGreenBlock;
 import org.unallied.mmocraft.blocks.AirRedBlock;
 import org.unallied.mmocraft.blocks.Block;
@@ -26,7 +27,7 @@ public class TerrainSession {
      *  Contains all terrain chunks in the world.  These are culled from time to time.
      *  The key is a unique to the chunk and is based on the x and y coords of the chunk.
      */
-    private Map<Long, TerrainChunk> chunks = new ConcurrentHashMap<Long, TerrainChunk>(8, 0.9f, 1);
+    private Map<Long, TerrainChunk> chunks = new HashMap<Long, TerrainChunk>();
     
     /**
      * Culls terrain that is no longer needed
@@ -54,14 +55,40 @@ public class TerrainSession {
     
     /**
      * Returns the block at location (x,y) where each value is a block.
+     * @param location the location containing (x,y) of the block
+     * @param queryChunk True if we should query this chunk, false if we should
+     * just assume it's filled with nothingness.
+     * @return the block at location (x,y).  Returns null if chunk is missing
+     */
+    public Block getBlock(Location location, boolean queryChunk) {
+        return getBlock(location.getX(), location.getY(), queryChunk);
+    }
+    
+    /**
+     * Returns the block at location (x,y) where each value is a block.
      * If x >= <code>WorldConstants.WORLD_WIDTH</code>, then it is wrapped
      * around.  If x is negative, it is wrapped up to ONE time.  Large
      * negatives are NOT handled and are considered an error.
      * @param x the horizontal coordinate starting at x=0 from the left
      * @param y the vertical coordinate starting at y=0 from the top
-     * @return the block at location (x,y).  Returns null if chunk is missing
+     * @return the block at location (x,y).  Returns null if chunk is missing.
      */
     public Block getBlock(long x, long y) {
+        return getBlock(x, y, true);
+    }
+    
+    /**
+     * Returns the block at location (x,y) where each value is a block.
+     * If x >= <code>WorldConstants.WORLD_WIDTH</code>, then it is wrapped
+     * around.  If x is negative, it is wrapped up to ONE time.  Large
+     * negatives are NOT handled and are considered an error.
+     * @param x the horizontal coordinate starting at x=0 from the left
+     * @param y the vertical coordinate starting at y=0 from the top
+     * @param queryChunk True if we should query this chunk, false if we should
+     * just assume it's filled with nothingness.
+     * @return the block at location (x,y).  Returns null if chunk is missing.
+     */
+    public Block getBlock(long x, long y, boolean queryChunk) {
         // Get chunk x and y coordinates
         x = x >= 0 ? x % WorldConstants.WORLD_WIDTH : WorldConstants.WORLD_WIDTH + x;
         long cx = x / WorldConstants.WORLD_CHUNK_WIDTH;
@@ -71,10 +98,15 @@ public class TerrainSession {
         
         long chunkId = ((long) (cy) << 32) | cx;
         
-        if (!chunks.containsKey(chunkId)) {
-            chunks.put(chunkId, new TerrainChunk(chunkId));
+        synchronized (this) {
+            if (!chunks.containsKey(chunkId) ) {
+                if (!queryChunk) { // Don't add the chunk!!!  We don't want it to be queried.
+                    return null;
+                }
+                chunks.put(chunkId, new TerrainChunk(chunkId));
+            }
+            return chunks.get(chunkId).getBlock(bx, by);
         }
-        return chunks.get(chunkId).getBlock(bx, by);
     }
     
     /**
@@ -139,13 +171,17 @@ public class TerrainSession {
                 
                 long chunkId = ((long) (chunkY) << 32) | chunkX;
 
-                if (!chunks.containsKey(chunkId)) {
-                    chunks.put(chunkId, new TerrainChunk(chunkId));
+                synchronized (this) {
+                    if (!chunks.containsKey(chunkId)) {
+                        chunks.put(chunkId, new TerrainChunk(chunkId));
+                    }
+                    chunks.get(chunkId).render(container, game, g, xBase, yBase,
+                            i, j, true);
                 }
-                chunks.get(chunkId).render(container, game, g, xBase, yBase,
-                        i, j, true);
             }
         }
+        // Reset our load balancer so that it can do its job on the next render loop.
+        TerrainChunkLoadBalancer.getInstance().resetLoad();
     }
 
     /**
@@ -154,10 +190,12 @@ public class TerrainSession {
      * @param chunkBlocks Type of blocks to create
      */
     public void setChunk(long chunkId, Block[][] chunkBlocks) {
-        if (!chunks.containsKey(chunkId)) {
-            chunks.put(chunkId, new TerrainChunk(chunkId, chunkBlocks));
-        } else {
-            chunks.get(chunkId).load(chunkBlocks);
+        synchronized (this) {
+            if (!chunks.containsKey(chunkId)) {
+                chunks.put(chunkId, new TerrainChunk(chunkId, chunkBlocks));
+            } else {
+                chunks.get(chunkId).load(chunkBlocks);
+            }
         }
     }
 
@@ -578,7 +616,9 @@ public class TerrainSession {
      * be queried from the server again.
      */
     public void clear() {
-        chunks.clear();
+        synchronized (this) {
+            chunks.clear();
+        }
     }
 
     /**
@@ -598,11 +638,27 @@ public class TerrainSession {
         
         long chunkId = ((long) (cy) << 32) | cx;
         
-        // The chunk does not yet exist.  Don't set the block.
-        if (!chunks.containsKey(chunkId)) {
-            return;
+        // Only get the chunk if it exists
+        synchronized (this) {
+            if (chunks.containsKey(chunkId)) {
+                chunks.get(chunkId).setBlock(bx, by, block);
+            }
         }
-        
-        chunks.get(chunkId).setBlock(bx, by, block);
+    }
+
+    /**
+     * Tells the chunk at (<code>x</code>, <code>y</code>) that it needs to
+     * refresh.  This is used when a surrounding chunk's blocks change and
+     * a shadow recalculation is needed.
+     * @param x
+     * @param y
+     */
+    public void refreshChunk(long x, long y) {
+        synchronized (this) {
+            long chunkId = ((long) (y) << 32) | x;
+            if (chunks.containsKey(chunkId)) {
+                chunks.get(chunkId).setNeedsRefresh(true);
+            }
+        }
     }
 }

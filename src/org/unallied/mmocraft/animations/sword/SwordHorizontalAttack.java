@@ -2,9 +2,9 @@ package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
 import org.unallied.mmocraft.Collision;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.animations.Rollable;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
@@ -31,7 +31,7 @@ public class SwordHorizontalAttack extends Rollable {
      */
     private transient boolean performNextAttack = false;
     
-    public SwordHorizontalAttack(Player player, AnimationState last) {
+    public SwordHorizontalAttack(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -40,7 +40,7 @@ public class SwordHorizontalAttack extends Rollable {
         this.collision = Collision.SWORD_HORIZONTAL_ATTACK;
         width = node.getWidth();
         height = node.getHeight();
-        duration = 500;
+        duration = 430;
         setAnimation(node.getSpriteSheet());
         animation.start();
         horizontalOffset = 53;
@@ -119,29 +119,29 @@ public class SwordHorizontalAttack extends Rollable {
         
         // If we're done, then we want to return to idle.
         if (elapsedTime > duration) {
-            if (player.isShielding()) {
-                player.setState(new SwordShield(player, this));
+            if (living.isShielding()) {
+                living.setState(new SwordShield(living, this));
             } else if (performNextAttack) {
-                player.setState(new SwordHorizontalAttack2(player, this));
+                living.setState(new SwordHorizontalAttack2(living, this));
             } else {
-                player.setState(new SwordIdle(player, this));
+                living.setState(new SwordIdle(living, this));
             }
         }
     }
     
     @Override
     public AnimationState getRollState() {
-        return new SwordRoll(player, this);
+        return new SwordRoll(living, this);
     }
 
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_HORIZONTAL_ATTACK;
+    public short getId() {
+        return AnimationID.SWORD_HORIZONTAL_ATTACK.getValue();
     }
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
+        living.setState(new SwordDead(living, this));
     }
 
 }

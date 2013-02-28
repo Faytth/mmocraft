@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.newdawn.slick.util.ResourceLoader;
 import org.unallied.mmocraft.client.Game;
-import org.unallied.mmocraft.constants.ServerConstants;
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.net.PacketCreator;
 import org.unallied.mmocraft.tools.IOUtils;
 import org.unallied.mmocraft.tools.input.ByteArrayByteStream;
@@ -84,7 +84,7 @@ public class ItemManager {
             byte[] bytes = IOUtils.toByteArray(is);
             ByteArrayByteStream babs = new ByteArrayByteStream(bytes);
             GenericSeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(babs);
-            if (slea.readInt() != ServerConstants.MAGIC_ITEM_PACK_NUMBER) {
+            if (slea.readInt() != ClientConstants.MAGIC_ITEM_PACK_NUMBER) {
                 System.err.println("Unable to load Unallied Item Pack file.  Bad magic number: " + filename);
                 return;
             }

@@ -3,10 +3,10 @@ package org.unallied.mmocraft.animations.sword;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Input;
 import org.unallied.mmocraft.Controls;
-import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.Living;
 import org.unallied.mmocraft.Velocity;
+import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
-import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
@@ -28,7 +28,7 @@ public class SwordAirDodge extends AnimationState {
     /** The distance (in pixels) that the player can move when holding down a directional. */
     public static final float MOVE_DISTANCE = 100;
     
-    public SwordAirDodge(Player player, AnimationState last) {
+    public SwordAirDodge(Living player, AnimationState last) {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
@@ -161,7 +161,7 @@ public class SwordAirDodge extends AnimationState {
     
     @Override
     public void land() {
-        player.setState(new SwordIdle(player, this));
+        living.setState(new SwordIdle(living, this));
     }
     
     @Override
@@ -178,13 +178,13 @@ public class SwordAirDodge extends AnimationState {
         
         // If we're done, we want to enter the helpless state.
         if (elapsedTime > duration) {
-            player.setState(new SwordHelpless(player, this));
+            living.setState(new SwordHelpless(living, this));
         }
     }
     
     @Override
-    public AnimationType getId() {
-        return AnimationType.SWORD_AIR_DODGE;
+    public short getId() {
+        return AnimationID.SWORD_AIR_DODGE.getValue();
     }
     
     @Override
@@ -194,6 +194,6 @@ public class SwordAirDodge extends AnimationState {
 
     @Override
     public void die() {
-        player.setState(new SwordDead(player, this));
+        living.setState(new SwordDead(living, this));
     }
 }

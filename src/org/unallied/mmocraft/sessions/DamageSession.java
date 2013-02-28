@@ -122,6 +122,13 @@ public class DamageSession {
         addDamage(location, damage, DEFAULT_COLOR);
     }
     
+    /**
+     * Adds a damage node to the damage session.  Damage nodes are used for
+     * rendering damage on the screen.
+     * @param location The location to render the damage.
+     * @param damage The amount of damage to render.
+     * @param color The color that the damage should be rendered in.
+     */
     public void addDamage(Location location, int damage, Color color) {
         damageNodes.add(new DamageNode(new BoundLocation(location), damage, color));
     }

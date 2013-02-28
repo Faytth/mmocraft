@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 import org.newdawn.slick.Color;
 
 public abstract class ClientConstants {
-    public static final String HOST = "localhost"; //"www.unallied.com";
+    public static String HOST = "www.unallied.com"; //"localhost"; //
     public static final int PACKET_TIMEOUT = 30; // 30 seconds timeout for packets
     public static final int SERVER_PORT = 27300; // the port to listen for connections on
     
@@ -57,7 +57,7 @@ public abstract class ClientConstants {
      * consecutive rolls and shield states.  (A good example would be roll, idle, 
      * shield, roll).
      */
-    public static final long ROLL_COOLDOWN = 330;
+    public static final long ROLL_COOLDOWN = 250;
     
     /** The color that other player's damage is rendered in. */
     public static final Color DAMAGE_BLOCK_OTHER_PLAYER_COLOR = new Color(160, 160, 160, 150);
@@ -68,6 +68,9 @@ public abstract class ClientConstants {
     /** The color that damage you take is rendered in. */
     public static final Color DAMAGE_RECEIVED_COLOR = new Color(214, 78, 78);
     
+    /** The color that monster damage received from other players is rendered in. */
+    public static final Color DAMAGE_RECEIVED_OTHER_MONSTER_COLOR = new Color(214, 106, 106, 150);
+    
     /** The color that other people's damage received is rendered in. */
     public static final Color DAMAGE_RECEIVED_OTHER_PLAYER_COLOR = new Color(214, 106, 106, 150);
     
@@ -77,6 +80,9 @@ public abstract class ClientConstants {
     /** The color of the player's name if their PvP flag is disabled. */
     public static final Color PLAYER_NAME_NORMAL = new Color(238, 238, 238);
     
+    /** The color of a monster's name. */
+    public static final Color MONSTER_NAME_NORMAL = new Color(238, 238, 238);
+    
     /** The time in milliseconds that the PvP flag persists after disabling PvP. */
     public static final long PVP_FLAG_DURATION = 300000L;
     
@@ -85,4 +91,24 @@ public abstract class ClientConstants {
      * the player should send an attack packet to the server.
      */
     public static final float PLAYER_COLLISION_CHECK_RADIUS = 0;
+    
+    /** A magic number that is prepended to all Unallied Monster Pack files. */
+    public static final int MAGIC_MONSTER_PACK_NUMBER = 0x4B504D55;
+    
+    /** A magic number that is prepended to all Unallied Item Pack files. */
+    public static final int MAGIC_ITEM_PACK_NUMBER = 0x4B504955;
+    
+    /** The location of the Unallied Item Pack file containing all of the item data. */
+    public static final String ITEM_PACK_LOCATION = "resources/items.uip";
+
+    /** The location of the Unallied Monster Pack file containing all of the monster data. */
+    public static final String MONSTER_PACK_LOCATION = "resources/monsters.ump";
+    
+    public static final int MINIMUM_USERNAME_LENGTH = 6;
+    public static final int MAXIMUM_USERNAME_LENGTH = 30;
+    
+    /** 
+     * The distance that the client clears an object from its cache.
+     */
+    public static final int OBJECT_DESPAWN_DISTANCE = 2500;
 }

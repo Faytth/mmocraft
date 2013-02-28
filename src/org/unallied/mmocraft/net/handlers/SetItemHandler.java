@@ -35,7 +35,7 @@ public class SetItemHandler extends AbstractPacketHandler {
                 if (quantity > curQuantity) {
                     items.add(new Item(itemId, quantity - curQuantity));
                 }
-                client.getPlayer().getInventory().setQuantity(itemId, quantity);
+                inventory.setQuantity(itemId, quantity);
             }
         } catch (Throwable t) {
             t.printStackTrace();

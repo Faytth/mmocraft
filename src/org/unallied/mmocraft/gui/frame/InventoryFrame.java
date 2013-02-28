@@ -215,12 +215,17 @@ public class InventoryFrame extends Frame {
         
         for (ItemType type : ItemType.values()) {
             if (type != ItemType.UNASSIGNED && type != ItemType.EQUIPMENT) {
-                itemElements.add(new ItemElement(null, type.toString(), ItemCategory.CATEGORY, 0L, yOffset));
-                yOffset += categoryHeight;
+                boolean firstItem = true;
                 // Now find all items with that type
                 for (Item item : items) {
                     ItemData itemData = ItemManager.getItemData(item.getId());
                     if (itemData != null && itemData.getType() == type) {
+                        // Only show category if there's an item here.
+                        if (firstItem) {
+                            itemElements.add(new ItemElement(null, type.toString(), ItemCategory.CATEGORY, 0L, yOffset));
+                            yOffset += categoryHeight;
+                            firstItem = false;
+                        }
                         itemElements.add(new ItemElement(itemData, 
                                 itemData.getName(),
                                 ItemCategory.ITEM, item.getQuantity(), yOffset));
@@ -346,6 +351,7 @@ public class InventoryFrame extends Frame {
             if (curIndex >= startingIndex) {
                 // Render it!
                 if (element.category == ItemCategory.CATEGORY) {
+                    // Only render if player has at least one item in this category.
                     if (curOffset + categoryYOffset + categoryHeight > height) { // Not enough space
                         break;
                     }
@@ -379,22 +385,21 @@ public class InventoryFrame extends Frame {
          *  the FIRST item displayed.  With this information, we can determine
          *  the length of the scroll bar to display and the location of it.
          */
-        if ((startingIndex == 0 && curIndex == itemElements.size()) || itemElements.size() == 0 || maxIndex == 0) { // No scrollbar needed
-            return;
+        if (!((startingIndex == 0 && curIndex == itemElements.size()) || itemElements.size() == 0 || maxIndex == 0)) { // Scrollbar needed
+            int scrollBarLength = (int)((1.0 * (curIndex - startingIndex) / 1.0 / itemElements.size()) * (height - categoryYOffset));
+            scrollBarLength = scrollBarLength < 10 ? 10 : scrollBarLength; // minimum length
+            int scrollYOffset = (int)(1.0 * startingIndex / maxIndex * (height - categoryYOffset - scrollBarLength));
+            scrollYOffset = (scrollYOffset + categoryYOffset + scrollBarLength) > height ? (height - categoryYOffset - scrollBarLength) : scrollYOffset;
+            GradientFill scrollFill = new GradientFill(0, 0, new Color(0, 128, 210),
+                    0, scrollBarLength/4, new Color(244, 244, 244), true);
+            g.fill(new Rectangle(width - 5 + offX, categoryYOffset + scrollYOffset + offY, 
+                    4, scrollBarLength/2), scrollFill);
+            g.fill(new Rectangle(width - 5 + offX, categoryYOffset + scrollYOffset + offY + scrollBarLength/2, 
+                    4, scrollBarLength-scrollBarLength/2), scrollFill.getInvertedCopy());
+            g.setColor(new Color(0, 78, 100));
+            g.drawRect(width - 5 + offX, categoryYOffset + scrollYOffset + offY, 4, scrollBarLength);
+            g.setColor(new Color(255, 255, 255, 255));
         }
-        int scrollBarLength = (int)((1.0 * (curIndex - startingIndex) / 1.0 / itemElements.size()) * (height - categoryYOffset));
-        scrollBarLength = scrollBarLength < 10 ? 10 : scrollBarLength; // minimum length
-        int scrollYOffset = (int)(1.0 * startingIndex / maxIndex * (height - categoryYOffset - scrollBarLength));
-        scrollYOffset = (scrollYOffset + categoryYOffset + scrollBarLength) > height ? (height - categoryYOffset - scrollBarLength) : scrollYOffset;
-        GradientFill scrollFill = new GradientFill(0, 0, new Color(0, 128, 210),
-                0, scrollBarLength/4, new Color(244, 244, 244), true);
-        g.fill(new Rectangle(width - 5 + offX, categoryYOffset + scrollYOffset + offY, 
-                4, scrollBarLength/2), scrollFill);
-        g.fill(new Rectangle(width - 5 + offX, categoryYOffset + scrollYOffset + offY + scrollBarLength/2, 
-                4, scrollBarLength-scrollBarLength/2), scrollFill.getInvertedCopy());
-        g.setColor(new Color(0, 78, 100));
-        g.drawRect(width - 5 + offX, categoryYOffset + scrollYOffset + offY, 4, scrollBarLength);
-        g.setColor(new Color(255, 255, 255, 255));
 
         // Render the tooltip if we need to render one
         if (elementForTooltip != null) {

@@ -291,4 +291,36 @@ public class BoundLocation extends Location implements Serializable {
         return getRawDeltaX(topLeft) >= 0 && getRawDeltaX(bottomRight) <= 0 &&
                getRawDeltaY(topLeft) >= 0 && getRawDeltaY(bottomRight) <= 0;
     }
+    
+    /**
+     * Retrieves this class from an SLEA, which contains the raw bytes of this class
+     * obtained from the getBytes() method.
+     * @param slea A seekable little endian accessor that is currently at the position containing
+     *             the bytes of a Location.
+     * @return location
+     */
+    public static BoundLocation fromBytes(SeekableLittleEndianAccessor slea) {
+        // Guard
+        if (slea == null || slea.available() < 16) {
+            return null;
+        }
+        
+        BoundLocation result = new BoundLocation(0, 0);
+        result.x = slea.readLong();
+        result.y = slea.readLong();
+        return result;
+    }
+
+    /**
+     * Retrieves the distance (in pixels) between two locations.  The distance
+     * calculation used is:  (sqrt((x1-x2)^2 + (y1-y2)^2)), where x1,y1 is <code>this</code>
+     * and x2,y2 is <code>other</code>.
+     * @param other The location to get the distance to.
+     * @return the distance in pixels between the locations.
+     */
+    public double getDistance(BoundLocation other) {
+        double deltaX = getDeltaX(other);
+        double deltaY = getDeltaY(other);
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
 }

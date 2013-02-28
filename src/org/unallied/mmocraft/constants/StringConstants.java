@@ -26,4 +26,5 @@ public abstract class StringConstants {
     public static final String DISABLED = "disabled";
     public static final String SKILL_LEVEL_UP = "Congratulations!  Your skill in %s has reached level %d.";
     public static final String SYSTEM = "System";
+    public static final String GOLD = "Gold";
 }

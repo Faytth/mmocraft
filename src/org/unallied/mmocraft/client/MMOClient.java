@@ -6,14 +6,14 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
-import org.unallied.mmocraft.Controls;
+import org.unallied.mmocraft.ControlIntf;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketSender;
 import org.unallied.mmocraft.sessions.DamageSession;
 import org.unallied.mmocraft.sessions.LoginSession;
-import org.unallied.mmocraft.sessions.NPCSession;
+import org.unallied.mmocraft.sessions.MonsterPoolSession;
 import org.unallied.mmocraft.sessions.ObjectSession;
 import org.unallied.mmocraft.sessions.PlayerPoolSession;
 import org.unallied.mmocraft.sessions.TerrainSession;
@@ -48,7 +48,7 @@ public class MMOClient {
     public PlayerPoolSession playerPoolSession = new PlayerPoolSession();
 
     // Stores all non-playable characters
-    public NPCSession npcSession = new NPCSession();
+    public MonsterPoolSession monsterPoolSession = new MonsterPoolSession();
 
     /** Stores all of the damage that needs to be displayed on the screen. */
     public DamageSession damageSession = new DamageSession();
@@ -190,7 +190,7 @@ public class MMOClient {
                 playerPoolSession.render(container, game, g, cameraLocation);
                 
                 // Render the NPCs
-                npcSession.render(container, game, g, cameraLocation);
+                monsterPoolSession.render(container, game, g, cameraLocation);
                 
                 // Render yourself
                 player.render(container, game, g, cameraLocation);
@@ -223,59 +223,20 @@ public class MMOClient {
     public void update(GameContainer container, StateBasedGame game, int delta) {
         Input input = container.getInput();
         boolean idle = true; // determines whether player is moving
+
         /*
          * The way movement works is a little tricky.  There is a movement delay
          * which, if another button is pressed before that delay expires, a
          * smash attack occurs.
          */
-        
         if (player != null) {
-            Controls controls = Game.getInstance().getControls();
-                
-            // These next checks are only if the main game is focused and not a GUI control
-            if (GUIUtility.getInstance().getActiveElement() == null && container.hasFocus()) {
-                // Perform movement
-                if (Authenticator.canPlayerMove(player)) {
-                    if (controls.isMovingLeft(input)) {
-                        idle &= !player.tryMoveLeft(delta);
-                    }
-                    if (controls.isMovingRight(input)) {
-                        idle &= !player.tryMoveRight(delta);
-                    }
-                    if (idle && player.getState().canChangeVelocity()) {
-                        player.setVelocity(0, player.getVelocity().getY());
-                    }
-                    if (controls.isMovingUp(input)) {
-                        player.tryMoveUp(delta);
-                        idle = false;
-                    } else {
-                    	player.setMovingUp(false); // Have to tell the player that we're not moving up
-                    }
-                    if (controls.isMovingDown(input)) {
-                        player.tryMoveDown(delta);
-                        idle = false;
-                    }
-                    if (!controls.isMovingUp(input) && !controls.isMovingDown(input)) {
-                        if (player.getState().canChangeVelocity()) {
-                            player.setVelocity(player.getVelocity().getX(), 0);
-                        }
-                    }
-                }
-                
-                // perform attacks
-                if (Authenticator.canPlayerAttack(player)) {
-                    player.attackUpdate(controls.isBasicAttack(input));
-                }
-            }
-            
-            if (idle) {
-                player.idle();
-                if (player.getState().canChangeVelocity()) {
-                    player.setVelocity(0, player.getVelocity().getY());
-                }
-            }
             player.update(delta);
         }
+        
+        // Update other players
         playerPoolSession.update(container,  game, delta);
+        
+        // Update monsters
+        monsterPoolSession.update(container, game, delta);
     }
 }

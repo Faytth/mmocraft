@@ -2,8 +2,6 @@ package org.unallied.mmocraft;
 
 import java.awt.Rectangle;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -12,7 +10,6 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.sword.SwordIdle;
-import org.unallied.mmocraft.blocks.Block;
 import org.unallied.mmocraft.client.FontHandler;
 import org.unallied.mmocraft.client.FontID;
 import org.unallied.mmocraft.client.Game;
@@ -25,7 +22,6 @@ import org.unallied.mmocraft.items.Inventory;
 import org.unallied.mmocraft.items.ItemRequirement;
 import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketCreator;
-import org.unallied.mmocraft.net.handlers.PvPToggleResponseHandler;
 import org.unallied.mmocraft.sessions.TerrainSession;
 import org.unallied.mmocraft.skills.SkillType;
 import org.unallied.mmocraft.skills.Skills;
@@ -43,50 +39,26 @@ public class Player extends Living implements Serializable {
      */
     private static final long serialVersionUID = 5548280611678732479L;
     
-    /** The current state of the player. */
-    protected transient AnimationState current = null;
+    /** The HP gained with each level. */
+    protected static final transient int PLAYER_HP_MULTIPLIER = 10;
     
-    /** True if the player is holding down the shield button. */
-    protected transient boolean shielding = false;
+    /** The player's starting HP. */
+    protected static final transient int PLAYER_BASE_HP = 50;
     
-    /** True if the player is currently in the middle of charging an attack. */
-    protected transient boolean attacking = false;
-    
-    /**
-     * The width of the player's hitbox.  Used in bounding box checks.
-     * Starting location of the bounding box is <code>location</code>.
-     */
-    protected transient static final int collisionWidth = 24;
+    /** Used in calculations for the player's HP restoration rate. */
+    protected long elapsedTime = 0;
     
     /**
-     * The height of the player's hitbox.  Used in bounding box checks.
-     * Starting location of the bounding box is <code>location</code>.
+     * The amount of time in milliseconds that it takes to restore all of a
+     * player's HP.
      */
-    protected transient static final int collisionHeight = 43;
+    protected static final int HP_RESTORE_RATE = 300000;
 
-    /**
-     * Collection of the "boundary points" that need to be checked for player
-     * movement across the world.  These should be no farther than one block
-     * apart.
-     */
-    protected transient List<RawPoint> hitbox = null;
-    
     /** 
-     * The velocity BEFORE the call to accelerateDown. Used by move() to
-     * calculate falling distance. 
-     */
-    protected float initialVelocity = 0f;
-    
-    protected float movementSpeed = 300f; // Determines the rate of movement for this player pixels / second)
-    protected float fallSpeed = 0.0f; // The rate that the player is currently falling
-    protected int playerId; // The unique ID of this player
-    
-    protected Direction direction = Direction.RIGHT; // direction that the player is facing
-    
-    /**
-     * The player's movement.
-     */
-    protected transient Velocity velocity = new Velocity(0, 0);
+     * The amount of time in milliseconds that HP restoration is halted for
+     * upon receiving damage. 
+     * */
+    protected static final int HP_RESTORE_DAMAGE_DELAY = 10000;
     
     /** The inventory of the player. */
     protected transient Inventory inventory = new Inventory();
@@ -98,14 +70,79 @@ public class Player extends Living implements Serializable {
      * The time at which the player's PvP will expire. A value of -1 indicates 
      * indefinite.  This only counts for other players.
      */
-    protected long pvpToggleTime = 0;
-    
-    /** True if the key for moving up is down or not. */
-    protected transient boolean movingUp = false;
+    protected long pvpExpireTime = 0;
     
     public Player() {
-        super();
+        super(24, 43); // TODO:  Find a better way of providing player width and height
         current = new SwordIdle(this, null);
+    }
+    
+    public Player(Player other) {
+        super(other);
+        this.collisionWidth = 24;
+        this.collisionHeight = 43;
+        current = other.current;
+        shielding = other.shielding;
+        attacking = other.attacking;
+        hitbox = other.hitbox;
+        initialVelocity = other.initialVelocity;
+        movementSpeed = other.movementSpeed;
+        fallSpeed = other.fallSpeed;
+        id = other.id;
+        direction = other.direction;
+        velocity = other.velocity;
+        inventory = other.inventory;
+        skills = other.skills;
+        pvpExpireTime = other.pvpExpireTime;
+    }
+
+    /**
+     * Updates current HP, buff duration, and so on.
+     * @param delta The length of time that has passed since the last update in
+     *              milliseconds.
+     */
+    public void updateLogic(long delta) {
+        elapsedTime += delta;
+        int hpToRestore = (int) (elapsedTime * getHpMax() / HP_RESTORE_RATE);
+        if (hpToRestore > 0) {
+            elapsedTime -= hpToRestore * HP_RESTORE_RATE / getHpMax();
+            restoreHp(hpToRestore);
+        }
+    }
+    
+    /**
+     * Sets the current HP for this creature.
+     * Current HP cannot exceed max HP.
+     * @param hpCurrent current HP
+     */
+    public void setHpCurrent(int hpCurrent) {
+        boolean isDamaged = hpCurrent < this.hpCurrent;
+        this.hpCurrent = hpCurrent;
+        
+        // Make sure we didn't go over the max
+        if (this.hpCurrent > hpMax) {
+            this.hpCurrent = hpMax; // If we went over, set the HP to max
+        } else if (this.hpCurrent < 0) { // ... Or the minimum
+            this.hpCurrent = 0;
+        }
+        
+        // If the player was damaged, halt HP restoration.
+        if (isDamaged) {
+            elapsedTime = -HP_RESTORE_DAMAGE_DELAY;
+        }
+    }
+    
+    /**
+     * Restores up to <code>hp</code> hit points.  If the amount restored would
+     * go over the max HP, the HP is set to the max HP.  Attempting to restore
+     * HP while dead will do nothing.
+     * @param hp The amount of HP to restore.
+     */
+    public void restoreHp(int hp) {
+        if (hpCurrent > 0) {
+            int newHp = hpCurrent + hp;
+            hpCurrent = newHp > hpMax ? hpMax : newHp;
+        }
     }
     
     /**
@@ -117,31 +154,8 @@ public class Player extends Living implements Serializable {
             Game.getInstance().getClient().announce(packet);
         }
     }
-    
-    /**
-     * Returns this player's unique identifier
-     * @return playerId
-     */
-    public int getId() {
-        return playerId;
-    }
-
-    /**
-     * Sets the player's unique identifier.
-     * @param playerId new player ID.
-     */
-    public void setId(int playerId) {
-        this.playerId = playerId;
-    }
-
-    /**
-     * Returns the current animation state
-     * @return current
-     */
-    public AnimationState getState() {
-        return current;
-    }
-    
+        
+    @Override
     /**
      * Sets the animation state to a new state.
      * @param newState the new animation state
@@ -149,18 +163,10 @@ public class Player extends Living implements Serializable {
     public void setState(AnimationState newState) {
         if (this.current != newState) {
             this.current = newState;
-            sendPacket(PacketCreator.getMovement(this));
+            sendPacket(PacketCreator.getPlayerMovement(this));
         }
     }
     
-    /**
-     * Renders the player on the screen.  This should be done before the UI
-     * but after pretty much everything else.
-     * @param container
-     * @param game
-     * @param g
-     * @param camera 
-     */
     public void render(GameContainer container, StateBasedGame game, Graphics g, BoundLocation camera) {
         float x = (location.getX() - camera.getX());
         x = x > 0.0f ? x : WorldConstants.WORLD_WIDTH + x;
@@ -173,30 +179,37 @@ public class Player extends Living implements Serializable {
         current.render(x, y, direction == Direction.LEFT);
         
         try {
+            Color hpColor;
+            // Color the HP bar based on if we're the player or not.
+            if (Game.getInstance().getClient().getPlayer() == this) {
+                hpColor = new Color(0, 2, 150);
+            } else {
+                hpColor = new Color(0, 170, 0);
+            }
+            final String NAME_FONT = FontID.STATIC_TEXT_SMALL_BOLD.toString();
+            float centeredX = (int)(x + collisionWidth / 2 - FontHandler.getInstance().getMaxWidth(NAME_FONT, name) / 2);
             if (Game.getInstance().getClient().getPlayer() != this) {
                 // Render player name if this player is not the current player.
-                final String NAME_FONT = FontID.STATIC_TEXT_SMALL_BOLD.toString();
-                float centeredX = (int)(x + collisionWidth / 2 - FontHandler.getInstance().getMaxWidth(NAME_FONT, name) / 2);
                 Color nameColor = isPvPFlagEnabled() ? ClientConstants.PLAYER_NAME_PVP : ClientConstants.PLAYER_NAME_NORMAL;
                 FontHandler.getInstance().draw(NAME_FONT, name, centeredX, 
                         y + collisionHeight + 5, nameColor, -1, -1, false);
-                // Render HP bar
-                if (this.hpCurrent != this.hpMax) {
-                    final int HP_HEIGHT = 2;
-                    float hpWidth = collisionWidth * 1.5f;
-                    g.fill(new org.newdawn.slick.geom.Rectangle(centeredX, y - HP_HEIGHT, hpWidth, HP_HEIGHT), 
-                            new BarFill(new Color(255, 0, 0)));
-                    if (hpCurrent > 0) {
-                        float remainingHpWidth = 1.0f * hpWidth * hpCurrent / hpMax;
-                        remainingHpWidth = remainingHpWidth < 1 ? 1 : remainingHpWidth;
-                        g.fill(new org.newdawn.slick.geom.Rectangle(centeredX - 1, y - HP_HEIGHT, 
-                                remainingHpWidth + 2, HP_HEIGHT), new BarFill(new Color(0, 180, 0)));
-                    }
-                    Color oldColor = g.getColor();
-                    g.setColor(new Color(0, 0, 0));
-                    g.drawRect(centeredX, y - HP_HEIGHT - 1, hpWidth, HP_HEIGHT + 1);
-                    g.setColor(oldColor);
+            }
+            // Render HP bar
+            if (this.hpCurrent != this.hpMax) {
+                final int HP_HEIGHT = 2;
+                float hpWidth = collisionWidth * 1.5f;
+                g.fill(new org.newdawn.slick.geom.Rectangle(centeredX, y - HP_HEIGHT, hpWidth, HP_HEIGHT), 
+                        new BarFill(new Color(255, 0, 0)));
+                if (hpCurrent > 0) {
+                    float remainingHpWidth = 1.0f * hpWidth * hpCurrent / hpMax;
+                    remainingHpWidth = remainingHpWidth < 1 ? 1 : remainingHpWidth;
+                    g.fill(new org.newdawn.slick.geom.Rectangle(centeredX, y - HP_HEIGHT, 
+                            remainingHpWidth + 0, HP_HEIGHT), new BarFill(hpColor));
                 }
+                Color oldColor = g.getColor();
+                g.setColor(new Color(0, 0, 0));
+                g.drawRect(centeredX, y - HP_HEIGHT - 1, hpWidth, HP_HEIGHT + 1);
+                g.setColor(oldColor);
             }
         } catch (Throwable t) {
             // We really don't care about rendering errors.
@@ -204,20 +217,85 @@ public class Player extends Living implements Serializable {
         
     }
     
-    /**
-     * Updates the player, including animations.
-     * @param delta time since last update.
-     */
-    public void update(long delta) {
-        BoundLocation tempLocation = new BoundLocation(location);
-        Controls controls = Game.getInstance().getControls();
+    private void updateMovement(int delta) {
+        if (this != Game.getInstance().getClient().getPlayer()) {
+            return;
+        }
+        
+        boolean idle = true;
+        GameContainer container = Game.getInstance().getContainer();
+        ControlIntf controls = Game.getInstance().getControls();
         Input input = Game.getInstance().getContainer().getInput();
+        
+        // Perform movement
+        if (GUIUtility.getInstance().getActiveElement() == null && 
+                container.hasFocus()) {
+            if (Authenticator.canLivingMove(this)) {
+                if (controls.isMovingLeft(input)) {
+                    idle &= !this.tryMoveLeft(delta);
+                }
+                if (controls.isMovingRight(input)) {
+                    idle &= !this.tryMoveRight(delta);
+                }
+                if (idle && this.getState().canChangeVelocity()) {
+                    this.setVelocity(0, this.getVelocity().getY());
+                }
+                if (controls.isMovingUp(input)) {
+                    this.tryMoveUp(delta);
+                    idle = false;
+                } else {
+                    this.setMovingUp(false); // Have to tell the player that we're not moving up
+                }
+                if (controls.isMovingDown(input)) {
+                    this.tryMoveDown(delta);
+                    idle = false;
+                }
+                if (!controls.isMovingUp(input) && !controls.isMovingDown(input)) {
+                    if (this.getState().canChangeVelocity()) {
+                        this.setVelocity(this.getVelocity().getX(), 0);
+                    }
+                }
+            }        
+        
+            // perform attacks
+            if (Authenticator.canLivingAttack(this)) {
+                this.attackUpdate(controls.isBasicAttack(input));
+            }
+        }
+
+        if (idle) {
+            this.idle();
+            if (this.getState().canChangeVelocity()) {
+                this.setVelocity(0, this.getVelocity().getY());
+            }
+        }
+        
+        // Perform player-based controls
+        if (Authenticator.canLivingMove(this)) {
+            try {
+                if (Game.getInstance().getClient().getPlayer() == this) {
+                    if (GUIUtility.getInstance().getActiveElement() == null) {
+                        // Perform shielding
+                        shieldUpdate(controls.isShielding(input));
+                    }
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }
+    }
+    
+    public void update(long delta) {
+        updateLogic(delta);
+        updateMovement((int)delta);
+        
+        BoundLocation tempLocation = new BoundLocation(location);
         
         // Perform gravity checks
         accelerateDown((int)delta, ClientConstants.FALL_ACCELERATION * current.moveDownMultiplier(), 
                 ClientConstants.FALL_TERMINAL_VELOCITY * current.moveDownMultiplier());
         
-        if (this.getHpCurrent() <= 0) {
+        if (!this.isAlive()) {
             current.die(); // No need to announce.  Server doesn't accept changes if you're dead.
         }
         
@@ -231,20 +309,6 @@ public class Player extends Living implements Serializable {
         newVelocity.setY(velocity.getY());
         newVelocity.setX(0);
         move((int)delta, newVelocity, fallSpeed, initialVelocity);
-        
-        // Perform player-based controls
-        if (Authenticator.canPlayerMove(this)) {
-            try {
-                if (Game.getInstance().getClient().getPlayer() == this) {
-                    if (GUIUtility.getInstance().getActiveElement() == null) {
-                        // Perform shielding
-                        shieldUpdate(controls.isShielding(input));
-                    }
-                }
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-        }
 
         current.update(delta);
         if (isStuck()) {
@@ -252,317 +316,8 @@ public class Player extends Living implements Serializable {
         }
         unstuck();
     }
-    
-    /**
-     * Given a start and end, returns the farthest possible location after
-     * collision is accounted for (such as running into a wall)
-     * @param start Starting location
-     * @param end Ending location
-     * @return
-     */
-    public Location collide(Location start, Location end) {
-        Location result = new BoundLocation(start);
-        try {
-            TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
-
-            // If air
-            Location horizontalCollide = new BoundLocation(ts.collideWithBlock(start, end));
-            result.setRawX(horizontalCollide.getRawX());
-            
-            // Vertical testing
-            if (end.getRawY() != start.getRawY()) {
-                Location verticalEnd = new BoundLocation(result);
-                verticalEnd.setRawY(horizontalCollide.getRawY());
-                               
-                result = horizontalCollide;
-            }
-        } catch (NullPointerException e) {
-            
-        }
-        return result;
-    }
-
-    /**
-     * Returns whether or not the player's hitbox is currently overlapping with
-     * a collidable block.
-     * @return stuck.  True if the player is stuck; else false.
-     */
-    public boolean isStuck() {
-        TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
-        if (ts == null) {
-            return false;
-        }
         
-        for (RawPoint p : hitbox) {
-            Location start = new Location(location);
-            start.moveRawRight(p.getX());
-            start.moveRawDown(p.getY());
-            Block block = ts.getBlock(start);
-            if (block != null && block.isCollidable()) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Gets the player out of a place that they would normally be stuck at.
-     * The way this works is it iterates over all points in the player's hitbox.
-     * If any point is colliding with a block, it shifts the player up and to the left.
-     * This continues until the player is no longer colliding with a block.
-     */
-    public void unstuck() {
-        while (isStuck()) {
-            location.setXOffset(0);
-            location.setYOffset(0);
-            location.decrementX();
-            location.decrementY();
-        }
-    }
-        
-    /**
-     * Attempts to move left if the animation allows it.
-     * @param delta The time in milliseconds since the last update
-     * @return true if the player was able to move left, else false.
-     */
-    public boolean tryMoveLeft(int delta) {
-        current.moveLeft(movementSpeed > 0.2f); // any slower movement than this means walk
-        if (current.canMoveLeft() && current.canChangeVelocity()) {
-            setVelocity(-movementSpeed, velocity.getY());
-        }
-        return current.canMoveLeft() && current.canChangeVelocity();
-    }
-    
-    /**
-     * Moves character horizontally (left / right).  Distance is determined by:
-     * (deltaTime) * (velocity.x), where deltaTime is the difference in time
-     * between the last and current input poll (typically a single frame)
-     * 
-     * @param delta The time in milliseconds since the last update
-     * @param velocity 
-     * @param fallSpeed 
-     * @param initialVelocity 
-     */
-    public void move(int delta, Velocity velocity, float fallSpeed, float initialVelocity) {
-        // TODO:  Break this into several steps.  We must pass in a Location for each pixel.
-        //        We pass in the modified location to the next Location, and "daisy chain"
-        //        them all together.  Our end result is the farthest we can move.
-        
-        // Get new end location
-        
-        // Make sure player can move left
-        RawPoint distance = new RawPoint();
-        float fallDistance = ((fallSpeed + initialVelocity) / 2f) * delta / 1000 *
-                Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_HEIGHT;
-
-        distance.setLocation((long) (velocity.getX() * delta / 1000 * Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_WIDTH), 
-                (long) ((velocity.getY()) * delta / 1000 * Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_HEIGHT + fallDistance));
-        RawPoint startingDistance = new RawPoint(distance.getX(), distance.getY());
-        // At this point, end is where we are trying to move to
-        
-        // Iterate over all points in our hit box, and fix our end location as needed.
-        for (RawPoint p : hitbox) {
-            // our location should be the top-left corner.  Fix offsets as needed for start / end
-            Location start = new Location(location);
-            start.moveRawRight(p.getX());
-            start.moveRawDown(p.getY());
-            Location end = new Location(start);
-            end.moveRawRight(distance.getX());
-            end.moveRawDown(distance.getY());
-            
-            // Get our new location
-            Location newEnd = collide(start, end);
-            
-            // We now need to fix our distance based on our new end
-            distance.setLocation(newEnd.getRawDeltaX(start), newEnd.getRawDeltaY(start));
-        }
-        
-        // Testing for falling / ceiling
-        if (startingDistance.getY() == distance.getY()) {
-            if (fallSpeed > 0) { // We're falling
-                current.fall();
-            }
-        } else if (fallSpeed < 0) { // We hit the ceiling
-            this.initialVelocity = 0;
-            this.fallSpeed = 0;
-        } else { // We landed on something
-            current.land();
-            this.initialVelocity = 0;
-            this.fallSpeed = 0;
-        }
-        
-        if (!current.isInAir()) {
-            // At this point, distance is the farthest to the left we can move
-            if (!distance.equals(startingDistance)) { // We must have collided with the ground
-                /*
-                 *  Try to move up by a block and see if we can go any farther.
-                 *  If we can, then we want to use the new distance
-                 */
-                Location newLocation = new BoundLocation(location);
-                newLocation.moveRawRight(distance.getX());
-                newLocation.moveRawDown(distance.getY());
-                newLocation.moveRawUp(Location.BLOCK_GRANULARITY);
-                RawPoint newDistance = new RawPoint(startingDistance.getX()-distance.getX(),
-                        startingDistance.getY()-distance.getY()); // remaining distance to travel
-                
-                // Cycle through all points to see if we can go left now
-                for (RawPoint p : hitbox) {
-                    // our location should be the top-left corner.  Fix offsets as needed for start / end
-                    Location start = new BoundLocation(newLocation);
-                    start.moveRawRight(p.getX());
-                    start.moveRawDown(p.getY());
-                    Location end = new BoundLocation(start);
-                    end.moveRawRight(newDistance.getX());
-                    end.moveRawDown(newDistance.getY());
-                    
-                    // Get our new location
-                    Location newEnd = collide(start, end);
-                    
-                    // We now need to fix our distance based on our new end
-                    newDistance.setLocation(newEnd.getRawDeltaX(start), newEnd.getRawDeltaY(start));
-                }
-                
-                // If we were able to move, then keep it.  Otherwise use the old distance
-                if (velocity.getX() < 0) {
-                    if (newDistance.getX() < distance.getX()) {
-                        distance = newDistance;
-                        this.location.moveRawUp(Location.BLOCK_GRANULARITY);
-                    }
-                } else {
-                    if (newDistance.getX() > distance.getX()) {
-                        distance = newDistance;
-                        this.location.moveRawUp(Location.BLOCK_GRANULARITY);
-                    }
-                }
-            } else { // air
-                /*
-                 *  We want to see if we can move down exactly one block without colliding.
-                 *  If we can, then we want to move a little bit more and see if we collide.
-                 *  If we do, then we know we can move down one block.
-                 */
-                BoundLocation newLocation = new BoundLocation(location);
-                newLocation.moveRawRight(distance.getX());
-                newLocation.moveRawDown(distance.getY());
-                RawPoint newDistance = new RawPoint(0, Location.BLOCK_GRANULARITY + 1);
-                RawPoint startingNewDistance = new RawPoint(newDistance.getX(), newDistance.getY());
-                for (RawPoint p : hitbox) {
-                    // our location should be the top-left corner.  Fix offsets as needed for start / end
-                    Location start = new BoundLocation(newLocation);
-                    start.moveRawRight(p.getX());
-                    start.moveRawDown(p.getY());
-                    Location end = new BoundLocation(start);
-                    end.moveRawRight(newDistance.getX());
-                    end.moveRawDown(newDistance.getY());
-                    
-                    // Get our new location
-                    Location newEnd = collide(start, end);
-                    
-                    // We now need to fix our distance based on our new end
-                    newDistance.setLocation(newEnd.getRawDeltaX(start), newEnd.getRawDeltaY(start));
-                }
-                if (!startingNewDistance.equals(newDistance)) { // if there was a collision
-                    // We can move down
-                    distance.setLocation(distance.getX()+newDistance.getX(),
-                            distance.getY()+newDistance.getY());
-                }
-            }
-        }
-                
-        // Our distance is now the farthest we can travel
-        this.location.moveRawRight(distance.getX());
-        this.location.moveRawDown(distance.getY());
-    }
-    
-    /**
-     * Attempts to move right if the animation allows it.
-     * @param delta The time in milliseconds since the last update
-     */
-    public boolean tryMoveRight(int delta) {
-        current.moveRight(movementSpeed > 0.2f); // any slower movement than this means walk
-        if (current.canMoveRight() && current.canChangeVelocity()) {
-            setVelocity(movementSpeed, velocity.getY());
-        }
-        return current.canMoveRight() && current.canChangeVelocity();
-    }
-
-    /**
-     * Attempts to move up if the animation allows it.
-     * @param delta The time in milliseconds since the last update
-     */
-    public void tryMoveUp(int delta) {
-    	if (!movingUp) {
-	        current.moveUp(true); // This ordering is NOT a mistake!
-    	}
-    	movingUp = true;
-    }
-    
-    /**
-     * Moves character down.  Distance is determined by:
-     * (deltaTime) * (movementSpeed * downMultiplier), where deltaTime is the difference in time
-     * between the last and current input poll (typically a single frame)
-     * 
-     * @param delta The time in milliseconds since the last update
-     * @param downMultiplier The multiplier to multiply the downward movement speed by
-     */
-    public void moveDown(int delta, float downMultiplier) {
-        setVelocity(velocity.getX(), (float) delta * movementSpeed * downMultiplier * .025f);
-    }
-
-    /**
-     * Attempts to move down if the animation allows it.
-     * @param delta The time in milliseconds since the last update
-     */
-    public void tryMoveDown(int delta) {
-        current.moveDown(true);
-        float downMultiplier = current.moveDownMultiplier();
-        if (downMultiplier != 0 && current.canChangeVelocity()) {
-            moveDown(delta, downMultiplier);
-        }
-    }
-    
-    /**
-     * Called every update.  Determines whether the player should try to shield
-     * or not.
-     * @param isDown true if the shield button is pressed; else false
-     */
-    public void shieldUpdate(boolean isDown) {
-        if (shielding && !isDown) {
-            current.shieldOff();
-        } else if (!shielding && isDown) {
-            current.shield();
-        }
-        shielding = isDown;
-    }
-    
-    /**
-     * Called every update.  Determines whether the player is holding down the
-     * normal attack button.
-     * @param isDown true if the normal attack button is pressed; else false
-     */
-    public void attackUpdate(boolean isDown) {
-        if (attacking && !isDown) {
-//            current.attack(); // This is for charging attacks.
-        } else if (!attacking && isDown) {
-            current.attack();
-        }
-    }
-
-    /**
-     * Tells player that they did not make an action this update.
-     */
-    public void idle() {
-        current.idle();
-    }
-    
-    /**
-     * Retrieve the direction that the player is facing (left or right)
-     * @return direction
-     */
-    public Direction getDirection() {
-        return direction;
-    }
-    
+    @Override
     /**
      * Sets the direction that the player is facing (left or right).
      * 
@@ -574,89 +329,15 @@ public class Player extends Living implements Serializable {
         // If we need to update the direction
         if (this.direction != direction) {
             this.direction = direction;
-            sendPacket(PacketCreator.getMovement(this));
+            sendPacket(PacketCreator.getPlayerDirection(this));
         }
-    }
-    
-    /**
-     * Sets the direction that the player is facing (left or right).
-     * @param direction the direction the player should face
-     */
-    public void setDirection(Direction direction) {
-        this.direction = direction;
     }
 
-    /**
-     * Accelerates player downwards.
-     * @param delta The time in milliseconds to accelerate downwards
-     * @param acceleration The acceleration rate of the fall in pixels
-     * @param terminalVelocity The maximum velocity in pixels
-     */
-    public void accelerateDown(int delta, float acceleration, float terminalVelocity) {
-        // Guard
-        if (hitbox == null) {
-            init();
-        }
-        
-        // FIXME:  This is a bit incorrect
-        
-        // Correction that can cause negative acceleration if it's going too fast.
-        if (fallSpeed > terminalVelocity) {
-            fallSpeed = terminalVelocity;
-        }
-        initialVelocity = fallSpeed;
-        float t = delta / 1000.0f;
-        float vf;
-        if (terminalVelocity != 0) {
-            vf = fallSpeed + ((terminalVelocity - fallSpeed) / terminalVelocity) * t * acceleration;
-            if (vf > terminalVelocity) {
-                vf = terminalVelocity;
-            }
-        } else {
-            vf = fallSpeed + t * ClientConstants.FALL_ACCELERATION;
-        }
-        fallSpeed = vf;
-    }
-
-    /**
-     * This should be called after the player has been read from the server.
-     * This method initializes any transient objects, such as the player's
-     * hitbox.
-     */
     public void init() {
-        long blocksPerPixelWide = Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_WIDTH;
-        long blocksPerPixelHigh = Location.BLOCK_GRANULARITY / WorldConstants.WORLD_BLOCK_HEIGHT;
-        velocity = new Velocity(0, 0);
-        // initialize the player's hitbox used for player movement
-        hitbox = new ArrayList<RawPoint>();
-        for (int x=0; x < collisionWidth; x += WorldConstants.WORLD_BLOCK_WIDTH-1) {
-            for (int y=0; y < collisionHeight; y += WorldConstants.WORLD_BLOCK_HEIGHT-1) {
-                hitbox.add(new RawPoint(x * blocksPerPixelWide, y * blocksPerPixelHigh));
-            }
-            hitbox.add(new RawPoint(x * blocksPerPixelWide, collisionHeight * blocksPerPixelHigh));
-        }
-        for (int y=0; y < collisionHeight; y += WorldConstants.WORLD_BLOCK_HEIGHT-1) {
-            hitbox.add(new RawPoint(collisionWidth * blocksPerPixelWide, y * blocksPerPixelHigh));
-        }
-        hitbox.add(new RawPoint(collisionWidth * blocksPerPixelWide, collisionHeight * blocksPerPixelHigh));
+        super.init();
     }
 
-    /**
-     * Retrieves the width of the player's collision box.
-     * @return collisionWidth
-     */
-    public int getWidth() {
-        return collisionWidth;
-    }
-    
-    /**
-     * Retrieves the height of the player's collision box.
-     * @return collisionHeight
-     */
-    public int getHeight() {
-        return collisionHeight;
-    }
-
+    @Override
     /**
      * Retrieves whether or not the player is holding down the shield button.
      * @return shielding
@@ -716,6 +397,10 @@ public class Player extends Living implements Serializable {
     public double getPvPDamageMultiplier() {
         return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 50.0;
     }
+    
+    public double getPvMDamageMultiplier() {
+        return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 50.0;
+    }
 	
 	/**
 	 * Retrieves the damage multiplier based on the player's gear, primary
@@ -741,19 +426,6 @@ public class Player extends Living implements Serializable {
 	    }
 	}
 	
-	/**
-	 * Performs the collision checks from startingIndex to endingIndex.
-	 * 
-	 * This code may look ugly, but it's very fast.  On an i7-2600k, performing
-	 * a single collision check on a 16x16 block takes roughly 8 microseconds.
-	 * There are about 12 such checks needed per collision animation.
-	 * 
-	 * @param collisionArc All of the blobs that make up the animation's collision arc.
-	 * @param startingIndex The starting index (inclusive) of the collision arc to check collisions for.
-	 * @param endingIndex The ending index (inclusive) of the collision arc to check collisions for.
-	 * @param horizontalOffset The horizontal offset that must be added to the collision blob.
-	 * @param verticalOffset The vertical offset that must be added to the collision blob.
-	 */
     public void doCollisionChecks(CollisionBlob[] collisionArc, int startingIndex,
             int endingIndex, float horizontalOffset, float verticalOffset) {
         // Guard
@@ -788,7 +460,6 @@ public class Player extends Living implements Serializable {
                  *  Using this, we need to grab every block in our rectangle for collision
                  *  testing.
                  */
-                boolean sendCollisionPacket = false;
                 for (long x = topLeft.getX(); x <= bottomRight.getX(); ++x) {
                     for (long y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
                         try {
@@ -803,7 +474,6 @@ public class Player extends Living implements Serializable {
                                 float damage =  (direction == Direction.RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
                                         new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), xOff, yOff);
                                 if (damage > 0) {
-                                    sendCollisionPacket = true;
                                     // display damage
                                     displayBlockDamage(x, y, (int)Math.round(getBlockDamageMultiplier() * damage));
     //                                ts.setBlock(x, y, new AirBlock());
@@ -814,12 +484,8 @@ public class Player extends Living implements Serializable {
                     }
                 }
                 if (this == Game.getInstance().getClient().getPlayer()) {
-                    long pvpDuration = PvPToggleResponseHandler.getPvPFlagDuration();
-                    // If our PvP is enabled, then that means we might have hit someone with their PvP enabled.
-                    if (sendCollisionPacket || pvpDuration == -1 || pvpDuration > 0) {
-                        sendPacket(PacketCreator.getBlockCollisionPacket(
-                                startingIndex, endingIndex, horizontalOffset, verticalOffset));
-                    }
+                    sendPacket(PacketCreator.getBlockCollisionPacket(
+                            startingIndex, endingIndex, horizontalOffset, verticalOffset));
                 }
             } while (curIndex != endingIndex);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -827,17 +493,7 @@ public class Player extends Living implements Serializable {
         }
     }
 
-    /**
-     * Changes the velocity by x and y.  These values should be in pixels / millisecond.
-     * @param x The horizontal velocity to add to the current velocity in pixels / millisecond
-     * @param y The vertical velocity to add to the current velocity in pixels / millisecond
-     */
-    public void changeVelocity(float x, float y) {
-        velocity.setX(velocity.getX() + x);
-        velocity.setY(velocity.getY() + y);
-        setVelocity(velocity.getX() + x, velocity.getY() + y);
-    }
-
+    @Override
     /**
      * Sets the velocity to x and y.  These values should be in pixels / millisecond.
      * @param x The horizontal velocity to set in pixels / millisecond.
@@ -848,63 +504,11 @@ public class Player extends Living implements Serializable {
             velocity.setX(x);
             velocity.setY(y);
             try {
-                sendPacket(PacketCreator.getMovement(this));
+                sendPacket(PacketCreator.getPlayerMovement(this));
             } catch (Throwable t) {
                 // We don't care if this fails.
             }
         }
-    }
-
-    /**
-     * Sets the velocity.  Unlike the other setVelocity method, this method
-     * DOES NOT announce movement packets.  It should only be used by the
-     * movement handler.
-     * @param velocity The new velocity.
-     */
-    public void setVelocity(Velocity velocity) {
-        this.velocity = velocity;
-    }
-    
-    /**
-     * Retrieves the player's movement speed.
-     * @return movementSpeed
-     */
-    public float getMovementSpeed() {
-        return movementSpeed;
-    }
-
-    /**
-     * Returns the player's current movement velocity.
-     * @return velocity
-     */
-    public Velocity getVelocity() {
-        return velocity;
-    }
-    
-    /**
-     * Retrieves the player's hit box.
-     * @return hitbox
-     */
-    public List<RawPoint> getHitbox() {
-        return hitbox;
-    }
-    
-    /**
-     * Sets the player's fall speed.  Used in gravity calculations.
-     * @param fallSpeed The new player's fall speed.  Use negative values to
-     *                  fall "up."
-     */
-    public void setFallSpeed(float fallSpeed) {
-        this.fallSpeed = fallSpeed;
-        initialVelocity = this.fallSpeed;
-    }
-
-    /**
-     * Retrieves the player's fall speed.
-     * @return fallSpeed
-     */
-    public float getFallSpeed() {
-        return fallSpeed;
     }
     
     /**
@@ -914,7 +518,7 @@ public class Player extends Living implements Serializable {
      *                   will not expire.
      */
     public void setPvPTime(long toggleTime) {
-        this.pvpToggleTime = toggleTime;
+        this.pvpExpireTime = toggleTime;
     }
     
     /**
@@ -924,7 +528,18 @@ public class Player extends Living implements Serializable {
      *                      in milliseconds at which the PvP flag will expire.
      */
     public long getPvPTime() {
-        return this.pvpToggleTime;
+        return this.pvpExpireTime;
+    }
+    
+    /**
+     * Retrieves the loot multiplier.  This is the number of "chances" a player
+     * has at receiving loot.  The default should be 1.  Can be increased by
+     * "Magic Find" boosts.
+     * @return lootMultiplier
+     */
+    public double getLootMultiplier() {
+        // TODO:  Implement this.
+        return 1.0;
     }
     
     /**
@@ -932,31 +547,18 @@ public class Player extends Living implements Serializable {
      * @return pvpFlagEnabled
      */
     public boolean isPvPFlagEnabled() {
-        return this.pvpToggleTime == -1 || 
-                this.pvpToggleTime > System.currentTimeMillis();
-    }
-
-    /**
-     * Sets whether the player is currently attempting to move up.
-     * @param movingUp True if the player is attempting to move up, else false.
-     */
-    public void setMovingUp(boolean movingUp) {
-    	this.movingUp = movingUp;
+        return this.pvpExpireTime == -1 || 
+                this.pvpExpireTime > System.currentTimeMillis();
     }
     
     /**
-     * Retrieves the initial velocity, used in movement calculations for gravity.
-     * @return initialVelocity
+     * Recalculates damage, HP, and others stats of the player.  These stats
+     * are the combination of player levels and equipped items / buffs.
+     * This function should be called whenever the player levels up, equipment
+     * is changed, or a buff is added or removed.
      */
-    public float getInitialVelocity() {
-        return initialVelocity;
-    }
-
-    /**
-     * Sets the initial velocity, used in movement calculations for gravity.
-     * @param initialVelocity
-     */
-    public void setInitialVelocity(float initialVelocity) {
-        this.initialVelocity = initialVelocity;
+    public void recalculateStats() {
+        // Calculate HP
+        setHpMax(getSkills().getLevel(SkillType.CONSTITUTION) * PLAYER_HP_MULTIPLIER + PLAYER_BASE_HP);
     }
 }

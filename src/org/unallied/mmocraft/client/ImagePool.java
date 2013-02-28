@@ -1,6 +1,5 @@
 package org.unallied.mmocraft.client;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
