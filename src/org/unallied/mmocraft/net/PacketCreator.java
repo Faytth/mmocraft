@@ -228,4 +228,16 @@ public class PacketCreator {
         
         return writer.getPacket();
     }
+
+    /**
+     * Sends a revive request to the server.
+     * @return packet
+     */
+    public static Packet getRevive() {
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.REVIVE);
+        
+        return writer.getPacket();
+    }
 }

@@ -3,12 +3,9 @@ package org.unallied.mmocraft.client;
 import org.apache.mina.core.session.IoSession;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 import org.unallied.mmocraft.BoundLocation;
-import org.unallied.mmocraft.ControlIntf;
 import org.unallied.mmocraft.Player;
-import org.unallied.mmocraft.gui.GUIUtility;
 import org.unallied.mmocraft.net.Packet;
 import org.unallied.mmocraft.net.PacketSender;
 import org.unallied.mmocraft.sessions.DamageSession;
@@ -17,7 +14,6 @@ import org.unallied.mmocraft.sessions.MonsterPoolSession;
 import org.unallied.mmocraft.sessions.ObjectSession;
 import org.unallied.mmocraft.sessions.PlayerPoolSession;
 import org.unallied.mmocraft.sessions.TerrainSession;
-import org.unallied.mmocraft.tools.Authenticator;
 
 /**
  * This class houses the Player as well as some important account information.
@@ -221,9 +217,6 @@ public class MMOClient {
      * @param delta The amount of time that passed in milliseconds since the last update.
      */
     public void update(GameContainer container, StateBasedGame game, int delta) {
-        Input input = container.getInput();
-        boolean idle = true; // determines whether player is moving
-
         /*
          * The way movement works is a little tricky.  There is a movement delay
          * which, if another button is pressed before that delay expires, a

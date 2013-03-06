@@ -33,20 +33,26 @@ public abstract class Monster extends Living {
      */
     protected int dataId;
     
-    public Monster(MonsterData monster, int id, BoundLocation location) {
-        this(monster, id, location, AnimationType.IDLE.getValue());
+    protected final MonsterData data;
+    
+    /** If true, displays a white frame for the living object for one frame to show damage. */
+    protected boolean showDamaged = false;
+    
+    public Monster(final MonsterData data, int id, BoundLocation location) {
+        this(data, id, location, AnimationType.IDLE.getValue());
     }
     
-    public Monster(MonsterData monster, int id, BoundLocation location, short animationId) {
-        super(monster.getWidth(), monster.getHeight());
+    public Monster(final MonsterData data, int id, BoundLocation location, short animationId) {
+        super(data.getWidth(), data.getHeight());
+        this.data = data;
         this.id = id;
         this.location = location;
-        dataId = monster.getId();
-        hpMax = monster.getMaxHP();
-        hpCurrent = monster.getMaxHP();
-        this.name = monster.getName();
-        this.movementSpeed *= monster.getMovementSpeed();
-        Map<AnimationType, String> animations = monster.getAnimations();
+        dataId = data.getId();
+        hpMax = data.getMaxHP();
+        hpCurrent = data.getMaxHP();
+        this.name = data.getName();
+        this.movementSpeed *= data.getMovementSpeed();
+        Map<AnimationType, String> animations = data.getAnimations();
         this.current = new GenericIdle(this, null, animations);
     }
 
@@ -59,7 +65,8 @@ public abstract class Monster extends Living {
         float y = (location.getY() - camera.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT;
         y += location.getYOffset() - camera.getYOffset();
         
-        current.render(x, y, direction == Direction.LEFT);
+        current.render(x, y, direction == Direction.LEFT, showDamaged);
+        showDamaged = false;
         
         try {
             Color hpColor = new Color(0, 170, 0);

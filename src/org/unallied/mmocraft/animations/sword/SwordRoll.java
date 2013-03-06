@@ -32,8 +32,9 @@ public class SwordRoll extends Roll {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
+        animation.setLooping(isLooping());
         SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_ROLL.toString());
+        this.collision = node.getCollision();
         width = node.getWidth();
         height = node.getHeight();
         duration = 200;
@@ -167,23 +168,14 @@ public class SwordRoll extends Roll {
     public boolean isInvincible() {
         return elapsedTime >= MIN_INVINCIBLE_TIME && elapsedTime <= MAX_INVINCIBLE_TIME;
     }
-    
-    @Override
-    /**
-     * Renders the animation to the screen
-     * @param x The x location from the left side of the screen to draw at
-     * @param y The y location from the top of the screen to draw at
-     */
-    public void render(float x, float y, boolean flipped) {
-        if (animation != null) {
-            animation.getCurrentFrame().getFlippedCopy(flipped, false).draw(
-                    flipped ? x - (animation.getWidth()-horizontalOffset-living.getWidth()) : x - horizontalOffset,
-                    y - verticalOffset);
-        }
-    }
 
     @Override
     public void die() {
         living.setState(new SwordDead(living, this));
+    }
+
+    @Override
+    public boolean isLooping() {
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 package org.unallied.mmocraft.client;
 
 import org.newdawn.slick.SpriteSheet;
+import org.unallied.mmocraft.Collision;
 
 /**
  * A node that bundles a sprite sheet with its width, height, and resource.
@@ -18,6 +19,7 @@ public class SpriteSheetNode {
     protected int horizontalOffset;
     protected int verticalOffset;
     protected int duration;
+    protected Collision collision;
     
     /**
      * Creates a sprite sheet node.  A sprite sheet node combines a sprite sheet
@@ -26,9 +28,13 @@ public class SpriteSheetNode {
      * @param width The width of the sprite sheet
      * @param height The height of the sprite sheet
      * @param resource The resource name of the sprite sheet
+     * @param horizontalOffset The horizontal offset of this animation in pixels.
+     * @param verticalOffset The vertical offset of this animation in pixels.
+     * @param duration The duration in milliseconds that this animation will play for.
+     * @param collision The collision arc for this animation, or null if there is no arc.
      */
     public SpriteSheetNode(SpriteSheet sheet, int width, int height, String resource,
-            int horizontalOffset, int verticalOffset, int duration) {
+            int horizontalOffset, int verticalOffset, int duration, String collision) {
         this.sheet = sheet;
         this.width = width;
         this.height = height;
@@ -36,6 +42,7 @@ public class SpriteSheetNode {
         this.horizontalOffset = horizontalOffset;
         this.verticalOffset = verticalOffset;
         this.duration = duration;
+        this.collision = collision == null ? null : new Collision(collision);
     }
     
     /**
@@ -96,5 +103,14 @@ public class SpriteSheetNode {
      */
     public int getDuration() {
         return duration;
+    }
+    
+    /**
+     * Returns the collision information for this animation, or null if there is
+     * no collision information.
+     * @return the collision information.
+     */
+    public Collision getCollision() {
+        return collision;
     }
 }

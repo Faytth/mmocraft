@@ -25,9 +25,11 @@ public enum BlockType {
 	SAND(0x08, SandBlock.class),
 	GRASS(0x09, GrassBlock.class);
 	int value = 0;
-	Class block;
+	@SuppressWarnings("rawtypes")
+    Class block;
 
-	BlockType(int value, Class block) {
+	@SuppressWarnings("rawtypes")
+    BlockType(int value, Class block) {
 		this.value = value;
 		this.block = block;
 	}

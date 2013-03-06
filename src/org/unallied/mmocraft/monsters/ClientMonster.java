@@ -13,9 +13,9 @@ public class ClientMonster extends Monster {
      * 
      */
     private static final long serialVersionUID = 4938157797304244749L;
-
-    public ClientMonster(MonsterData monster, int id, BoundLocation location) {
-        super(monster, id, location);
+    
+    public ClientMonster(final MonsterData data, int id, BoundLocation location) {
+        super(data, id, location);
     }
 
     /**
@@ -66,11 +66,15 @@ public class ClientMonster extends Monster {
      * @param hpCurrent current HP
      */
     public void setHpCurrent(int hpCurrent) {
-        this.hpCurrent = hpCurrent;
-        
-        // Make sure we didn't go over the max
-        if (this.hpCurrent > hpMax) {
-            this.hpCurrent = hpMax; // If we went over, set the HP to max
+        synchronized (this) {
+            hpCurrent = hpCurrent < 0     ? 0     : hpCurrent;
+            hpCurrent = hpCurrent > hpMax ? hpMax : hpCurrent;
+            
+            if (hpCurrent < this.hpCurrent) {
+                showDamaged = true; // Display white "damaged" on next frame.
+            }
+            
+            this.hpCurrent = hpCurrent;
         }
         
         // If monster has died, remove it from the client

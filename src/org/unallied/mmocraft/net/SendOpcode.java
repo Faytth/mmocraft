@@ -33,7 +33,9 @@ public enum SendOpcode {
     /** Sent when the client is requesting information about an instance of a monster. */
     MONSTER_INFO(0x0B), 
     /** Sent when the player changes direction. */
-    PLAYER_DIRECTION(0x0C);
+    PLAYER_DIRECTION(0x0C), 
+    /** Sent when the player is requesting to revive. */
+    REVIVE(0x0D);
     private int code = 0;
     
     private SendOpcode(int code) {

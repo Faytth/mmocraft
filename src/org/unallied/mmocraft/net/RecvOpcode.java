@@ -42,7 +42,14 @@ public enum RecvOpcode {
     /** Informs the client of a player's direction change. */
     PLAYER_DIRECTION(0x16),
     /** Informs the client of a monster's direction change. */
-    MONSTER_DIRECTION(0x17)
+    MONSTER_DIRECTION(0x17), 
+    /** Informs the client that a player was damaged by a monster. */
+    PLAYER_DAMAGED(0x18), 
+    /** 
+     * Informs the client that they have been revived, as well as their new
+     * state / location / HP.
+     */
+    REVIVE(0x19)
     ;
     private int code = 0;
     

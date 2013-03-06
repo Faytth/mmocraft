@@ -7,7 +7,6 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.ImageHandler;
@@ -123,16 +122,6 @@ public class LoginState extends AbstractState {
 			container.setTargetFrameRate(Game.MAX_FPS);
 			container.setClearEachFrame(false);
 		}
-
-		/*
-		 * Initialize the Collision enum.  This MUST be done in the same thread.
-		 * If initialization is left until later, then it's possible for
-		 * Collision to be initialized in another thread, which will cause all
-		 * Collisions to fail until the game is restarted.
-		 */
-		Collision c = Collision.SWORD_BACK_AIR;
-		Collision d = c;
-		c = d;
 	}
 
 	@Override

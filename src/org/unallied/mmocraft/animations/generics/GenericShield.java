@@ -6,7 +6,6 @@ import org.unallied.mmocraft.Living;
 import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.animations.GenericAnimationState;
-import org.unallied.mmocraft.animations.sword.SwordIdle;
 
 public class GenericShield extends GenericAnimationState {
 
@@ -32,7 +31,6 @@ public class GenericShield extends GenericAnimationState {
             Map<AnimationType, String> animations) {
         super(living, last, AnimationType.SHIELD, animations.get(AnimationType.SHIELD));
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
         
         this.animations = animations;
     }
@@ -138,5 +136,10 @@ public class GenericShield extends GenericAnimationState {
         if (animations.containsKey(AnimationType.DEAD)){
             living.setState(new GenericDead(living, this, animations));
         }
+    }
+
+    @Override
+    public boolean isLooping() {
+        return true;
     }
 }

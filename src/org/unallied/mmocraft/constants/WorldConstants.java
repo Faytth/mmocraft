@@ -1,6 +1,5 @@
 package org.unallied.mmocraft.constants;
 
-import org.newdawn.slick.Color;
 
 /**
  * Contains all world-related constants, such as number of blocks in a chunk, etc.
@@ -123,7 +122,7 @@ public abstract class WorldConstants {
      * (<code>WORLD_DRAW_DISTANCE</code>*2+1)
      * You can think of this value as the "radius" in chunks between the player and whatever else.
      */
-	public static final int WORLD_DRAW_DISTANCE = 5;
+	public static final int WORLD_DRAW_DISTANCE = 2;
 	
 	/** The maximum visible depth before all blocks are rendered with full shadows. */
 	public static final int WORLD_BLOCK_SHADOW_DEPTH = 9;

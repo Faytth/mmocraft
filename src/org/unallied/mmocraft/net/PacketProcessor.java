@@ -82,5 +82,7 @@ public class PacketProcessor {
         registerHandler(RecvOpcode.SET_GOLD, new SetGoldHandler());
         registerHandler(RecvOpcode.PLAYER_DIRECTION, new PlayerDirectionHandler());
         registerHandler(RecvOpcode.MONSTER_DIRECTION, new MonsterDirectionHandler());
+        registerHandler(RecvOpcode.PLAYER_DAMAGED, new PlayerDamagedHandler());
+        registerHandler(RecvOpcode.REVIVE, new ReviveHandler());
     }
 }

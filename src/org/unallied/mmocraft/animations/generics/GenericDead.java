@@ -29,7 +29,7 @@ public class GenericDead extends GenericAnimationState {
             Map<AnimationType, String> animations) {
         super(living, last, AnimationType.DEAD, animations.get(AnimationType.DEAD));
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
+        animation.setLooping(isLooping());
     }
     
     @Override
@@ -115,5 +115,10 @@ public class GenericDead extends GenericAnimationState {
 
     @Override
     public void die() {
+    }
+
+    @Override
+    public boolean isLooping() {
+        return true;
     }
 }

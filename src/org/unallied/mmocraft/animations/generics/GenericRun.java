@@ -32,7 +32,6 @@ public class GenericRun extends GenericAnimationState {
             Map<AnimationType, String> animations) {
         super(living, last, AnimationType.RUN, animations.get(AnimationType.RUN));
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
         
         this.animations = animations;
     }
@@ -124,5 +123,10 @@ public class GenericRun extends GenericAnimationState {
         if (animations.containsKey(AnimationType.DEAD)) {
             living.setState(new GenericDead(living, this, animations));
         }
+    }
+
+    @Override
+    public boolean isLooping() {
+        return true;
     }
 }

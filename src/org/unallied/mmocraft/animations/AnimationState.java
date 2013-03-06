@@ -75,6 +75,9 @@ public abstract class AnimationState implements Serializable {
     /** True if the player is able to jump a second time. */
     protected boolean canDoubleJump = true;
     
+    /** True if index 0 has had its collision performed yet. */
+    private boolean hasDoneFirstCollision = false;
+    
     public AnimationState(Living living, AnimationState last) {
         this.living = living;
         this.last   = last;
@@ -162,12 +165,19 @@ public abstract class AnimationState implements Serializable {
      * Renders the animation to the screen
      * @param x The x location from the left side of the screen to draw at
      * @param y The y location from the top of the screen to draw at
+     * @param showDamaged True if we should draw a white silhouette instead of the actual image.
      */
-    public void render(float x, float y, boolean flipped) {
+    public void render(float x, float y, boolean flipped, boolean showDamaged) {
         if (animation != null) {
-            animation.getCurrentFrame().getFlippedCopy(flipped, false).draw(
-                    flipped ? x - (animation.getWidth()-horizontalOffset-living.getWidth()) : x - horizontalOffset,
-                    y - verticalOffset);
+            if (showDamaged) {
+                animation.getCurrentFrame().getFlippedCopy(flipped, false).drawFlash(
+                        flipped ? x - (animation.getWidth()-horizontalOffset-living.getWidth()) : x - horizontalOffset,
+                        y - verticalOffset);
+            } else {
+                animation.getCurrentFrame().getFlippedCopy(flipped, false).draw(
+                        flipped ? x - (animation.getWidth()-horizontalOffset-living.getWidth()) : x - horizontalOffset,
+                        y - verticalOffset);
+            }
         }
     }
     
@@ -192,17 +202,55 @@ public abstract class AnimationState implements Serializable {
     public void update(long delta) {
         elapsedTime += delta;
         
+        // Special case for first collision
+        if (!hasDoneFirstCollision && collision != null) {
+            hasDoneFirstCollision = true; // MUST COME BEFORE doCollisionChecks
+            CollisionBlob[] arc = collision.getCollisionArc();
+            if (arc != null && arc.length > 0) {
+                living.doCollisionChecks(arc, 0, 0, -horizontalOffset, -verticalOffset);
+            }
+        }
+        
         if (animation != null) {
-            int startingIndex = animation.getFrame();
-            animation.update(delta);
-            int endingIndex = animation.getFrame();
-            // If our frame changed and it has collision
-            if (startingIndex != endingIndex && collision != null) {
-                living.doCollisionChecks(collision.getCollisionArc(), startingIndex+1, 
-                        endingIndex, -horizontalOffset, -verticalOffset);
+            if (animation.getFrameCount() > 0) {
+                int startingIndex = animation.getFrame();
+                animation.update(delta);
+                int endingIndex = animation.getFrame();
+                // If our frame changed and it has collision
+                if (startingIndex != endingIndex && collision != null) {
+                    living.doCollisionChecks(collision.getCollisionArc(), startingIndex+1, 
+                            endingIndex, -horizontalOffset, -verticalOffset);
+                }
+            } else if (collision != null) { 
+                animation.update(delta);
+                // For some reason we can't get the frame count.  Let's improvise.
+                CollisionBlob[] arc = collision.getCollisionArc();
+                if (arc != null) {
+                    int startingIndex = (int) ((elapsedTime - delta) * arc.length / duration);
+                    int endingIndex   = (int) (elapsedTime * arc.length / duration);
+                    if (!isLooping()) {
+                        startingIndex = startingIndex >= arc.length ? arc.length - 1 : startingIndex;
+                        endingIndex = endingIndex >= arc.length ? arc.length - 1: endingIndex;
+                    }
+                    if (startingIndex < endingIndex) {
+                        for (int i=startingIndex + 1; i <= endingIndex; ++i) {
+                            if (arc[i % arc.length].getWidth() > 0 && 
+                                    arc[i % arc.length].getHeight() > 0) {
+                                living.doCollisionChecks(arc, i % arc.length, 
+                                        i % arc.length, -horizontalOffset, -verticalOffset);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+    
+    /**
+     * Returns true if this animation loops, false if it's a one time animation.
+     * @return looping
+     */
+    public abstract boolean isLooping();
     
     /**
      * Sets the animation for this state.  Delay is based on player's speed.

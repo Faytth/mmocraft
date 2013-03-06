@@ -3,8 +3,12 @@ package org.unallied.mmocraft.gui.frame;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.fills.GradientFill;
+import org.newdawn.slick.geom.Rectangle;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.gui.GUIElement;
 import org.unallied.mmocraft.gui.GUIUtility;
@@ -36,6 +40,18 @@ public abstract class Frame extends GUIElement {
 	    }
     }
     
+    public void renderImage(Graphics g) {        
+        // Render background
+        g.fill(new Rectangle(0, 0, width, height),
+                new GradientFill(0, 0, new Color(17, 17, 15, 166), 
+                        width, height, new Color(57, 57, 55, 166), true));
+
+        // Render border
+        g.setColor(new Color(0, 128, 210));
+        g.drawRect(0, 0, width, height);
+        g.setColor(new Color(255, 255, 255));
+    }
+        
     @Override
     public void update(GameContainer container) {
     	// Iterate over all GUI controls and inform them of input

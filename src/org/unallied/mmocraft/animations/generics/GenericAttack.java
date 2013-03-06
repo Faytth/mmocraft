@@ -34,7 +34,7 @@ public class GenericAttack extends GenericAnimationState {
             Map<AnimationType, String> animations) {
         super(living, last, AnimationType.ATTACK, animations.get(AnimationType.ATTACK));
         animation.setAutoUpdate(false);
-        animation.setLooping(false);
+        animation.setLooping(isLooping());
         
         this.animations = animations;
     }
@@ -140,5 +140,10 @@ public class GenericAttack extends GenericAnimationState {
                 living.setState(new GenericIdle(living, this, animations));
             }
         }
+    }
+
+    @Override
+    public boolean isLooping() {
+        return false;
     }
 }

@@ -46,8 +46,13 @@ public class CharacterFrame extends Frame {
     
     /**
      * Initializes a LoginFrame with its elements (e.g. Username, Password fields)
-     * @param x The x offset for this frame (from the parent GUI element)
-     * @param y The lowest y that the character frame can go.
+     * @param parent
+     * @param intf
+     * @param container
+     * @param x
+     * @param y
+     * @param width
+     * @param height
      */
     public CharacterFrame(final Frame parent, EventIntf intf, GameContainer container
             , float x, float y, int width, int height) {

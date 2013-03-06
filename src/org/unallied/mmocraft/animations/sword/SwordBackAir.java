@@ -2,13 +2,11 @@ package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Input;
-import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.Controls;
 import org.unallied.mmocraft.Direction;
 import org.unallied.mmocraft.Living;
-import org.unallied.mmocraft.Player;
-import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.animations.AnimationID;
+import org.unallied.mmocraft.animations.AnimationState;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
@@ -25,9 +23,9 @@ public class SwordBackAir extends AnimationState {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
-        animation.setLooping(false);
+        animation.setLooping(isLooping());
         SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_BACK_AIR.toString());
-        this.collision = Collision.SWORD_BACK_AIR;
+        this.collision = node.getCollision();
         width = node.getWidth();
         height = node.getHeight();
         duration = 220;
@@ -168,5 +166,10 @@ public class SwordBackAir extends AnimationState {
     @Override
     public void die() {
         living.setState(new SwordDead(living, this));
+    }
+
+    @Override
+    public boolean isLooping() {
+        return false;
     }
 }

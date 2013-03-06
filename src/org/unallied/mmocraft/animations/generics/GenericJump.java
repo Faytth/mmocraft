@@ -31,7 +31,6 @@ public class GenericJump extends GenericAnimationState {
             Map<AnimationType, String> animations) {
         super(living, last, AnimationType.JUMP, animations.get(AnimationType.JUMP));
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
         living.setFallSpeed(-300f - living.getMovementSpeed() * 0.251f);
         this.animations = animations;
     }
@@ -141,6 +140,11 @@ public class GenericJump extends GenericAnimationState {
         if (animations.containsKey(AnimationType.DEAD)) {
             living.setState(new GenericDead(living, this, animations));
         }
+    }
+
+    @Override
+    public boolean isLooping() {
+        return true;
     }
 
 }

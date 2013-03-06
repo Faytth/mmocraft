@@ -23,7 +23,9 @@ public class MonsterDamagedHandler extends AbstractPacketHandler {
             if (monster != null) {
                 Color damageColor = sourceId == client.getPlayer().getId() ? 
                         ClientConstants.DAMAGE_DEALT_COLOR : ClientConstants.DAMAGE_RECEIVED_OTHER_MONSTER_COLOR;
-                client.damageSession.addDamage(monster.getLocation(), damageDealt, damageColor);
+                if (damageDealt > 0) {
+                    client.damageSession.addDamage(monster.getLocation(), damageDealt, damageColor);
+                }
                 monster.setHpCurrent(monsterHpRemaining);
             }
         } catch (Throwable t) {

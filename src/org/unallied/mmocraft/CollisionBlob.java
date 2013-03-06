@@ -160,7 +160,17 @@ public class CollisionBlob {
         // Go through all of the pixels adding any non-blank ones to the blob.
         for (int x=0; x < width; ++x) {
             for (int y=0; y < height; ++y) {
-                Color pixel = new Color(image.getRGB(x + index * width, y));
+                // Idiots at Slick specify that an alpha value of 0 should be 255 (unspecified).
+                // image.getRGB says that an alpha of 0 is 0, so this is a workaround.
+                int value = image.getRGB(x + index * width, y);
+                int r = (value & 0x00FF0000) >> 16;
+                int g = (value & 0x0000FF00) >> 8;
+                int b = (value & 0x000000FF);
+                int a = (value & 0xFF000000) >> 24;
+                if (a < 0) {
+                    a += 256;
+                }
+                Color pixel = new Color(r, g, b, a);
                 
                 /*
                  *  If this pixel is a damage pixel.  Note that we ignore alpha

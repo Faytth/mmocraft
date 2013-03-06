@@ -7,6 +7,7 @@ import org.unallied.mmocraft.LootIntf;
 import org.unallied.mmocraft.Passive;
 import org.unallied.mmocraft.PassiveType;
 import org.unallied.mmocraft.animations.AnimationType;
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.tools.input.GenericSeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
@@ -132,7 +133,7 @@ public class ClientMonsterData implements MonsterData {
             int count = slea.readByte();
             for (int i=0; i < count; ++i) {
                 AnimationType type = AnimationType.fromValue(slea.readShort());
-                String animationLocation = slea.read7BitPrefixedAsciiString();
+                String animationLocation = ClientConstants.CLIENT_RESOURCE_ANIMATION_LOCATION + slea.read7BitPrefixedAsciiString();
                 result.getAnimations().put(type, animationLocation);
             }
             // Add any animations that must be present but are missing

@@ -155,4 +155,9 @@ public class GenericIdle extends GenericAnimationState {
         }
     }
 
+    @Override
+    public boolean isLooping() {
+        return true;
+    }
+
 }

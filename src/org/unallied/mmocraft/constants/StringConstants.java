@@ -27,4 +27,27 @@ public abstract class StringConstants {
     public static final String SKILL_LEVEL_UP = "Congratulations!  Your skill in %s has reached level %d.";
     public static final String SYSTEM = "System";
     public static final String GOLD = "Gold";
+    public static final String REVIVE = "Revive";
+    public static final String REVIVE_MESSAGE[] = {
+            "Good thing death isn't permanent!",
+            "Your HP has reached 0.  Just thought you should know.",
+            "It didn't have to end like this!",
+            "What doesn't kill you only makes you... not as dead?",
+            "Those bunnies are evil, I tell you.  Evil!!!",
+            "<Insert funny comment about death here.>",
+            "You should be more lively.",
+            "You don't look so good.",
+            "Medic!",
+            "If I had a nickel for every time someone died...",
+            "You appear to be living impaired.",
+            "Another one bites the dust.",
+            "You have died.  Don't you just hate it when that happens?",
+            "The gift that lasts forever.  Death.",
+            "Congratulations!  You can now sleep without breathing!",
+            "ZOMBIE!!!",
+            "You're as dead as a doornail!  ...How does a doornail die?",
+            "Don't go towards the light!",
+            "DUN DUN DUN!",
+            "And you were doing so well...",
+            "Back in my day we didn't have revive buttons."};
 }

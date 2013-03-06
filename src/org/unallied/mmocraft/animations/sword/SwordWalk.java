@@ -25,8 +25,9 @@ public class SwordWalk extends AnimationState {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
+        animation.setLooping(isLooping());
         SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_WALK.toString());
+        this.collision = node.getCollision();
         width = node.getWidth();
         height = node.getHeight();
         setAnimation(node.getSpriteSheet());
@@ -123,5 +124,10 @@ public class SwordWalk extends AnimationState {
     @Override
     public void die() {
         living.setState(new SwordDead(living, this));
+    }
+
+    @Override
+    public boolean isLooping() {
+        return true;
     }
 }

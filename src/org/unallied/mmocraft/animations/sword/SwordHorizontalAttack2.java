@@ -1,7 +1,6 @@
 package org.unallied.mmocraft.animations.sword;
 
 import org.newdawn.slick.Animation;
-import org.unallied.mmocraft.Collision;
 import org.unallied.mmocraft.Living;
 import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
@@ -29,9 +28,9 @@ public class SwordHorizontalAttack2 extends Rollable {
         super(player, last);
         animation = new Animation();
         animation.setAutoUpdate(false);
-        animation.setLooping(false);
+        animation.setLooping(isLooping());
         SpriteSheetNode node = SpriteHandler.getInstance().getNode(SpriteID.SWORD_HORIZONTAL_ATTACK_2.toString());
-        this.collision = Collision.SWORD_HORIZONTAL_ATTACK_2;
+        this.collision = node.getCollision();
         width = node.getWidth();
         height = node.getHeight();
         duration = 350;
@@ -131,6 +130,11 @@ public class SwordHorizontalAttack2 extends Rollable {
     @Override
     public void die() {
         living.setState(new SwordDead(living, this));
+    }
+
+    @Override
+    public boolean isLooping() {
+        return false;
     }
 
 }

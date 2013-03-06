@@ -25,9 +25,6 @@ public abstract class GenericAnimationState extends AnimationState {
      */
     private AnimationType animationType;
     
-    /** The sprite ID for the sprite that will be rendered when displaying this animation. */
-    private String spriteId;
-    
     /**
      * Creates a new generic animation state, typically used for monsters and NPCs.
      * @param living The living creature that is performing the animation.
@@ -41,8 +38,9 @@ public abstract class GenericAnimationState extends AnimationState {
         
         animation = new Animation();
         animation.setAutoUpdate(false);
-        animation.setLooping(true);
+        animation.setLooping(isLooping());
         SpriteSheetNode node = SpriteHandler.getInstance().getNode(spriteId);
+        this.collision = node.getCollision();
         width = node.getWidth();
         height = node.getHeight();
         duration = node.getDuration();
@@ -50,7 +48,6 @@ public abstract class GenericAnimationState extends AnimationState {
         animation.start();
         
         this.animationType = animationType;
-        this.spriteId = spriteId;
         this.horizontalOffset = node.getHorizontalOffset();
         this.verticalOffset = node.getVerticalOffset();
     }

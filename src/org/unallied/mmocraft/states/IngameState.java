@@ -23,6 +23,7 @@ import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.gui.frame.InventoryFrame;
 import org.unallied.mmocraft.gui.frame.LootFrame;
 import org.unallied.mmocraft.gui.frame.MiniMapFrame;
+import org.unallied.mmocraft.gui.frame.ReviveFrame;
 import org.unallied.mmocraft.gui.frame.StatusFrame;
 import org.unallied.mmocraft.gui.frame.ToolbarFrame;
 import org.unallied.mmocraft.net.Heartbeat;
@@ -62,6 +63,14 @@ public class IngameState extends AbstractState {
      */
     private CharacterFrame characterFrame = null;
     
+    /**
+     * A frame that pops up when the user is dead, containing a button to revive the
+     * player.  This is not implemented as a messagebox, but rather as a frame.  The
+     * reason for this is that it should ALWAYS be up when the user is dead with
+     * absolutely no chance of just "not appearing" or of going away when clicked.
+     */
+    private ReviveFrame reviveFrame = null;
+    
     public IngameState() {
         super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
     }
@@ -99,6 +108,7 @@ public class IngameState extends AbstractState {
         	if (characterFrame != null) {
         	    characterFrame.hide();
         	}
+        	// reviveFrame shouldn't be deactivated on Escape.
         	return;
         }
         
@@ -214,10 +224,16 @@ public class IngameState extends AbstractState {
         characterFrame.setY(chatFrame.getY() - characterFrame.getHeight() - 5);
         characterFrame.hide();
         
+        reviveFrame = new ReviveFrame(orderedFrames, null, container, 5, 0, -1, -1);
+        reviveFrame.setX(Game.getInstance().getWidth() / 2 - reviveFrame.getWidth() / 2);
+        reviveFrame.setY(Game.getInstance().getHeight() / 2 - reviveFrame.getHeight() / 2);
+        
         itemsReceivedFrame = new LootFrame(orderedFrames, null, container, 
         		Game.getInstance().getWidth() - 300 - 10, toolbarFrame.getAbsoluteHeight() - 100 - 10, 300, 100);
         
         // Controls.  Add these in the order you would like to see them appear.
+        orderedFrames.addFrame(reviveFrame);
+        
         orderedFrames.addFrame(inventoryFrame);
         orderedFrames.addFrame(characterFrame);
         
@@ -345,6 +361,12 @@ public class IngameState extends AbstractState {
                 resetGUI(container);
             }
             Game.getInstance().getClient().update(container, game, delta);
+            
+            // Show / Hide the revive frame depending on if the player is alive or dead.
+            try {
+                reviveFrame.show(!Game.getInstance().getClient().getPlayer().isAlive());
+            } catch (NullPointerException e) { // Don't care
+            }
             
             // Iterate over all GUI controls and inform them of input
             orderedFrames.update(container);

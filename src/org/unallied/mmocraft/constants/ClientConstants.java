@@ -110,5 +110,8 @@ public abstract class ClientConstants {
     /** 
      * The distance that the client clears an object from its cache.
      */
-    public static final int OBJECT_DESPAWN_DISTANCE = 2500;
+    public static final int OBJECT_DESPAWN_DISTANCE = 1050;
+    
+    /** The location of the client location for animations. */
+    public static final String CLIENT_RESOURCE_ANIMATION_LOCATION = "resources/animations/";
 }

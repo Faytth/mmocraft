@@ -29,6 +29,8 @@ import org.unallied.mmocraft.tools.Authenticator;
 
 /**
  * Contains all information for a given player.
+ * TODO:  Generalize this into Player and ClientPlayer (just like how monsters
+ * have Monster and ClientMonster).
  * @author Faythless
  *
  */
@@ -71,6 +73,9 @@ public class Player extends Living implements Serializable {
      * indefinite.  This only counts for other players.
      */
     protected long pvpExpireTime = 0;
+    
+    /** If true, displays a white frame for the living object for one frame to show damage. */
+    protected boolean showDamaged = false;
     
     public Player() {
         super(24, 43); // TODO:  Find a better way of providing player width and height
@@ -116,19 +121,22 @@ public class Player extends Living implements Serializable {
      * @param hpCurrent current HP
      */
     public void setHpCurrent(int hpCurrent) {
-        boolean isDamaged = hpCurrent < this.hpCurrent;
-        this.hpCurrent = hpCurrent;
-        
-        // Make sure we didn't go over the max
-        if (this.hpCurrent > hpMax) {
-            this.hpCurrent = hpMax; // If we went over, set the HP to max
-        } else if (this.hpCurrent < 0) { // ... Or the minimum
-            this.hpCurrent = 0;
-        }
-        
-        // If the player was damaged, halt HP restoration.
-        if (isDamaged) {
-            elapsedTime = -HP_RESTORE_DAMAGE_DELAY;
+        synchronized (this) {
+            boolean isDamaged = hpCurrent < this.hpCurrent;
+            this.hpCurrent = hpCurrent;
+            
+            // Make sure we didn't go over the max
+            if (this.hpCurrent > hpMax) {
+                this.hpCurrent = hpMax; // If we went over, set the HP to max
+            } else if (this.hpCurrent < 0) { // ... Or the minimum
+                this.hpCurrent = 0;
+            }
+            
+            // If the player was damaged, halt HP restoration.
+            if (isDamaged) {
+                elapsedTime = -HP_RESTORE_DAMAGE_DELAY;
+                showDamaged = true;
+            }
         }
     }
     
@@ -176,7 +184,8 @@ public class Player extends Living implements Serializable {
         float y = (location.getY() - camera.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT;
         y += location.getYOffset() - camera.getYOffset();
         
-        current.render(x, y, direction == Direction.LEFT);
+        current.render(x, y, direction == Direction.LEFT, showDamaged);
+        showDamaged = false;
         
         try {
             Color hpColor;
@@ -395,11 +404,11 @@ public class Player extends Living implements Serializable {
 	}
 	
     public double getPvPDamageMultiplier() {
-        return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 50.0;
+        return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 150.0;
     }
     
     public double getPvMDamageMultiplier() {
-        return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 50.0;
+        return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 150.0;
     }
 	
 	/**
@@ -408,7 +417,7 @@ public class Player extends Living implements Serializable {
 	 * @return damageMultiplier
 	 */
 	public double getBlockDamageMultiplier() {
-	    return 1000.0 + this.getSkills().getLevel(SkillType.MINING) * 150.0;
+	    return 1000.0 + this.getSkills().getLevel(SkillType.MINING) * 50.0;
 	}
 	
 	/**
@@ -452,40 +461,39 @@ public class Player extends Living implements Serializable {
                 bottomRight.moveDown(collisionArc[curIndex].getHeight());
                 bottomRight.moveRight(collisionArc[curIndex].getWidth());
                 
-                if (topLeft.equals(bottomRight)) {
-                    return;
-                }
-                /*
-                 *  We now have the topLeft and bottomRight coords of our rectangle.
-                 *  Using this, we need to grab every block in our rectangle for collision
-                 *  testing.
-                 */
-                for (long x = topLeft.getX(); x <= bottomRight.getX(); ++x) {
-                    for (long y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
-                        try {
-                            if (ts.getBlock(x, y).isCollidable()) {
-                                int xOff = 0;
-                                if (direction == Direction.RIGHT) {
-                                    xOff = (int) (((x - this.location.getX()) * WorldConstants.WORLD_BLOCK_WIDTH - horizontalOffset - collisionArc[curIndex].getXOffset() - this.location.getXOffset()));
-                                } else {
-                                    xOff = (int) (-this.location.getXOffset() + current.getWidth() - ((this.location.getX() - x) * WorldConstants.WORLD_BLOCK_WIDTH + getWidth() - horizontalOffset + collisionArc[curIndex].getFlipped().getXOffset()));
+                if (!topLeft.equals(bottomRight)) {
+                    /*
+                     *  We now have the topLeft and bottomRight coords of our rectangle.
+                     *  Using this, we need to grab every block in our rectangle for collision
+                     *  testing.
+                     */
+                    for (long x = topLeft.getX(); x <= bottomRight.getX(); ++x) {
+                        for (long y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
+                            try {
+                                if (ts.getBlock(x, y).isCollidable()) {
+                                    int xOff = 0;
+                                    if (direction == Direction.RIGHT) {
+                                        xOff = (int) (((x - this.location.getX()) * WorldConstants.WORLD_BLOCK_WIDTH - horizontalOffset - collisionArc[curIndex].getXOffset() - this.location.getXOffset()));
+                                    } else {
+                                        xOff = (int) (-this.location.getXOffset() + current.getWidth() - ((this.location.getX() - x) * WorldConstants.WORLD_BLOCK_WIDTH + getWidth() - horizontalOffset + collisionArc[curIndex].getFlipped().getXOffset()));
+                                    }
+                                    int yOff = (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset()));
+                                    float damage =  (direction == Direction.RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
+                                            new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), xOff, yOff);
+                                    if (damage > 0) {
+                                        // display damage
+                                        displayBlockDamage(x, y, (int)Math.round(getBlockDamageMultiplier() * damage));
+        //                                ts.setBlock(x, y, new AirBlock());
+                                    }
                                 }
-                                int yOff = (int) (((y - this.location.getY()) * WorldConstants.WORLD_BLOCK_HEIGHT - verticalOffset - collisionArc[curIndex].getYOffset() - this.location.getYOffset()));
-                                float damage =  (direction == Direction.RIGHT ? collisionArc[curIndex] : collisionArc[curIndex].getFlipped()).getDamage(
-                                        new Rectangle(WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT), xOff, yOff);
-                                if (damage > 0) {
-                                    // display damage
-                                    displayBlockDamage(x, y, (int)Math.round(getBlockDamageMultiplier() * damage));
-    //                                ts.setBlock(x, y, new AirBlock());
-                                }
+                            } catch (NullPointerException e) {
                             }
-                        } catch (NullPointerException e) {
                         }
                     }
-                }
-                if (this == Game.getInstance().getClient().getPlayer()) {
-                    sendPacket(PacketCreator.getBlockCollisionPacket(
-                            startingIndex, endingIndex, horizontalOffset, verticalOffset));
+                    if (this == Game.getInstance().getClient().getPlayer()) {
+                        sendPacket(PacketCreator.getBlockCollisionPacket(
+                                startingIndex, endingIndex, horizontalOffset, verticalOffset));
+                    }
                 }
             } while (curIndex != endingIndex);
         } catch (ArrayIndexOutOfBoundsException e) {
