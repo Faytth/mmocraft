@@ -19,6 +19,7 @@ import org.unallied.mmocraft.net.mina.MMOCodecFactory;
 public class PacketSocket {
     private IoConnector connector;
     
+    private static Object connectionStatusMutex = new Object();
     /** Keeps track of the packet socket's connection status to the server. */
     private static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     
@@ -48,7 +49,9 @@ public class PacketSocket {
         final int RETRY_TIME = 100; //
         final int MAX_RETRY_ATTEMPTS = 50; // number of times to keep retrying connection
         try {
-            connectionStatus = ConnectionStatus.CONTACTING_SERVER;
+            synchronized (connectionStatusMutex) {
+                connectionStatus = ConnectionStatus.CONTACTING_SERVER;
+            }
             connector = new NioSocketConnector();
             connector.getFilterChain().addLast("codec", 
                     (IoFilter) new ProtocolCodecFilter(new MMOCodecFactory()));
@@ -73,9 +76,13 @@ public class PacketSocket {
             }
         }
         if (connector != null && connector.isActive()) {
-            connectionStatus = ConnectionStatus.CONNECTED;
+            synchronized (connectionStatusMutex) {
+                connectionStatus = ConnectionStatus.CONNECTED;
+            }
         } else {
-            connectionStatus = ConnectionStatus.FAILED_TO_CONNECT;
+            synchronized (connectionStatusMutex) {
+                connectionStatus = ConnectionStatus.FAILED_TO_CONNECT;
+            }
         }
     }
     
@@ -88,8 +95,11 @@ public class PacketSocket {
      * @return connected True if connected, else false.
      */
     public boolean isConnected() {
-        connectionStatus = (connector != null && connector.isActive()) ? ConnectionStatus.CONNECTED : connectionStatus;
-        return connectionStatus == ConnectionStatus.CONNECTED;
+        ConnectionStatus status = (connector != null && connector.isActive()) ? ConnectionStatus.CONNECTED : connectionStatus;
+        synchronized (connectionStatusMutex) {
+            connectionStatus = status;
+            return connectionStatus == ConnectionStatus.CONNECTED;
+        }
     }
     
     /**
@@ -116,6 +126,8 @@ public class PacketSocket {
     }
 
     public static ConnectionStatus getConnectionStatus() {
-        return connectionStatus;
+        synchronized (connectionStatusMutex) {
+            return connectionStatus;
+        }
     }
 }

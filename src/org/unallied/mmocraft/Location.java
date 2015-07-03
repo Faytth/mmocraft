@@ -23,14 +23,12 @@ public class Location implements Serializable {
 
     /** 
      * The number of units per block.  Since a block's coordinates must be
-     * no larger than an int, and it's represented by longs, the absolute
+     * no larger than an integer, and it's represented by longs, the absolute
      * maximum granularity is about 2^32-1.  However, we're keeping it simple.
      * Because a float can have about 7 decimal digits of precision, we want to
      * keep this value small.
      * */
     public static final long BLOCK_GRANULARITY = 100000;
-    
-    private transient int hashCodeValue = 0;
     
     /** The x coordinate of this location. */
     protected long x;
@@ -45,7 +43,7 @@ public class Location implements Serializable {
      * @param xOffset X offset from the block at (x,y)
      * @param yOffset Y offset from the block at (x,y)
      */
-    public Location(long x, long y, float xOffset, float yOffset) {
+    public Location(int x, int y, float xOffset, float yOffset) {
         this.x = x * BLOCK_GRANULARITY;
         this.y = y * BLOCK_GRANULARITY;
         if (xOffset != 0) {
@@ -61,7 +59,7 @@ public class Location implements Serializable {
         this.y = location.y;
     }
 
-    public Location(long x, long y) {
+    public Location(int x, int y) {
         this(x, y, 0, 0);
     }
     
@@ -84,30 +82,27 @@ public class Location implements Serializable {
     
     @Override
     public int hashCode() {
-        if (hashCodeValue == 0) {
-            int result = 0;
-            result = HashCodeUtil.hash(result, x);
-            result = HashCodeUtil.hash(result, y);
-            hashCodeValue = result;
-        }
+        int result = 0;
+        result = HashCodeUtil.hash(result, x);
+        result = HashCodeUtil.hash(result, y);
         
-        return hashCodeValue;
+        return result;
     }
     
     /**
      * Returns the x coordinate of a specific block
      * @return the x coordinate of a specific block
      */
-    public long getX() {
-        return x >= 0 ? x / BLOCK_GRANULARITY : x / BLOCK_GRANULARITY - 1;
+    public int getX() {
+        return (int) (x >= 0 ? x / BLOCK_GRANULARITY : x / BLOCK_GRANULARITY - 1);
     }
     
     /**
      * Returns the y coordinate of a specific block
      * @return the y coordinate of a specific block
      */
-    public long getY() {
-        return y / BLOCK_GRANULARITY;
+    public int getY() {
+        return (int) (y / BLOCK_GRANULARITY);
     }
     
     /**
@@ -279,12 +274,8 @@ public class Location implements Serializable {
      * @param other The other location to compare this location to.
      * @return deltaX
      */
-    public long getBlockDeltaX(Location other) {
-        long result;
-        
-        result = this.getX() - other.getX();
-        
-        return result;
+    public int getBlockDeltaX(Location other) {
+        return this.getX() - other.getX();
     }
     
     /**
@@ -317,12 +308,8 @@ public class Location implements Serializable {
      * @param other The other location to compare this location to.
      * @return deltaY
      */
-    public long getBlockDeltaY(Location other) {
-        long result;
-        
-        result = this.getY() - other.getY();
-        
-        return result;
+    public int getBlockDeltaY(Location other) {
+        return this.getY() - other.getY();
     }
     
     /**

@@ -400,9 +400,18 @@ public abstract class AnimationState implements Serializable {
     /**
      * Returns true if whatever is performing this animation is currently
      * invincible.  An example of this would be the start of a roll.
-     * @return true if invincible; else false
+     * @return true if invincible; else false.
      */
     public boolean isInvincible() {
+        return false;
+    }
+    
+    /**
+     * Returns true if whatever is performing this animation is currently
+     * shielding.  An example of this would be the shielding animation state.
+     * @return true if shielding; else false.
+     */
+    public boolean isShielding() {
         return false;
     }
     

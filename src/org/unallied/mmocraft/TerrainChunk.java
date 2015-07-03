@@ -183,8 +183,8 @@ public class TerrainChunk {
         final int chunkHeight = WorldConstants.WORLD_CHUNK_HEIGHT;
         float [][]superLightMatrix = new float[chunkWidth + depth * 2 - 2][chunkHeight + depth * 2 - 2];
         TerrainSession ts = Game.getInstance().getClient().getTerrainSession();
-        final long baseX = getX() * WorldConstants.WORLD_CHUNK_WIDTH;
-        final long baseY = getY() * WorldConstants.WORLD_CHUNK_HEIGHT;
+        final int baseX = getX() * WorldConstants.WORLD_CHUNK_WIDTH;
+        final int baseY = getY() * WorldConstants.WORLD_CHUNK_HEIGHT;
         
         for (int x=0; x < superLightMatrix.length; ++x) {
             for (int y=0; y < superLightMatrix[x].length; ++y) {
@@ -433,8 +433,8 @@ public class TerrainChunk {
      * Coordinates start at the top left from (0,0).
      * @return x
      */
-    public long getX() {
-        return chunkId & 0x00000000FFFFFFFFL;
+    public int getX() {
+        return (int) (chunkId & 0x00000000FFFFFFFFL);
     }
     
     /**
@@ -442,8 +442,8 @@ public class TerrainChunk {
      * Coordinates start from the top-left at (0,0).
      * @return y
      */
-    public long getY() {
-        return (chunkId >> 32) & 0x00000000FFFFFFFFL;
+    public int getY() {
+        return (int) ((chunkId >> 32) & 0x00000000FFFFFFFFL);
     }
 
     /**

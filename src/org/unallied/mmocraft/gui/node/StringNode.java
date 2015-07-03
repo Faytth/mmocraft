@@ -49,8 +49,8 @@ public class StringNode extends Node {
         splitString(str);
         
         // This is a silly check to make sure the max width will still work even for super small max widths.
-        if (maxWidth < this.font.getWidth("M")) {
-            maxWidth = this.font.getWidth("M") + 1; // +1 for safe measure.
+        if (this.maxWidth < this.font.getWidth("M")) {
+            this.maxWidth = this.font.getWidth("M") + 1; // +1 for safe measure.
         }
     }
     

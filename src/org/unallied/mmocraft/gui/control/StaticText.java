@@ -147,8 +147,8 @@ public class StaticText extends GUIElement {
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) {
-        int absX = getAbsoluteWidth();
-        int absY = getAbsoluteHeight();
+        int absX = getAbsoluteX();
+        int absY = getAbsoluteY();
         
         Color oldColor = g.getColor();
         if (color != null) {
@@ -157,14 +157,16 @@ public class StaticText extends GUIElement {
         if (font != null) {
             g.setFont(font);
         }
-        int curHeight = 0;
-        final int lineHeight = font.getLineHeight();
-        for (int i=0; (i+1) * lineHeight <= maxHeight && i < lines.size(); ++i) {
-            font.drawString(absX, absY + curHeight, lines.get(i), color);
-            curHeight += lineHeight;
+        if (font != null) {
+            int curHeight = 0;
+            final int lineHeight = font.getLineHeight();
+            for (int i=0; (i+1) * lineHeight <= maxHeight && i < lines.size(); ++i) {
+                font.drawString(absX, absY + curHeight, lines.get(i), color);
+                curHeight += lineHeight;
+            }
+            g.setColor(oldColor);
+            g.flush();
         }
-        g.setColor(oldColor);
-        g.flush();
     }
 
     @Override

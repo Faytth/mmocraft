@@ -28,7 +28,7 @@ public class BoundLocation extends Location implements Serializable {
      * @param xOffset X offset from the block at (x,y)
      * @param yOffset Y offset from the block at (x,y)
      */
-    public BoundLocation(long x, long y, float xOffset, float yOffset) {
+    public BoundLocation(int x, int y, float xOffset, float yOffset) {
         super(x, y, xOffset, yOffset);
         
         fixBorders();
@@ -49,7 +49,7 @@ public class BoundLocation extends Location implements Serializable {
      * @param x The x coordinate of a specific block
      * @param y The y coordinate of a specific block
      */
-    public BoundLocation(long x, long y) {
+    public BoundLocation(int x, int y) {
         this(x, y, 0, 0);
     }
         
@@ -127,10 +127,10 @@ public class BoundLocation extends Location implements Serializable {
      * @param other The other location to compare this location to.
      * @return deltaX
      */
-    public long getBlockDeltaX(Location other) {
-        long result;
+    public int getBlockDeltaX(Location other) {
+        int result;
         
-        long delta = this.getX() - other.getX();
+        int delta = this.getX() - other.getX();
         if (delta < WorldConstants.WORLD_WIDTH / 2 && delta > -WorldConstants.WORLD_WIDTH / 2) {
             result = delta;
         } else { // We need to wrap
@@ -321,6 +321,19 @@ public class BoundLocation extends Location implements Serializable {
     public double getDistance(BoundLocation other) {
         double deltaX = getDeltaX(other);
         double deltaY = getDeltaY(other);
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+    
+    /**
+     * Retrieves the distance (in blocks) between two locations.  The distance
+     * calculation used is:  (sqrt((x1-x2)^2 + (y1-y2)^2)), where x1,y1 is <code>this</code>
+     * and x2,y2 is <code>other</code>.
+     * @param other The location to get the distance to.
+     * @return the distance in blocks between the locations.
+     */
+    public double getBlockDistance(BoundLocation other) {
+        double deltaX = getBlockDeltaX(other);
+        double deltaY = getBlockDeltaY(other);
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 }

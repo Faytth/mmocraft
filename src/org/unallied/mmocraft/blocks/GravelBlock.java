@@ -13,8 +13,6 @@ import org.unallied.mmocraft.items.ItemManager;
  *
  */
 public class GravelBlock extends Block {
-    private static final Image image = ImageHandler.getInstance().getImage(
-            ImageID.BLOCK_GRAVEL.toString());
     private static final BlockType type = BlockType.GRAVEL;
 
     public GravelBlock() {
@@ -22,8 +20,8 @@ public class GravelBlock extends Block {
     }
 
     @Override
-    protected Image getImage() {
-        return image;
+    public Image getImage() {
+        return ImageHandler.getInstance().getImage(ImageID.BLOCK_GRAVEL.toString());
     }
 
     @Override

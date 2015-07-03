@@ -243,10 +243,10 @@ public abstract class Living extends GameObject {
      */
     public void unstuck() {
         while (isStuck()) {
-            location.setXOffset(0);
-            location.setYOffset(0);
-            location.decrementX();
-            location.decrementY();
+            setXOffset(0);
+            setYOffset(0);
+            decrementX();
+            decrementY();
         }
     }
     
@@ -399,8 +399,86 @@ public abstract class Living extends GameObject {
         }
                 
         // Our distance is now the farthest we can travel
-        this.location.moveRawRight(distance.getX());
-        this.location.moveRawDown(distance.getY());
+        moveRawRight(distance.getX());
+        moveRawDown(distance.getY());
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#moveRawRight(long)}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     * @param x
+     */
+    public void moveRawRight(long x) {
+        this.location.moveRawRight(x);
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#moveRawDown(long)}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     * @param y
+     */
+    public void moveRawDown(long y) {
+        this.location.moveRawDown(y);
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#setRawX(long)}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     * @param x
+     */
+    public void setRawX(long x) {
+        this.location.setRawX(x);
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#setRawY(long)}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     * @param y
+     */
+    public void setRawY(long y) {
+        this.location.setRawY(y);
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#setXOffset(float)}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     * @param x
+     */
+    public void setXOffset(float x) {
+        location.setXOffset(x);
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#setYOffset(float)}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     * @param y
+     */
+    public void setYOffset(float y) {
+        location.setYOffset(y);
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#decrementX()}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     */
+    public void decrementX() {
+        location.decrementX();
+    }
+    
+    /**
+     * A wrapper for {@link BoundLocation#decrementY()}.  Use this instead
+     * of accessing location directly.  Otherwise you could break the server's
+     * ability to know where players and monsters are.
+     */
+    public void decrementY() {
+        location.decrementY();
     }
     
     /**

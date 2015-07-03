@@ -13,12 +13,13 @@ import org.unallied.mmocraft.states.*;
 public class Game extends StateBasedGame {
     public static final int SCREEN_WIDTH = 800;
     public static final int SCREEN_HEIGHT = 600;
-    public static final int MAX_FPS = 60;
+    public static final int MAX_FPS = 60000;
     
     /** The time that the game was started up. */
     public static final long startTime = System.currentTimeMillis();
     
-    /// We are not able to use the superior Singleton pattern for this due to applet complications
+    /** We are not able to use the superior Singleton pattern for this due to applet complications. */
+    protected static Object instanceMutex = new Object();
     protected static Game instance = null;
     
     /** The client associated with this game */
@@ -33,7 +34,9 @@ public class Game extends StateBasedGame {
      */
     public Game() {
         super("MeleeCraft");
-        instance = this;
+        synchronized (instanceMutex) {
+            instance = this;
+        }
 
         this.addState(new LoginState());
         this.addState(new IngameState());
@@ -86,7 +89,7 @@ public class Game extends StateBasedGame {
             
     public static Game getInstance() {
         if (instance == null) {
-            instance = new Game();
+            new Game();
         }
         return instance;
     }

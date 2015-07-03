@@ -52,8 +52,8 @@ public class ListCtrl extends Control {
     }
     
     public void render(GameContainer container, StateBasedGame game, Graphics g) {
-        int offX = getAbsoluteWidth();
-        int offY = getAbsoluteHeight();
+        int offX = getAbsoluteX();
+        int offY = getAbsoluteY();
                 
         // Now render the nodes
         int heightNodeOffset = 0;

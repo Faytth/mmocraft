@@ -13,8 +13,6 @@ import org.unallied.mmocraft.items.ItemManager;
  *
  */
 public class SandBlock extends Block {
-    private static final Image image = ImageHandler.getInstance().getImage(
-            ImageID.BLOCK_SAND.toString());
     private static final BlockType type = BlockType.SAND;
 
     public SandBlock() {
@@ -22,8 +20,8 @@ public class SandBlock extends Block {
     }
 
     @Override
-    protected Image getImage() {
-        return image;
+    public Image getImage() {
+        return ImageHandler.getInstance().getImage(ImageID.BLOCK_SAND.toString());
     }
 
     @Override

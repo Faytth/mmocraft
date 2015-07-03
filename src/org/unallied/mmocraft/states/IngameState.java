@@ -6,9 +6,15 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+import org.unallied.mmocraft.BlockType;
+import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Controls;
+import org.unallied.mmocraft.Player;
+import org.unallied.mmocraft.blocks.Block;
+import org.unallied.mmocraft.blocks.ItemID;
 import org.unallied.mmocraft.chat.ChatCommand;
 import org.unallied.mmocraft.chat.ChatMessage;
+import org.unallied.mmocraft.client.Camera;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.MMOClient;
@@ -23,6 +29,7 @@ import org.unallied.mmocraft.gui.frame.ChatFrame;
 import org.unallied.mmocraft.gui.frame.InventoryFrame;
 import org.unallied.mmocraft.gui.frame.LootFrame;
 import org.unallied.mmocraft.gui.frame.MiniMapFrame;
+import org.unallied.mmocraft.gui.frame.MiningFrame;
 import org.unallied.mmocraft.gui.frame.ReviveFrame;
 import org.unallied.mmocraft.gui.frame.StatusFrame;
 import org.unallied.mmocraft.gui.frame.ToolbarFrame;
@@ -39,7 +46,7 @@ public class IngameState extends AbstractState {
      */
     private ChatFrame chatFrame = null;
     
-    /** Shows received items with fadein/out */
+    /** Shows received items with fade in/out */
     private LootFrame itemsReceivedFrame = null;
     
     /** The inventory frame that contains all of a player's items. */
@@ -71,10 +78,163 @@ public class IngameState extends AbstractState {
      */
     private ReviveFrame reviveFrame = null;
     
+    /**
+     * The mining frame which shows which block the player is currently placing.
+     * It also offers a toggle between mining mode and normal mode.
+     */
+    private MiningFrame miningFrame = null;
+    
+    /** True if we're in "mining mode," else false. */
+    private boolean inMiningMode = true;
+    
+    /** True if we're placing blocks, false if we're destroying them. */
+    private boolean placingBlocks = false;
+    
+    /** True if the mouse is currently down. */
+    private boolean mouseDown = false;
+    
     public IngameState() {
         super(null, null, null, 0, 0, Game.getInstance().getWidth(), Game.getInstance().getHeight());
     }
 
+    @Override
+    public void mouseMoved(int oldx, int oldy, int newx, int newy) {
+        for (GUIElement element : orderedFrames.getFramesList()) {
+            if (element.mouseMoved(oldx, oldy, newx, newy)) {
+                return;
+            }
+        }
+        
+        try {
+            Game.getInstance().getClient().getPlayer().setMiningLocation(
+                    inMiningMode ? getBlockLocation(newx, newy) : null);
+        } catch (NullPointerException e) {
+            // Do nothing
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    /**
+     * Sets the status of mining.  This tells the server whether we are
+     * currently mining a block or not.
+     * @param isMining True if we're mining, else false.
+     * @param location The block location that the player's mouse is at.
+     */
+    public void setMining(boolean isMining, BoundLocation location) {
+        Player player = Game.getInstance().getClient().getPlayer();
+        if (isMining) {
+            player.startMining(location);
+        }
+    }
+    
+    /**
+     * Converts from screen coordinates to block coordinates.
+     * @param x The screen x position.
+     * @param y The screen y position.
+     * @return blockLocation
+     */
+    public BoundLocation getBlockLocation(int x, int y) {
+        BoundLocation result = null;
+        
+        try {
+            Camera camera = Game.getInstance().getClient().getCamera();
+            result = new BoundLocation(camera.getLocation());
+            result.moveRight(x);
+            result.moveDown(y);
+        } catch (NullPointerException e) {
+            // Don't care...
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return result;
+    }
+
+    private void blockDragged(int newx, int newy) {
+        try {
+            BoundLocation miningLocation = getBlockLocation(newx, newy);
+            Player player = Game.getInstance().getClient().getPlayer();
+            BoundLocation playerLocation = player.getLocation();
+            
+            // If a different location
+            if (playerLocation.getBlockDeltaX(miningLocation) != 0 ||
+                    playerLocation.getBlockDeltaY(miningLocation) != 0) {
+                placeBlock(miningLocation);
+            }
+            player.setMiningLocation(miningLocation);
+        } catch (NullPointerException e) {
+            // Don't care
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+    
+    @Override
+    public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+        for (GUIElement element : orderedFrames.getFramesList()) {
+            if (element.mouseDragged(oldx, oldy, newx, newy)) {
+                return;
+            }
+        }
+        blockDragged(newx, newy);
+    }
+    
+    private boolean placeBlock(BoundLocation miningLocation) {
+        boolean result = false;
+        
+        Block block = Game.getInstance().getClient().getTerrainSession().getBlock(miningLocation);
+        result = block.getType() == BlockType.AIR;
+        
+        if (result) {
+            // Tell the server
+            try {
+                Game.getInstance().getClient().announce(PacketCreator
+                        .getPlaceBlock(ItemID.DIRT_BLOCK, miningLocation));
+            } catch (NullPointerException e) {
+                // Don't care
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }
+        
+        return result;
+    }
+    
+    @Override
+    public void mousePressed(int button, int x, int y) {
+        for (GUIElement element : orderedFrames.getFramesList()) {
+            if (element.mousePressed(button, x, y)) {
+                return;
+            }
+        }
+        mouseDown = true;
+        if (inMiningMode) { // Start mining
+            try {
+                BoundLocation miningLocation = getBlockLocation(x, y);
+                placingBlocks = placeBlock(miningLocation);
+                Game.getInstance().getClient().getPlayer().setMiningLocation(miningLocation);
+                if (!placingBlocks) { // Place blocks
+                    setMining(true, getBlockLocation(x, y));
+                }
+            } catch (NullPointerException e) {
+                // Don't care
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void mouseReleased(int button, int x, int y) {
+        mouseDown = false;
+        for (GUIElement element : orderedFrames.getFramesList()) {
+            if (element.mouseReleased(button, x, y)) {
+                return;
+            }
+        }
+        setMining(false, getBlockLocation(x, y));
+    }
+    
     @Override
     public void keyPressed(int key, char c) {
         GameContainer container = Game.getInstance().getContainer();
@@ -229,7 +389,11 @@ public class IngameState extends AbstractState {
         reviveFrame.setY(Game.getInstance().getHeight() / 2 - reviveFrame.getHeight() / 2);
         
         itemsReceivedFrame = new LootFrame(orderedFrames, null, container, 
-        		Game.getInstance().getWidth() - 300 - 10, toolbarFrame.getAbsoluteHeight() - 100 - 10, 300, 100);
+        		Game.getInstance().getWidth() - 300 - 10, toolbarFrame.getAbsoluteY() - 100 - 10, 300, 100);
+        
+        miningFrame = new MiningFrame(orderedFrames, null, container, 0, 0, -1, -1);
+        miningFrame.setX(toolbarFrame.getX() - miningFrame.getWidth() - 5);
+        miningFrame.setY(toolbarFrame.getY());
         
         // Controls.  Add these in the order you would like to see them appear.
         orderedFrames.addFrame(reviveFrame);
@@ -241,6 +405,7 @@ public class IngameState extends AbstractState {
         orderedFrames.addFrame(miniMapFrame);
         orderedFrames.addFrame(statusFrame);
         orderedFrames.addFrame(toolbarFrame);
+        orderedFrames.addFrame(miningFrame);
         orderedFrames.addFrame(itemsReceivedFrame);        
 
         // Start off with the game focused
@@ -288,7 +453,7 @@ public class IngameState extends AbstractState {
                 break;
             case PVP:
                 author = "PvP";
-                boolean pvpEnabled = !PvPToggleResponseHandler.getPvPToggled();
+                boolean pvpEnabled = !PvPToggleResponseHandler.isPvPToggled();
                 chatFrame.addMessage(new ChatMessage(author, type, 
                         String.format(StringConstants.PVP_TOGGLE, pvpEnabled ? StringConstants.ENABLED : StringConstants.DISABLED)));
                 Game.getInstance().getClient().announce(PacketCreator.getPvPToggle(pvpEnabled));
@@ -366,6 +531,19 @@ public class IngameState extends AbstractState {
             try {
                 reviveFrame.show(!Game.getInstance().getClient().getPlayer().isAlive());
             } catch (NullPointerException e) { // Don't care
+            }
+            
+            // Update our mining position
+            Input input = container.getInput();
+            if (mouseDown) {
+                blockDragged(input.getMouseX(), input.getMouseY());
+            } else {
+                try {
+                    Game.getInstance().getClient().getPlayer().setMiningLocation(
+                            getBlockLocation(input.getMouseX(), input.getMouseY()));
+                } catch (NullPointerException e) {
+                    // Don't care
+                }
             }
             
             // Iterate over all GUI controls and inform them of input

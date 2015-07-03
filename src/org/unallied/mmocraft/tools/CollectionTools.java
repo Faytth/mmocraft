@@ -21,7 +21,9 @@ public class CollectionTools {
                 }
             }
         );
-        sortedEntries.addAll(map.entrySet());
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            sortedEntries.add(entry);
+        }
         return sortedEntries;
     }
 }

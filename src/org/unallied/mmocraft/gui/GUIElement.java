@@ -118,12 +118,12 @@ public abstract class GUIElement {
      * this element.
      * @return x displacement
      */
-    public int getAbsoluteWidth() {
+    public int getAbsoluteX() {
         int result = (int)x;
         
         // While we have a parent, add the parent's offset
         if( parent != null ) {
-            result += parent.getAbsoluteWidth();
+            result += parent.getAbsoluteX();
         }
         
         return result;
@@ -134,12 +134,12 @@ public abstract class GUIElement {
      * this element.
      * @return y displacement
      */
-    public int getAbsoluteHeight() {
+    public int getAbsoluteY() {
         int result = (int)y;
         
         // While we have a parent, add the parent's offset
         if( parent != null ) {
-            result += parent.getAbsoluteHeight();
+            result += parent.getAbsoluteY();
         }
         
         return result;      
@@ -160,8 +160,8 @@ public abstract class GUIElement {
         
     	if (!hidden) {
 	        if (width > 0 && height > 0) {
-	            int offX = getAbsoluteWidth();
-	            int offY = getAbsoluteHeight();
+	            int offX = getAbsoluteX();
+	            int offY = getAbsoluteY();
                 g.translate(offX, offY);
                 renderImage(g);
                 g.flush();
@@ -227,8 +227,8 @@ public abstract class GUIElement {
      * @return True if the point is in the element; else false.
      */
     public boolean containsPoint(int x, int y) {
-        float realX = getAbsoluteWidth();
-        float realY = getAbsoluteHeight();
+        float realX = getAbsoluteX();
+        float realY = getAbsoluteY();
 
         return (x >= realX && x < realX + getWidth() && y >= realY && y < realY + getHeight());
     }
@@ -256,74 +256,90 @@ public abstract class GUIElement {
     public abstract boolean isAcceptingFocus();
     
     public boolean mouseClicked(int button, int x, int y, int clickCount) {
-    	for (GUIElement element : elements) {
-			if (element.mouseClicked(button, x, y, clickCount)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.mouseClicked(button, x, y, clickCount)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean mouseDragged(int oldx, int oldy, int newx, int newy) {
-    	for (GUIElement element : elements) {
-			if (element.mouseDragged(oldx, oldy, newx, newy)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.mouseDragged(oldx, oldy, newx, newy)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean mouseMoved(int oldx, int oldy, int newx, int newy) {
-    	for (GUIElement element : elements) {
-			if (element.mouseMoved(oldx, oldy, newx, newy)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.mouseMoved(oldx, oldy, newx, newy)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean mousePressed(int button, int x, int y) {
-    	for (GUIElement element : elements) {
-			if (element.mousePressed(button, x, y)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.mousePressed(button, x, y)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean mouseReleased(int button, int x, int y) {
-    	for (GUIElement element : elements) {
-			if (element.mouseReleased(button, x, y)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.mouseReleased(button, x, y)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
     
     public boolean mouseWheelMoved(int change) {
-    	for (GUIElement element : elements) {
-			if (element.mouseWheelMoved(change)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.mouseWheelMoved(change)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean inputEnded() {
-    	for (GUIElement element : elements) {
-			if (element.inputEnded()) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.inputEnded()) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
     
     public boolean inputStarted() {
-    	for (GUIElement element : elements) {
-			if (element.inputStarted()) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.inputStarted()) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
@@ -332,110 +348,134 @@ public abstract class GUIElement {
     }
 
     public boolean keyPressed(int key, char c) {
-    	for (GUIElement element : elements) {
-			if (element.keyPressed(key, c)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.keyPressed(key, c)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
     
     public boolean keyReleased(int key, char c) {
-    	for (GUIElement element : elements) {
-			if (element.keyReleased(key, c)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.keyReleased(key, c)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerButtonPressed(int controller, int button) {
-    	for (GUIElement element : elements) {
-			if (element.controllerButtonPressed(controller, button)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerButtonPressed(controller, button)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerButtonReleased(int controller, int button) {
-    	for (GUIElement element : elements) {
-			if (element.controllerButtonReleased(controller, button)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerButtonReleased(controller, button)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerDownPressed(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerDownPressed(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerDownPressed(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerDownReleased(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerDownReleased(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerDownReleased(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerLeftPressed(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerLeftPressed(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerLeftPressed(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerLeftReleased(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerLeftReleased(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerLeftReleased(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerRightPressed(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerRightPressed(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerRightPressed(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerRightReleased(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerRightReleased(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerRightReleased(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerUpPressed(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerUpPressed(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerUpPressed(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
 
     public boolean controllerUpReleased(int controller) {
-    	for (GUIElement element : elements) {
-			if (element.controllerUpReleased(controller)) {
-				return true;
-			}
-		}
+        if (!hidden) {
+        	for (GUIElement element : elements) {
+    			if (element.controllerUpReleased(controller)) {
+    				return true;
+    			}
+    		}
+        }
     	return false;
     }
     

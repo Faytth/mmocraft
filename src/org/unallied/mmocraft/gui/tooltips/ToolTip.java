@@ -74,7 +74,7 @@ public class ToolTip {
      * @param nodeCollection The collection of nodes to add to a single line.
      */
     public void addNodes(Collection<Node> nodeCollection) {
-        addNodes((Node[])nodeCollection.toArray());
+        addNodes(nodeCollection.toArray(new Node[nodeCollection.size()]));
     }
     
     /**

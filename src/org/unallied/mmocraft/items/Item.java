@@ -70,10 +70,12 @@ public class Item {
             return;
         }
         
-        if (this.quantity + quantity > 0) {
-            this.quantity += quantity;
-        } else { // prevent overflow
-            this.quantity = ClientConstants.MAX_ITEM_STACK;
+        synchronized (this) {
+            if (this.quantity + quantity > 0) {
+                this.quantity += quantity;
+            } else { // prevent overflow
+                this.quantity = ClientConstants.MAX_ITEM_STACK;
+            }
         }
     }
     
@@ -86,19 +88,28 @@ public class Item {
      * quantity.  Removing a quantity that would normally go below 0 will set the quantity to 0.
      * 
      * Negative values are ignored.
+     * 
      * @param quantity The number of items to add
+     * @return The number of items actually removed.
      */
-    public void removeQuantity(long quantity) {
+    public long removeQuantity(long quantity) {
         // Guard
         if (quantity <= 0) {
-            return;
+            return 0;
+        }
+        long result = 0;
+        
+        synchronized (this) {
+            if (this.quantity - quantity >= 0) {
+                this.quantity -= quantity;
+                result = quantity;
+            } else { // prevent negatives
+                result = this.quantity;
+                this.quantity = 0;
+            }
         }
         
-        if (this.quantity - quantity >= 0) {
-            this.quantity -= quantity;
-        } else { // prevent negatives
-            this.quantity = 0;
-        }
+        return result;
     }
 
     /**
@@ -211,6 +222,8 @@ public class Item {
         quantity = quantity < 0 ? 0 : quantity;
         quantity = quantity > ClientConstants.MAX_ITEM_STACK ? 
                 ClientConstants.MAX_ITEM_STACK : quantity;
-        this.quantity = quantity;
+        synchronized (this) {
+            this.quantity = quantity;
+        }
     }
 }

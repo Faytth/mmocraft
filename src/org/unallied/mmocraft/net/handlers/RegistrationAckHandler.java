@@ -16,6 +16,7 @@ import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
  */
 public class RegistrationAckHandler extends AbstractPacketHandler {
 
+    private static Object lastErrorMutex = new Object();
     private static int lastError = 0;
     
     @Override
@@ -25,8 +26,13 @@ public class RegistrationAckHandler extends AbstractPacketHandler {
              *  We don't need a mutex because this is the only place that writes to
              *  lastError, and an inconsistent read doesn't matter much.
              */
-            lastError = slea.readByte();
-            if (lastError == 0) {
+            boolean succeeded = false;
+            synchronized (lastErrorMutex) {
+                succeeded = false;
+                lastError = slea.readByte();
+                succeeded = lastError == 0;
+            }
+            if (succeeded) {
                 // Return the player to the login screen.
                 Game.getInstance().enterState(GameState.LOGIN);
             } else {
@@ -47,7 +53,9 @@ public class RegistrationAckHandler extends AbstractPacketHandler {
      * @return lastError
      */
     public static int getLastError() {
-        return lastError;
+        synchronized (lastErrorMutex) {
+            return lastError;
+        }
     }
 
 }

@@ -20,9 +20,10 @@ public class PvPToggleResponseHandler extends AbstractPacketHandler {
      * @param slea
      * @param client
      */
-    public synchronized void handlePacket(SeekableLittleEndianAccessor slea, MMOClient client) {
-        int playerId = slea.readInt();
-        long serverTime = slea.readLong();
+    public synchronized void handlePacket(final SeekableLittleEndianAccessor slea, 
+            final MMOClient client) {
+        final int playerId = slea.readInt();
+        final long serverTime = slea.readLong();
         if (playerId == client.getPlayer().getId()) { // This is us!
             pvpExpireTime = Heartbeat.getInstance().getLocalTimestamp(serverTime);
         } else { // This is someone else
@@ -37,10 +38,10 @@ public class PvPToggleResponseHandler extends AbstractPacketHandler {
      * Retrieves whether the player has PvP enabled or disabled.  Note that this
      * indicates whether the player has turned their PvP on or off, and not whether
      * the PvP flag is on.  To get whether or not the player is flagged for PvP,
-     * use {@link #getPvPEnabled()}.
+     * use {@link #isPvPEnabled()}.
      * @return pvpToggled
      */
-    public static boolean getPvPToggled() {
+    public static boolean isPvPToggled() {
         return pvpExpireTime == -1;
     }
     
@@ -53,7 +54,7 @@ public class PvPToggleResponseHandler extends AbstractPacketHandler {
      * It does not indicate whether the PvP flag is on or off.
      * @return true if the user has PvP enabled, else false.
      */
-    public static boolean getPvPEnabled() {
+    public static boolean isPvPEnabled() {
         return getPvPFlagDuration() > 0 || getPvPFlagDuration() == -1;
     }
     

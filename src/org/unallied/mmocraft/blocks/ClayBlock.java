@@ -13,8 +13,6 @@ import org.unallied.mmocraft.items.ItemManager;
  *
  */
 public class ClayBlock extends Block {
-    private static final Image image = ImageHandler.getInstance().getImage(
-            ImageID.BLOCK_CLAY.toString());
     private static final BlockType type = BlockType.CLAY;
 
     public ClayBlock() {
@@ -22,8 +20,8 @@ public class ClayBlock extends Block {
     }
 
     @Override
-    protected Image getImage() {
-        return image;
+    public Image getImage() {
+        return ImageHandler.getInstance().getImage(ImageID.BLOCK_CLAY.toString());
     }
 
     @Override

@@ -10,7 +10,7 @@ import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
  */
 public class Skills {
     /** All of the player's skills. */
-    protected volatile long[] skills = new long[SkillType.values().length];
+    protected long[] skills = new long[SkillType.values().length];
     
     /** You shouldn't increase this past 400 or an overflow can occur.  */
     private static final int MAX_LEVEL = 150;
@@ -51,10 +51,15 @@ public class Skills {
         if (type == null) { // Guard
             return false;
         }
-        exp = exp < 0 ? 0 : exp;
-        int oldLevel = getLevel(type);
-        skills[type.getValue()] = exp;
-        int newLevel = getLevel(type);
+        int oldLevel = 0;
+        int newLevel = 0;
+        
+        synchronized (skills) {
+            exp = exp < 0 ? 0 : exp;
+            oldLevel = getLevel(type);
+            skills[type.getValue()] = exp;
+            newLevel = getLevel(type);
+        }
         
         return newLevel != oldLevel;
     }
@@ -71,13 +76,18 @@ public class Skills {
         if (type == null || exp <= 0) { // Guard
             return false;
         }
-        int oldLevel = getLevel(type);
-        if (skills[type.getValue()] + exp > 0) {
-            skills[type.getValue()] += exp;
-        } else {
-            skills[type.getValue()] = Long.MAX_VALUE;
+        int oldLevel = 0;
+        int newLevel = 0;
+        
+        synchronized (skills) {
+            oldLevel = getLevel(type);
+            if (skills[type.getValue()] + exp > 0) {
+                skills[type.getValue()] += exp;
+            } else {
+                skills[type.getValue()] = Long.MAX_VALUE;
+            }
+            newLevel = getLevel(type);
         }
-        int newLevel = getLevel(type);
         
         return newLevel != oldLevel;
     }

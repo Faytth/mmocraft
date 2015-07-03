@@ -232,4 +232,12 @@ public class MMOClient {
         // Update monsters
         monsterPoolSession.update(container, game, delta);
     }
+    
+    /**
+     * Returns the camera that the client is using to render the screen.
+     * @return camera
+     */
+    public Camera getCamera() {
+        return camera;
+    }
 }

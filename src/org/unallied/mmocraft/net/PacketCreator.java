@@ -1,5 +1,6 @@
 package org.unallied.mmocraft.net;
 
+import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.chat.ChatMessage;
 
@@ -237,6 +238,41 @@ public class PacketCreator {
         PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
         
         writer.write(SendOpcode.REVIVE);
+        
+        return writer.getPacket();
+    }
+    
+    /**
+     * Sends a packet to the server requesting a block placement at the given location.
+     * @param itemId The item ID of the block being placed. 
+     *               (TODO: We should probably change this to BlockType)
+     * @param location The location of the block being placed.
+     * @return packet
+     */
+    public static Packet getPlaceBlock(int itemId, BoundLocation location) {
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.PLACE_BLOCK);
+        writer.writeInt(itemId);
+        writer.writeInt(location.getX());
+        writer.writeInt(location.getY());
+        
+        return writer.getPacket();
+    }
+    
+    /**
+     * Begins or stops the player from mining.
+     * @param location The location that the player is mining at.
+     * @param isMining True if the player should start mining; false if they should stop.
+     * @return packet
+     */
+    public static Packet getSetMining(BoundLocation location, boolean isMining) {
+        PacketLittleEndianWriter writer = new PacketLittleEndianWriter();
+        
+        writer.write(SendOpcode.SET_MINING);
+        writer.writeInt(location.getX());
+        writer.writeInt(location.getY());
+        writer.write((byte) (isMining ? 1 : 0));
         
         return writer.getPacket();
     }

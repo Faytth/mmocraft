@@ -133,14 +133,14 @@ public class SpriteHandler {
     
     private void putMonsters() {
         tryPut( "resources/animations/monster/bunny/idle.png",
-                "resources/animations/monster/bunny/idle.png", 20, 13, 0, 0, 1500, null);
+                "resources/animations/monster/bunny/idle.png", 30, 20, 0, 0, 1500, null);
         tryPut( "resources/animations/monster/bunny/walk.png",
-                "resources/animations/monster/bunny/walk.png", 20, 22, 0, 9, 800, null);
+                "resources/animations/monster/bunny/walk.png", 30, 33, 0, 13, 800, null);
         tryPut( "resources/animations/monster/bunny/attack.png",
-                "resources/animations/monster/bunny/attack.png", 59, 16, 0, 3, 800,
+                "resources/animations/monster/bunny/attack.png", 89, 24, 0, 4, 800,
                 "resources/animations/monster/bunny/attack_arc.png");
         tryPut( "resources/animations/monster/bunny/attack_arc.png",
-                "resources/animations/monster/bunny/attack_arc.png", 59, 16, 0, 3, 800, null);
+                "resources/animations/monster/bunny/attack_arc.png", 89, 24, 0, 4, 800, null);
         
         tryPut( "resources/animations/monster/book_worm/idle.png",
                 "resources/animations/monster/book_worm/idle.png", 56, 21, 0, 0, 800, null);

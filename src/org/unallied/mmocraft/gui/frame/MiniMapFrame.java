@@ -33,8 +33,8 @@ public class MiniMapFrame extends Frame {
         // Update player's location
         try {
             Location location = Game.getInstance().getClient().getPlayer().getLocation();
-            long x = location.getX() / WorldConstants.WORLD_CHUNK_WIDTH;
-            long y = location.getY() / WorldConstants.WORLD_CHUNK_HEIGHT;
+            int x = location.getX() / WorldConstants.WORLD_CHUNK_WIDTH;
+            int y = location.getY() / WorldConstants.WORLD_CHUNK_HEIGHT;
             
             coordValueStaticText.setLabel("(" + x + ", " + y + ")");
         } catch (NullPointerException e) {

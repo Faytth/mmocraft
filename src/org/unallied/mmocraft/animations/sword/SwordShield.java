@@ -1,25 +1,43 @@
 package org.unallied.mmocraft.animations.sword;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.newdawn.slick.Animation;
 import org.unallied.mmocraft.Direction;
 import org.unallied.mmocraft.Living;
 import org.unallied.mmocraft.animations.AnimationID;
 import org.unallied.mmocraft.animations.AnimationState;
+import org.unallied.mmocraft.animations.AnimationType;
 import org.unallied.mmocraft.animations.Roll;
+import org.unallied.mmocraft.animations.generics.GenericShield;
 import org.unallied.mmocraft.client.SpriteHandler;
 import org.unallied.mmocraft.client.SpriteID;
 import org.unallied.mmocraft.client.SpriteSheetNode;
 import org.unallied.mmocraft.constants.ClientConstants;
 
-public class SwordShield extends AnimationState {
+public class SwordShield extends GenericShield {
     
     /**
      * 
      */
     private static final long serialVersionUID = 7802962161525790877L;
 
+    // TODO:  Update this to our new method (using the resource editor) once it's done.
+    private static final Map<AnimationType, String> animations = new HashMap<AnimationType, String>();
+    static {
+        animations.put(AnimationType.IDLE, SpriteID.SWORD_IDLE.toString());
+        animations.put(AnimationType.ATTACK, SpriteID.SWORD_HORIZONTAL_ATTACK.toString());
+        animations.put(AnimationType.DEAD, SpriteID.SWORD_HELPLESS.toString());
+        animations.put(AnimationType.FALL, SpriteID.SWORD_FALL.toString());
+        animations.put(AnimationType.JUMP, SpriteID.SWORD_JUMP.toString());
+        animations.put(AnimationType.RUN, SpriteID.SWORD_RUN.toString());
+        animations.put(AnimationType.SHIELD, SpriteID.SWORD_SHIELD.toString());
+        animations.put(AnimationType.WALK, SpriteID.SWORD_WALK.toString());
+    }
+    
     public SwordShield(Living player, AnimationState last) {
-        super(player, last);
+        super(player, last, animations);
         animation = new Animation();
         animation.setAutoUpdate(false);
         animation.setLooping(isLooping());
@@ -45,9 +63,8 @@ public class SwordShield extends AnimationState {
      */
     @Override
     public void update(long delta) {
-        if (animation != null) {
-            animation.update(delta);
-        }
+        super.update(delta);
+        
         if (animation.isStopped() || !living.isShielding()) {
             living.setState(new SwordIdle(living, this));
         }
@@ -168,5 +185,14 @@ public class SwordShield extends AnimationState {
     public boolean isLooping() {
         return true;
     }
-
+    
+    @Override
+    public boolean isInvincible() {
+        return elapsedTime < 50; // Invincible for the first 50 ms
+    }
+    
+    @Override
+    public boolean isShielding() {
+        return true;
+    }
 }

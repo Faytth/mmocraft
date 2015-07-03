@@ -114,4 +114,8 @@ public abstract class ClientConstants {
     
     /** The location of the client location for animations. */
     public static final String CLIENT_RESOURCE_ANIMATION_LOCATION = "resources/animations/";
+    /** The number of milliseconds to wait before scrolling the background horizontally. */
+    public static final int BACKGROUND_SCROLL_RATE_X = 25;
+    /** The number of milliseconds to wait before scrolling the background vertically. */
+    public static final int BACKGROUND_SCROLL_RATE_Y = 85;
 }

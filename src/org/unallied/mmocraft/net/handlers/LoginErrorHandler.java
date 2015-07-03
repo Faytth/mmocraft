@@ -13,12 +13,15 @@ import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
  */
 public class LoginErrorHandler extends AbstractPacketHandler {
 
+    private static Object lastErrorMutex = new Object();
     private static int lastError = 0;
     
     @Override
     public void handlePacket(SeekableLittleEndianAccessor slea, MMOClient client) {
         try {
-            lastError = slea.readInt();
+            synchronized (lastErrorMutex) {
+                lastError = slea.readInt();
+            }
         } catch (Throwable t) {
             t.printStackTrace();
             client.disconnect(); // Our login was corrupted, so we should log out and try again.
@@ -30,6 +33,8 @@ public class LoginErrorHandler extends AbstractPacketHandler {
      * @return lastError
      */
     public static int getLastError() {
-        return lastError;
+        synchronized (lastErrorMutex) {
+            return lastError;
+        }
     }
 }

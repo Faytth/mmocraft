@@ -8,8 +8,6 @@ import org.unallied.mmocraft.items.ItemData;
 import org.unallied.mmocraft.items.ItemManager;
 
 public class IronBlock extends Block {
-    private static final Image image = ImageHandler.getInstance().getImage(
-            ImageID.BLOCK_IRON.toString());
     private static final BlockType type = BlockType.DIRT;
 
     public IronBlock() {
@@ -17,8 +15,8 @@ public class IronBlock extends Block {
     }
 
     @Override
-    protected Image getImage() {
-        return image;
+    public Image getImage() {
+        return ImageHandler.getInstance().getImage(ImageID.BLOCK_IRON.toString());
     }
 
     @Override

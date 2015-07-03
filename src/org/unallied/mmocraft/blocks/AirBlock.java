@@ -13,16 +13,14 @@ import org.unallied.mmocraft.items.ItemData;
  *
  */
 public class AirBlock extends Block {
-    private static final Image image = ImageHandler.getInstance().getImage(
-            ImageID.BLOCK_AIR.toString());
     private static final BlockType type = BlockType.AIR;
 
     public AirBlock() {
     }
 
     @Override
-    protected Image getImage() {
-        return image;
+    public Image getImage() {
+        return ImageHandler.getInstance().getImage(ImageID.BLOCK_AIR.toString());
     }
 
     @Override

@@ -2,6 +2,8 @@ package org.unallied.mmocraft.geom;
 
 import java.beans.Transient;
 
+import org.unallied.mmocraft.utils.HashCodeUtil;
+
 /**
  * Implements a long version of Java's Rectangle.
  * @author Alexandria
@@ -830,6 +832,18 @@ public class LongRectangle {
         return super.equals(obj);
     }
 
+    @Override
+    public int hashCode() {
+        int hashCodeValue = 0;
+        
+        hashCodeValue = HashCodeUtil.hash(hashCodeValue, x);
+        hashCodeValue = HashCodeUtil.hash(hashCodeValue, y);
+        hashCodeValue = HashCodeUtil.hash(hashCodeValue, width);
+        hashCodeValue = HashCodeUtil.hash(hashCodeValue, height);
+        
+        return hashCodeValue;
+    }
+    
     /**
      * Returns a <code>String</code> representing this
      * <code>LongRectangle</code> and its values.

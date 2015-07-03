@@ -35,7 +35,6 @@ public abstract class StringConstants {
             "What doesn't kill you only makes you... not as dead?",
             "Those bunnies are evil, I tell you.  Evil!!!",
             "<Insert funny comment about death here.>",
-            "You should be more lively.",
             "You don't look so good.",
             "Medic!",
             "If I had a nickel for every time someone died...",
@@ -50,4 +49,5 @@ public abstract class StringConstants {
             "DUN DUN DUN!",
             "And you were doing so well...",
             "Back in my day we didn't have revive buttons."};
+    public static final String TOOLTIP_MINING_BUTTON = "Toggles mining mode on and off.  When mining mode is enabled, you will be able to place and mine blocks with the left / right mouse buttons.";
 }

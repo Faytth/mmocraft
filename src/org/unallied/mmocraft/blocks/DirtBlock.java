@@ -14,8 +14,6 @@ import org.unallied.mmocraft.items.ItemManager;
  *
  */
 public class DirtBlock extends Block {
-    private static final Image image = ImageHandler.getInstance().getImage(
-            ImageID.BLOCK_DIRT.toString());
     private static final BlockType type = BlockType.DIRT;
 
     public DirtBlock() {
@@ -23,8 +21,8 @@ public class DirtBlock extends Block {
     }
 
     @Override
-    protected Image getImage() {
-        return image;
+    public Image getImage() {
+        return ImageHandler.getInstance().getImage(ImageID.BLOCK_DIRT.toString());
     }
 
     @Override

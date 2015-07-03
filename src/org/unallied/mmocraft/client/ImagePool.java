@@ -92,9 +92,9 @@ public class ImagePool {
          *  Special case.  We want to create these images beforehand so that loading
          *  new chunks in-game doesn't slow down.
          */
-        int width = WorldConstants.WORLD_CHUNK_WIDTH * WorldConstants.WORLD_BLOCK_WIDTH;
-        int height = WorldConstants.WORLD_CHUNK_HEIGHT * WorldConstants.WORLD_BLOCK_HEIGHT;
-        initImageNodes(width, height);
+        //int width = WorldConstants.WORLD_CHUNK_WIDTH * WorldConstants.WORLD_BLOCK_WIDTH;
+        //int height = WorldConstants.WORLD_CHUNK_HEIGHT * WorldConstants.WORLD_BLOCK_HEIGHT;
+        //initImageNodes(width, height);
         try {
             offscreenBuffer = new Image(1024, 1024);
         } catch (SlickException e) { // Unable to use offscreen buffer
@@ -110,7 +110,7 @@ public class ImagePool {
      * @return (height << 32) | width
      */
     private Integer getImagesKey(int width, int height) {
-        return  (height << 32) | width;
+        return  (height << 16) | (width & 0x0000FFFF);
     }
 
     private static class ImagePoolHandler {

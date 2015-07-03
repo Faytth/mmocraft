@@ -35,7 +35,11 @@ public enum SendOpcode {
     /** Sent when the player changes direction. */
     PLAYER_DIRECTION(0x0C), 
     /** Sent when the player is requesting to revive. */
-    REVIVE(0x0D);
+    REVIVE(0x0D), 
+    /** Sent when the player is trying to place a block. */
+    PLACE_BLOCK(0x0E),
+    /** Sent when the player is trying to mine. */
+    SET_MINING(0x0F);
     private int code = 0;
     
     private SendOpcode(int code) {

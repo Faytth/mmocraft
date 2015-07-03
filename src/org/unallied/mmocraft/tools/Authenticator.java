@@ -3,7 +3,9 @@ package org.unallied.mmocraft.tools;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unallied.mmocraft.BoundLocation;
 import org.unallied.mmocraft.Living;
+import org.unallied.mmocraft.Player;
 import org.unallied.mmocraft.chat.ChatCommand;
 
 /**
@@ -107,5 +109,42 @@ public class Authenticator {
      */
     public static boolean canLivingAttack(Living living) {
         return living.isAlive();
+    }
+
+    /**
+     * Returns true if the player is able to place a block or mine at the given location.
+     * A player can place a block at their location if they're alive and they're
+     * within <code>WorldConstants.BLOCK_PLACEMENT_RADIUS</code> of the block's location.
+     * Unlike most code, the player's location is taken as the CENTER of the player.
+     * This is the player's location + half of the collision width and height.
+     * 
+     * @param player The player to check.
+     * @param blockLocation The location that the player is trying to place a block at.
+     * @return True if the player can place a block at the given location, else false
+     */
+    public static boolean canPlaceBlock(Player player,
+            BoundLocation blockLocation) {
+        BoundLocation playerLocation = new BoundLocation(player.getLocation());
+        playerLocation.moveRight(player.getWidth() / 2);
+        playerLocation.moveDown(player.getHeight() / 2);
+        
+        return player.isAlive() && playerLocation.getBlockDistance(blockLocation) <= player.getBlockPlacementRadius();
+    }
+    
+    /**
+     * Identical to {@link Authenticator#canPlaceBlock(Player, BoundLocation)}.
+     * Returns true if the player is able to place a block or mine at the given location.
+     * A player can place a block at their location if they're alive and they're
+     * within <code>WorldConstants.BLOCK_PLACEMENT_RADIUS</code> of the block's location.
+     * Unlike most code, the player's location is taken as the CENTER of the player.
+     * This is the player's location + half of the collision width and height.
+     * 
+     * @see {@link Authenticator#canPlaceBlock(Player, BoundLocation)}
+     * @param player The player to check.
+     * @param location The location that the player is trying to mine.
+     * @return
+     */
+    public static boolean canMineBlock(Player player, BoundLocation location) {
+        return canPlaceBlock(player, location);
     }
 }

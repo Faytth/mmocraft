@@ -89,7 +89,7 @@ public abstract class AbstractState implements GameState {
             e.printStackTrace();
         }
     }
-        
+    
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount) {
 		for (GUIElement element : orderedFrames.getFramesList()) {

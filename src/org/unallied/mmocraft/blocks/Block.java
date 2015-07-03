@@ -5,6 +5,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.unallied.mmocraft.BlockType;
 import org.unallied.mmocraft.Collidable;
+import org.unallied.mmocraft.constants.WorldConstants;
 import org.unallied.mmocraft.items.ItemData;
 
 /**
@@ -26,7 +27,7 @@ public abstract class Block implements Collidable {
      * Implements the Template Method pattern for image
      * @return color
      */
-    protected abstract Image getImage();
+    public abstract Image getImage();
     
     /**
      * Implements the Template Method pattern for the type of block.  This is
@@ -61,7 +62,16 @@ public abstract class Block implements Collidable {
      * can be up to 50% opaque with up to 50 red, 100 green, and 150 blue.
      */
     public void render(Graphics g, int x, int y, Color filter) {
-        g.drawImage(getImage(), x, y, filter);
+        /*
+         * TODO:  Create a "BlockRender" class that keeps track of which batch each
+         * image is a part of.  Then use binding and drawEmbedded for a MAJOR
+         * performance boost (about 10x faster).
+         */
+        g.drawImage(getImage(), 
+                x, y, 
+                x + WorldConstants.WORLD_BLOCK_WIDTH, y + WorldConstants.WORLD_BLOCK_HEIGHT, 
+                0, 0, 
+                WorldConstants.WORLD_BLOCK_WIDTH, WorldConstants.WORLD_BLOCK_HEIGHT, filter);
     }
     
     /**

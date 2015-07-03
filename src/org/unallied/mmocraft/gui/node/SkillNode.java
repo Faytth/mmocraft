@@ -92,8 +92,8 @@ public class SkillNode extends Node {
     public void render(Graphics g, int offX, int offY, int maxHeight) {        
     	
         // Update the x and y coords
-        x = offX - getAbsoluteWidth();
-    	y = offY - getAbsoluteHeight();
+        x = offX - getAbsoluteX();
+    	y = offY - getAbsoluteY();
     	
         // Render background if needed
         Input input = Game.getInstance().getContainer().getInput();

@@ -47,9 +47,8 @@ public class GenericShield extends GenericAnimationState {
      */
     @Override
     public void update(long delta) {
-        if (animation != null) {
-            animation.update(delta);
-        }
+        super.update(delta);
+
         if ((animation.isStopped() || !living.isShielding()) && 
                 animations.containsKey(AnimationType.IDLE)) {
             living.setState(new GenericIdle(living, this, animations));

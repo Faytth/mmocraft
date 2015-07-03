@@ -68,6 +68,12 @@ public class Player extends Living implements Serializable {
     /** The player's skills. */
     protected transient Skills skills = new Skills();
 
+    /** True if the player is currently mining. */
+    protected transient boolean isMining = false;
+    
+    /** The location that the player is currently mining at. */
+    protected BoundLocation miningLocation;
+    
     /** 
      * The time at which the player's PvP will expire. A value of -1 indicates 
      * indefinite.  This only counts for other players.
@@ -188,6 +194,34 @@ public class Player extends Living implements Serializable {
         showDamaged = false;
         
         try {
+            //Show block placement square
+            if (miningLocation != null && Authenticator.canPlaceBlock(this, miningLocation)) {
+                BoundLocation blockLocation = new BoundLocation(
+                        miningLocation.getX(), miningLocation.getY(), 0, 0);
+                float blockX = (blockLocation.getX() - camera.getX());
+                blockX = blockX > 0.0f ? blockX : WorldConstants.WORLD_WIDTH + blockX;
+                blockX *= WorldConstants.WORLD_BLOCK_WIDTH;
+                blockX += blockLocation.getXOffset() - camera.getXOffset();
+                blockX = blockX > 0.0f ? blockX : WorldConstants.WORLD_BLOCK_WIDTH + x;
+                float blockY = (blockLocation.getY() - camera.getY()) 
+                        * WorldConstants.WORLD_BLOCK_HEIGHT;
+                blockY += blockLocation.getYOffset() - camera.getYOffset();
+                
+                Color oldColor = g.getColor();
+                long colorSeed = System.currentTimeMillis() % 1800;
+                double redAngle = Math.toRadians(colorSeed * 0.2);
+                double greenAngle = Math.toRadians(((colorSeed*3) % 1800) * 0.2);
+                double blueAngle = Math.toRadians(((colorSeed*5) % 1800) * 0.2);
+                g.setColor(new Color(
+                        (float)(Math.sin(redAngle) / 2.0 + 0.5), 
+                        (float)(Math.sin(greenAngle) / 2.0 + 0.5), 
+                        (float)(Math.sin(blueAngle) / 2.0 + 0.5)
+                ));
+                g.drawRect(blockX + 1, blockY + 1, WorldConstants.WORLD_BLOCK_WIDTH, 
+                        WorldConstants.WORLD_BLOCK_HEIGHT);
+                g.setColor(oldColor);
+            }
+            
             Color hpColor;
             // Color the HP bar based on if we're the player or not.
             if (Game.getInstance().getClient().getPlayer() == this) {
@@ -411,6 +445,15 @@ public class Player extends Living implements Serializable {
         return 1000.0 + this.getSkills().getLevel(SkillType.STRENGTH) * 150.0;
     }
 	
+    /**
+     * Retrieves the block radius for the placement of blocks.  Increases
+     * slowly as the player's mining level increases.
+     * @return blockPlacementRadius
+     */
+    public double getBlockPlacementRadius() {
+        return WorldConstants.MINIMUM_BLOCK_PLACEMENT_RADIUS + this.getSkills().getLevel(SkillType.MINING) * 0.08;
+    }
+    
 	/**
 	 * Retrieves the damage multiplier based on the player's gear, primary
 	 * skills, secondary skills, and buffs
@@ -420,13 +463,22 @@ public class Player extends Living implements Serializable {
 	    return 1000.0 + this.getSkills().getLevel(SkillType.MINING) * 50.0;
 	}
 	
+	public double getDefenseMultiplier() {
+	    // Since melee damage increases by about 13.78 times from level 1 to 99, defense
+	    // should decrease damage taken between levels 1 and 99 by 13.78 times.
+	    // How should we account for the increase in HP?  Is it okay to leave it?  If so,
+	    // then "naked" fights between maxed characters will take about 20 times longer
+	    // than naked level 1 characters,',.
+	    return Math.pow(0.99, (this.getSkills().getLevel(SkillType.DEFENSE) - 1) * 2.664);
+	}
+	
 	/**
 	 * Displays the damage dealt to a block.
 	 * @param x The global x position of the block.  Each block is 1 unit.
 	 * @param y The global y position of the block.  Each block is 1 unit.
 	 * @param damage The amount of damage dealt
 	 */
-	public void displayBlockDamage(long x, long y, int damage) {
+	public void displayBlockDamage(int x, int y, int damage) {
 	    MMOClient client = Game.getInstance().getClient();
 	    if (this == client.getPlayer()) {
 	        client.damageSession.addDamage(new Location(x, y), damage);
@@ -467,8 +519,8 @@ public class Player extends Living implements Serializable {
                      *  Using this, we need to grab every block in our rectangle for collision
                      *  testing.
                      */
-                    for (long x = topLeft.getX(); x <= bottomRight.getX(); ++x) {
-                        for (long y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
+                    for (int x = topLeft.getX(); x <= bottomRight.getX(); ++x) {
+                        for (int y = topLeft.getY(); y <= bottomRight.getY(); ++y) {
                             try {
                                 if (ts.getBlock(x, y).isCollidable()) {
                                     int xOff = 0;
@@ -568,5 +620,35 @@ public class Player extends Living implements Serializable {
     public void recalculateStats() {
         // Calculate HP
         setHpMax(getSkills().getLevel(SkillType.CONSTITUTION) * PLAYER_HP_MULTIPLIER + PLAYER_BASE_HP);
+    }
+    
+    /**
+     * Starts mining at the given location.
+     * @param location The location to mine at.
+     */
+    public void startMining(BoundLocation location) {
+        synchronized (this) {
+            isMining = true;
+            miningLocation = location;
+        }
+    }
+
+    /**
+     * Stops the player from mining.
+     */
+    public void stopMining() {
+        synchronized (this) {
+            isMining = false;
+        }
+    }
+    
+    /**
+     * Sets the location that the player is mining at.
+     * @param miningLocation The location to mine at.
+     */
+    public void setMiningLocation(BoundLocation miningLocation) {
+        synchronized (this) {
+            this.miningLocation = miningLocation;
+        }
     }
 }

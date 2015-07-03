@@ -73,7 +73,7 @@ public class TerrainSession {
      * @param y the vertical coordinate starting at y=0 from the top
      * @return the block at location (x,y).  Returns null if chunk is missing.
      */
-    public Block getBlock(long x, long y) {
+    public Block getBlock(int x, int y) {
         return getBlock(x, y, true);
     }
     
@@ -88,13 +88,13 @@ public class TerrainSession {
      * just assume it's filled with nothingness.
      * @return the block at location (x,y).  Returns null if chunk is missing.
      */
-    public Block getBlock(long x, long y, boolean queryChunk) {
+    public Block getBlock(int x, int y, boolean queryChunk) {
         // Get chunk x and y coordinates
         x = x >= 0 ? x % WorldConstants.WORLD_WIDTH : WorldConstants.WORLD_WIDTH + x;
-        long cx = x / WorldConstants.WORLD_CHUNK_WIDTH;
-        long cy = y / WorldConstants.WORLD_CHUNK_HEIGHT;
-        int  bx = (int) (x % WorldConstants.WORLD_CHUNK_WIDTH);
-        int  by = (int) (y % WorldConstants.WORLD_CHUNK_HEIGHT);
+        int cx = x / WorldConstants.WORLD_CHUNK_WIDTH;
+        int cy = y / WorldConstants.WORLD_CHUNK_HEIGHT;
+        int bx = x % WorldConstants.WORLD_CHUNK_WIDTH;
+        int by = y % WorldConstants.WORLD_CHUNK_HEIGHT;
         
         long chunkId = ((long) (cy) << 32) | cx;
         
@@ -130,14 +130,14 @@ public class TerrainSession {
 		chunksHigh   = chunksHigh   * 2 + 1;
 		            
         // Grab the unique chunk IDs based on player's center chunk
-        long x = location.getX();
-        long y = location.getY();
+        int x = location.getX();
+        int y = location.getY();
         
         // The maximum value of x.  Any higher will wrap
-        long maxX = WorldConstants.WORLD_CHUNKS_WIDE;
+        int maxX = WorldConstants.WORLD_CHUNKS_WIDE;
         
         // The maximum value of y.  Any higher will wrap
-        long maxY = WorldConstants.WORLD_CHUNKS_TALL;
+        int maxY = WorldConstants.WORLD_CHUNKS_TALL;
         
         // Divide by size of a chunk
         x /= WorldConstants.WORLD_CHUNK_WIDTH;
@@ -146,8 +146,8 @@ public class TerrainSession {
         // x and y now define a chunk
         
         // Render the frame to the offscreen buffer
-        int xBase = (int) (location.getX() - (x - (chunksAcross-1)/2) * WorldConstants.WORLD_CHUNK_WIDTH);
-        int yBase = (int) (location.getY() - (y - (chunksHigh-1)/2) * WorldConstants.WORLD_CHUNK_HEIGHT);
+        int xBase = location.getX() - (x - (chunksAcross-1)/2) * WorldConstants.WORLD_CHUNK_WIDTH;
+        int yBase = location.getY() - (y - (chunksHigh-1)/2) * WorldConstants.WORLD_CHUNK_HEIGHT;
         xBase *= WorldConstants.WORLD_BLOCK_WIDTH;
         yBase *= WorldConstants.WORLD_BLOCK_HEIGHT;
         xBase += location.getXOffset();
@@ -278,19 +278,21 @@ public class TerrainSession {
     /**
      * Get the location that is just before <code>end</code> based off of the
      * starting location.
-     * TODO:  This function needs to be thought out better.  It's messing with 
+     * TODO  This function needs to be thought out better.  It's messing with
      * {@link #collideWithBlock(Location, Location)}collideWithBlock.
      * @param start the location to start at
      * @param end the old end location
      * @param collision the new end location
-     * @return the location right before the end location; returns null if any parameter is null
+     * @return the location right before the end location; returns null if any
+     * parameter is null
      */
-    public Location getMaxLocation(Location start, Location end, BoundLocation collision) {
+    public final Location getMaxLocation(final Location start,
+            final Location end, BoundLocation collision) {
         // Guard
         if (start == null || end == null || collision == null) {
             return null;
         }
-        
+
         // Special case for same block
         if (start.getX() == collision.getX() && start.getY() == collision.getY()) {
             return start;
@@ -365,7 +367,7 @@ public class TerrainSession {
         long y = y0;
         
         // First point
-        Block b = getBlock(x, y);
+        Block b = getBlock((int)x, (int)y);
         if (b == null || b.isCollidable()) {
             return start; // we started at a block with collision...
         }
@@ -409,28 +411,28 @@ public class TerrainSession {
                     y += yStep;
                     error -= deltax;
                     if (error + errorprev <= deltax) { // bottom square
-                        b = getBlock(x, y - yStep);
+                        b = getBlock((int)x, (int)(y - yStep));
                         if (b == null || b.isCollidable()) {
                             BoundLocation newStart = new BoundLocation(0, 0);
                             newStart.setRawX( (x * Location.BLOCK_GRANULARITY) - (xStep > 0 ? 1 : Location.BLOCK_GRANULARITY));
                             newStart.setRawY( (y - yStep) * Location.BLOCK_GRANULARITY + start.getRawXOffset() ); // TODO:  Fix this
-                            return getMaxLocation(newStart, end, new BoundLocation(x, y - yStep));
+                            return getMaxLocation(newStart, end, new BoundLocation((int)x, (int)(y - yStep)));
                         }
                     }
                     if (error + errorprev >= deltax) { // left square
-                        b = getBlock(x - xStep, y);
+                        b = getBlock((int)(x - xStep), (int)y);
                         if (b == null || b.isCollidable()) {
                             BoundLocation newStart = new BoundLocation(0, 0);
                             newStart.setRawX( (x - xStep) * Location.BLOCK_GRANULARITY + start.getRawYOffset() ); // TODO:  Fix this
                             newStart.setRawY( (y * Location.BLOCK_GRANULARITY) - (yStep > 0 ? 1 : Location.BLOCK_GRANULARITY) );
-                            return getMaxLocation(newStart, end, new BoundLocation(x - xStep, y));
+                            return getMaxLocation(newStart, end, new BoundLocation((int)(x - xStep), (int)y));
                         }
                     }
                 }
                 
-                b = getBlock(x, y);
+                b = getBlock((int)x, (int)y);
                 if (b == null || b.isCollidable()) {
-                    return getMaxLocation(start, end, new BoundLocation(x, y));
+                    return getMaxLocation(start, end, new BoundLocation((int)x, (int)y));
                 }
             }
         } else { // steep
@@ -444,27 +446,27 @@ public class TerrainSession {
                     x += xStep;
                     error -= deltay;
                     if (error + errorprev <= deltay) { // left
-                        b = getBlock(x - xStep, y);
+                        b = getBlock((int)(x - xStep), (int)y);
                         if (b == null || b.isCollidable()) { 
                             BoundLocation newStart = new BoundLocation(0, 0);
                             newStart.setRawX( (x - xStep) * Location.BLOCK_GRANULARITY + start.getRawYOffset() ); // TODO:  Fix this
                             newStart.setRawY( (y * Location.BLOCK_GRANULARITY) - (yStep > 0 ? 1 : Location.BLOCK_GRANULARITY) );
-                            return getMaxLocation(newStart, end, new BoundLocation(x - xStep, y));
+                            return getMaxLocation(newStart, end, new BoundLocation((int)(x - xStep), (int)y));
                         }
                     }
                     if (error + errorprev >= deltay) { // up
-                        b = getBlock(x, y - yStep);
+                        b = getBlock((int)x, (int)(y - yStep));
                         if (b == null || b.isCollidable()) {
                             BoundLocation newStart = new BoundLocation(0, 0);
                             newStart.setRawX( (x * Location.BLOCK_GRANULARITY) - (xStep > 0 ? 1 : Location.BLOCK_GRANULARITY));
                             newStart.setRawY( (y - yStep) * Location.BLOCK_GRANULARITY + start.getRawXOffset() ); // TODO:  Fix this
-                            return getMaxLocation(newStart, end, new BoundLocation(x, y - yStep));
+                            return getMaxLocation(newStart, end, new BoundLocation((int)x, (int)(y - yStep)));
                         }
                     }
                 }
-                b = getBlock(x, y);
+                b = getBlock((int)x, (int)y);
                 if (b == null || b.isCollidable()) {
-                    return getMaxLocation(start, end, new BoundLocation(x, y));
+                    return getMaxLocation(start, end, new BoundLocation((int)x, (int)y));
                 }
             }
         }
@@ -489,7 +491,7 @@ public class TerrainSession {
         long y = y0;
         
         // First point
-        Block b = getBlock(x, y).getCopy();
+        Block b = getBlock((int)x, (int)y).getCopy();
         setBlock(x, y, new AirGreenBlock());
         if (b == null || b.isCollidable()) {
             setBlock(x, y, new AirRedBlock());
@@ -536,30 +538,30 @@ public class TerrainSession {
                     y += yStep;
                     error -= deltax;
                     if (error + errorprev <= deltax) { // bottom square
-                        b = getBlock(x, y - yStep).getCopy();
+                        b = getBlock((int)x, (int)(y - yStep)).getCopy();
                         setBlock(x, y - yStep, new AirGreenBlock());
                         if (b == null || b.isCollidable()) {
                             setBlock(x, y - yStep, new AirRedBlock());
                             if (x == x0) { // same block
                                 return start;
                             }
-                            return getMaxLocation(start, end, new BoundLocation(x, y - yStep));
+                            return getMaxLocation(start, end, new BoundLocation((int)x, (int)(y - yStep)));
                         }
                     }
                     if (error + errorprev >= deltax) { // left square
-                        b = getBlock(x - xStep, y).getCopy();
+                        b = getBlock((int)(x - xStep), (int)y).getCopy();
                         setBlock(x - xStep, y, new AirGreenBlock());
                         if (b == null || b.isCollidable()) {
                             setBlock(x - xStep, y, new AirRedBlock());
                             if (x == x0) { // same block
                                 return start;
                             }
-                            return getMaxLocation(start, end, new BoundLocation(x - xStep, y));
+                            return getMaxLocation(start, end, new BoundLocation((int)(x - xStep), (int)y));
                         }
                     }
                 }
                 
-                b = getBlock(x, y).getCopy();
+                b = getBlock((int)x, (int)y).getCopy();
                 setBlock(x, y, new AirGreenBlock());
                 if (b == null || b.isCollidable()) {
                     setBlock(x, y, new AirRedBlock());
@@ -577,29 +579,29 @@ public class TerrainSession {
                     x += xStep;
                     error -= deltay;
                     if (error + errorprev <= deltay) {
-                        b = getBlock(x - xStep, y).getCopy();
+                        b = getBlock((int)(x - xStep), (int)y).getCopy();
                         setBlock(x - xStep, y, new AirGreenBlock());
                         if (b == null || b.isCollidable()) {
                             setBlock(x - xStep, y, new AirRedBlock());
                             if (x == x0) { // same block
                                 return start;
                             }
-                            return getMaxLocation(start, end, new BoundLocation(x - xStep, y));
+                            return getMaxLocation(start, end, new BoundLocation((int)(x - xStep), (int)y));
                         }
                     }
                     if (error + errorprev >= deltay) {
-                        b = getBlock(x, y - yStep).getCopy();
+                        b = getBlock((int)x, (int)(y - yStep)).getCopy();
                         setBlock(x, y - yStep, new AirGreenBlock());
                         if (b == null || b.isCollidable()) {
                             setBlock(x, y - yStep, new AirRedBlock());
                             if (x == x0) { // same block
                                 return start;
                             }
-                            return getMaxLocation(start, end, new BoundLocation(x, y - yStep));
+                            return getMaxLocation(start, end, new BoundLocation((int)x, (int)(y - yStep)));
                         }
                     }
                 }
-                b = getBlock(x, y).getCopy();
+                b = getBlock((int)x, (int)y).getCopy();
                 setBlock(x, y, new AirGreenBlock());
                 if (b == null || b.isCollidable()) {
                     setBlock(x, y, new AirRedBlock());

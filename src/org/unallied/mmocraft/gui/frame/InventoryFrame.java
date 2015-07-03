@@ -140,7 +140,7 @@ public class InventoryFrame extends Frame {
                 ImageID.BUTTON_CLOSE_SELECTED.toString(), 0);
         
         moneyValueStaticText = new StaticText(this, null, container, 
-                "" + playerGold, 145, 1, 100, 14, 
+                "" + playerGold, 145, 1, 100, -1, 
                 FontID.STATIC_TEXT_LARGE_BOLD, Item.getQuantityColor(playerGold));
         ToolTip moneyTip = new ToolTip();
         moneyTip.addNode(new StringNode(this, null, String.format("%,d", playerGold), 
@@ -238,8 +238,8 @@ public class InventoryFrame extends Frame {
     }
     
     public void renderBackground(Graphics g) {
-		final int offX = getAbsoluteWidth();  // offset from left of screen
-		final int offY = getAbsoluteHeight(); // offset from top of screen
+		final int offX = getAbsoluteX();  // offset from left of screen
+		final int offY = getAbsoluteY(); // offset from top of screen
 		final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
     	
         // Render background
@@ -308,8 +308,8 @@ public class InventoryFrame extends Frame {
      * @return true if this item's background was rendered.
      */
     public boolean renderItemBackground(Graphics g, Input input, ItemElement element, int yOffset) {
-        final int offX = getAbsoluteWidth();  // offset from left of screen
-        final int offY = getAbsoluteHeight(); // offset from top of screen
+        final int offX = getAbsoluteX();  // offset from left of screen
+        final int offY = getAbsoluteY(); // offset from top of screen
         final Font itemFont = FontHandler.getInstance().getFont(ITEM_FONT);
         final int itemHeight = itemFont.getLineHeight() + 2;
         
@@ -332,8 +332,8 @@ public class InventoryFrame extends Frame {
         final Font itemFont = FontHandler.getInstance().getFont(ITEM_FONT);
         final int categoryHeight = categoryFont.getLineHeight() + 2;
         final int itemHeight = itemFont.getLineHeight() + 2;
-        final int offX = getAbsoluteWidth();  // offset from left of screen
-        final int offY = getAbsoluteHeight(); // offset from top of screen
+        final int offX = getAbsoluteX();  // offset from left of screen
+        final int offY = getAbsoluteY(); // offset from top of screen
         Input input = Game.getInstance().getContainer().getInput();
         
         updateItemElements(); // inefficient.  Should only be called when it needs to refresh

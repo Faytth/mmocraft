@@ -64,10 +64,10 @@ public abstract class Control extends GUIElement {
     public void render(GameContainer container, StateBasedGame game, Graphics g) {
     	if (!hidden) {
 	        // Perform normal render stuff
-            g.translate(getAbsoluteWidth(), getAbsoluteHeight());
+            g.translate(getAbsoluteX(), getAbsoluteY());
             renderImage(g);
             g.flush();
-            g.translate(-getAbsoluteWidth(), -getAbsoluteHeight());
+            g.translate(-getAbsoluteX(), -getAbsoluteY());
 //	        renderToolTip(container, game, g);
     	}
     }

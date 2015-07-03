@@ -13,8 +13,6 @@ import org.unallied.mmocraft.items.ItemManager;
  *
  */
 public class GrassBlock extends Block {
-    private static final Image image = ImageHandler.getInstance().getImage(
-            ImageID.BLOCK_GRASS.toString());
     private static final BlockType type = BlockType.GRASS;
 
     public GrassBlock() {
@@ -22,8 +20,8 @@ public class GrassBlock extends Block {
     }
 
     @Override
-    protected Image getImage() {
-        return image;
+    public Image getImage() {
+        return ImageHandler.getInstance().getImage(ImageID.BLOCK_GRASS.toString());
     }
 
     @Override

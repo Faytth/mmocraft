@@ -81,7 +81,6 @@ public class ToolbarFrame extends Frame {
 
     @Override
     public boolean isAcceptingTab() {
-        // TODO Auto-generated method stub
         return false;
     }
     

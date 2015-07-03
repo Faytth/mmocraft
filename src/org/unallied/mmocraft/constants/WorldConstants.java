@@ -21,23 +21,23 @@ public abstract class WorldConstants {
      *  The width (in blocks) of a block "region."  Regions contain names,
      *  weather effects, terrain style, unique enemies, and so on.
      */
-    public static final long WORLD_REGION_WIDTH = 20 * WORLD_CHUNK_WIDTH;
+    public static final int WORLD_REGION_WIDTH = 20 * WORLD_CHUNK_WIDTH;
     
     /** 
      * Height (in blocks) of a block "region"
      */
-    public static final long WORLD_REGION_HEIGHT = 100 * WORLD_CHUNK_HEIGHT;
+    public static final int WORLD_REGION_HEIGHT = 100 * WORLD_CHUNK_HEIGHT;
     
     /**
      *  Width of the game world in blocks.  Use 65 for production for a
      *  world size of about 2 GB.
      */
-    public static final long WORLD_WIDTH = 30 * WORLD_REGION_WIDTH;
+    public static final int WORLD_WIDTH = 1 * WORLD_REGION_WIDTH; //30 * WORLD_REGION_WIDTH;
     
     /**
      *  Height of the game world in blocks.  Leave this at 1 for now.
      */
-    public static final long WORLD_HEIGHT = 1 * WORLD_REGION_HEIGHT;
+    public static final int WORLD_HEIGHT = 1 * WORLD_REGION_HEIGHT;
     
     /**
      *  The width (in pixels) of a block.
@@ -53,25 +53,25 @@ public abstract class WorldConstants {
      *  The number of chunks, lined from end to end, that it takes to span 
      *  the width of the world
      */
-    public static final long WORLD_CHUNKS_WIDE = (int) (WORLD_WIDTH / (long)WORLD_CHUNK_WIDTH);
+    public static final int WORLD_CHUNKS_WIDE = WORLD_WIDTH / WORLD_CHUNK_WIDTH;
     
     /**
      *  The number of chunks, lined end to end, that it takes to span the 
      *  height of the world
      */
-    public static final long WORLD_CHUNKS_TALL = (int) (WORLD_HEIGHT / (long)WORLD_CHUNK_HEIGHT);
+    public static final int WORLD_CHUNKS_TALL = WORLD_HEIGHT / WORLD_CHUNK_HEIGHT;
 
     /**
      * The number of regions, lined from end to end, that it takes to span
      * the width of the world
      */
-    public static final long WORLD_REGIONS_WIDE = WORLD_WIDTH / WORLD_REGION_WIDTH;
+    public static int WORLD_REGIONS_WIDE = WORLD_WIDTH / WORLD_REGION_WIDTH;
     
     /**
      * The number of regions, linked end to end, that it takes to span the
      * height of the world
      */
-    public static final long WORLD_REGIONS_TALL = WORLD_HEIGHT / WORLD_REGION_HEIGHT;
+    public static int WORLD_REGIONS_TALL = WORLD_HEIGHT / WORLD_REGION_HEIGHT;
     
     /**
      * The stepping to use for the world.  Lower values make the world appear larger
@@ -94,13 +94,13 @@ public abstract class WorldConstants {
      * The number of worms to generate throughout the world.  A worm is land
      * that has been "tunneled" through as if by a worm.
      */
-    public static final long WORM_COUNT = WORLD_WIDTH*WORLD_HEIGHT / 1000000;
+    public static final long WORM_COUNT = (long) (WORLD_WIDTH) * (long) (WORLD_HEIGHT) / 1000000L;
     
     /**
      * A value between 1 and 99999 should be used.  Higher values will cause 
      * worms to be longer on average.
      */
-    public static final long WORM_LENGTH = 99990;
+    public static final int WORM_LENGTH = 99990;
     
     /**
      * The rate at which the worm's radius changes.  Should be between 1 and 99.
@@ -138,4 +138,10 @@ public abstract class WorldConstants {
 	 * Later on we should allow the player to decide through a configuration menu.
 	 */
     public static final boolean WORLD_SHADOWS_ENABLED = true;
+    
+    /** 
+     * The distance (in blocks) between the player's location and the farthest
+     * location that they're allowed to place a block.
+     */
+    public static final double MINIMUM_BLOCK_PLACEMENT_RADIUS = 5.0;
 }

@@ -12,6 +12,7 @@ import org.unallied.mmocraft.client.GameState;
 import org.unallied.mmocraft.client.ImageHandler;
 import org.unallied.mmocraft.client.ImageID;
 import org.unallied.mmocraft.client.SpriteHandler;
+import org.unallied.mmocraft.constants.ClientConstants;
 import org.unallied.mmocraft.gui.GUIElement.Event;
 import org.unallied.mmocraft.gui.GUIElement.EventIntf;
 import org.unallied.mmocraft.gui.frame.RegisterFrame;
@@ -123,18 +124,29 @@ public class RegisterState extends AbstractState {
 	}
 
 	@Override
-	public void render(GameContainer container, StateBasedGame game
-			, Graphics g) {
-
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		Image image = ImageHandler.getInstance().getImage(ImageID.LOGIN_SCREEN.toString());
 		if( image != null) {
-			// Tile the login state across the game
-			for (int i = orderedFrames.getAbsoluteWidth(); i < container.getWidth(); i += image.getWidth()) {
-				for (int j = orderedFrames.getAbsoluteHeight(); j < container.getHeight(); j += image.getHeight()) {
-					image.draw(i, j);
-				}
-			}
+            long curTime = System.currentTimeMillis();
+            int backgroundOffsetX = (int) ((curTime % (image.getWidth() * ClientConstants.BACKGROUND_SCROLL_RATE_X)) / ClientConstants.BACKGROUND_SCROLL_RATE_X);
+            int backgroundOffsetY = (int) ((curTime % (image.getHeight() * ClientConstants.BACKGROUND_SCROLL_RATE_Y)) / ClientConstants.BACKGROUND_SCROLL_RATE_Y);
+            
+            // Tile the login state across the game
+            final int imageWidth = image.getWidth();
+            final int imageHeight = image.getHeight();
+            image.startUse();
+            for (int i = orderedFrames.getAbsoluteX() - backgroundOffsetX; i < container.getWidth(); i += imageWidth) {
+                for (int j = orderedFrames.getAbsoluteY() - backgroundOffsetY; j < container.getHeight(); j += imageHeight) {
+                    image.drawEmbedded(i, j, imageWidth, imageHeight);
+                }
+            }
+            image.endUse();
 		}
+		
+        Image title = ImageHandler.getInstance().getImage(ImageID.LOGIN_TITLE.toString());
+        if (title != null) {
+            title.draw(container.getWidth() / 2 - title.getWidth() / 2, container.getHeight() / 2 - title.getHeight() - 100);
+        }
 
 		orderedFrames.render(container, game, g);
 	}

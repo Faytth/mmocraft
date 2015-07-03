@@ -150,7 +150,7 @@ public class LootFrame extends Frame {
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		
-		g.translate(getAbsoluteWidth(), getAbsoluteHeight());
+		g.translate(getAbsoluteX(), getAbsoluteY());
 		
 		//Recalculate which items should be removed
 		recalculateItems();

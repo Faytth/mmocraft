@@ -242,8 +242,8 @@ public class ChatFrame extends Frame {
     
     public void renderScrollBar(Graphics g) {
         if (receivedMessages.size() > 1) {
-            int offX = getAbsoluteWidth();
-            int offY = getAbsoluteHeight();
+            int offX = getAbsoluteX();
+            int offY = getAbsoluteY();
             int scrollBarLength = (int)((1.0 * 1 / receivedMessages.size()) * (chatHeight));
             scrollBarLength = scrollBarLength < 20 ? 20 : scrollBarLength; // minimum length
             int scrollYOffset = chatHeight - scrollBarLength - ((int)(1.0 * lineIndex / (receivedMessages.size()-1) * (chatHeight - scrollBarLength)));
@@ -267,19 +267,19 @@ public class ChatFrame extends Frame {
         if (!hidden) {
             if (width > 0 && height > 0) {
                 if (isActive()) { // Show background
-                    g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight), 
+                    g.fill(new Rectangle(getAbsoluteX(), getAbsoluteY(), width, chatHeight), 
                             new GradientFill(0, 0, new Color(0, 0, 0, 150),
                                     0, chatHeight/2, new Color(0, 0, 0, 150)));
                 } else {
-                    g.fill(new Rectangle(getAbsoluteWidth(), getAbsoluteHeight(), width, chatHeight),
+                    g.fill(new Rectangle(getAbsoluteX(), getAbsoluteY(), width, chatHeight),
                             new GradientFill(0, 0, new Color(0, 0, 0, 100),
                                     0, chatHeight/2, new Color(0, 0, 0, 100)));
                     messageTextCtrl.setLabel("");
                 }
-                g.translate(getAbsoluteWidth(), getAbsoluteHeight());
+                g.translate(getAbsoluteX(), getAbsoluteY());
                 renderImage(g);
                 g.flush();
-                g.translate(-getAbsoluteWidth(), -getAbsoluteHeight());
+                g.translate(-getAbsoluteX(), -getAbsoluteY());
                 
                 // Render scrollbar
                 renderScrollBar(g);
@@ -302,7 +302,7 @@ public class ChatFrame extends Frame {
         } else {
             g.setColor(new Color(0, 0, 0));
         }
-        g.drawRect(getAbsoluteWidth(), getAbsoluteHeight(), width, height);
+        g.drawRect(getAbsoluteX(), getAbsoluteY(), width, height);
         g.setColor(new Color(255, 255, 255));
     }
     

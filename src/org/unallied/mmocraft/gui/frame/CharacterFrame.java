@@ -101,8 +101,8 @@ public class CharacterFrame extends Frame {
     }
     
     public void renderBackground(Graphics g) {
-        final int offX = getAbsoluteWidth();  // offset from left of screen
-        final int offY = getAbsoluteHeight(); // offset from top of screen
+        final int offX = getAbsoluteX();  // offset from left of screen
+        final int offY = getAbsoluteY(); // offset from top of screen
         final Font categoryFont = FontHandler.getInstance().getFont(CATEGORY_FONT);
         
         // Render background

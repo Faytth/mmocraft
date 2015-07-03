@@ -6,15 +6,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.unallied.mmocraft.tools.input.SeekableLittleEndianAccessor;
 import org.unallied.mmocraft.tools.output.GenericLittleEndianWriter;
 
 /** Inventory for the player.  Contains all items and inventory categories. */
 public class Inventory {
+    /** 
+     * A mutex for gold.  We can't synchronize on gold directly, because it's
+     * a boxed primitive.  Boxed primitives can be shared with other, unrelated
+     * code which could cause unwanted bugs.
+     */
+    private Object goldMutex = new Object();
+
     /** The player's gold. */
-    private AtomicLong gold = new AtomicLong(0);
+    private long gold = 0L;
     
     /** All of the items in the inventory. */
     protected Map<Integer, Item> items = Collections.synchronizedMap(new HashMap<Integer, Item>());
@@ -40,12 +46,15 @@ public class Inventory {
         if (item == null || quantity < 0 || item.getQuantity() + quantity <= 0) { // Guard
             return;
         }
-        if (items.containsKey(item.getId())) {
-            Item categoryItem = items.get(item.getId());
-            categoryItem.addQuantity(quantity);
-        } else {
-            item.addQuantity(quantity);
-            items.put(item.getId(), item);
+
+        synchronized (items) {
+            if (items.containsKey(item.getId())) {
+                Item categoryItem = items.get(item.getId());
+                categoryItem.addQuantity(quantity);
+            } else {
+                item.addQuantity(quantity);
+                items.put(item.getId(), item);
+            }
         }
     }
     
@@ -53,18 +62,25 @@ public class Inventory {
      * Removes an item from the inventory.
      * @param item
      * @param quantity The number of items to remove.  Negative values do nothing.
+     * @return The quantity of items actually removed.
      */
-    public void removeItem(Item item, long quantity) {
+    public long removeItem(Item item, long quantity) {
         if (item == null || quantity <= 0) { // Guard
-            return;
+            return 0;
         }
-        if (items.containsKey(item.getId())) {
-            Item categoryItem = items.get(item.getId());
-            categoryItem.removeQuantity(quantity);
-            if (categoryItem.getQuantity() == 0) {
-                items.remove(categoryItem.getId());
+        long result = 0;
+        
+        synchronized (items) {
+            if (items.containsKey(item.getId())) {
+                Item categoryItem = items.get(item.getId());
+                result = categoryItem.removeQuantity(quantity);
+                if (categoryItem.getQuantity() == 0) {
+                    items.remove(categoryItem.getId());
+                }
             }
         }
+        
+        return result;
     }
     
     /**
@@ -80,11 +96,15 @@ public class Inventory {
     public byte[] getBytes() {
         GenericLittleEndianWriter writer = new GenericLittleEndianWriter();
         
-        writer.writeLong(gold.longValue());
+        synchronized (goldMutex) {
+            writer.writeLong(gold);
+        }
         
-        writer.writeInt(items.size());
-        for (final Item item : items.values()) {
-            writer.write(item.getBytes());
+        synchronized (items) {
+            writer.writeInt(items.size());
+            for (final Item item : items.values()) {
+                writer.write(item.getBytes());
+            }
         }
         
         return writer.toByteArray();
@@ -100,7 +120,7 @@ public class Inventory {
     public static Inventory fromBytes(SeekableLittleEndianAccessor slea) {
         Inventory result = new Inventory();
         
-        result.gold.set(slea.readLong());
+        result.gold = slea.readLong();
         
         int count = slea.readInt();
         for (int i=0; i < count; ++i) {
@@ -119,10 +139,12 @@ public class Inventory {
     public Collection<ItemData> getItemData() {
         List<ItemData> result = new ArrayList<ItemData>();
         
-        for (Item item : items.values()) {
-            ItemData data = ItemManager.getItemData(item.getId());
-            if (data != null) {
-                result.add(data);
+        synchronized (items) {
+            for (Item item : items.values()) {
+                ItemData data = ItemManager.getItemData(item.getId());
+                if (data != null) {
+                    result.add(data);
+                }
             }
         }
         
@@ -135,7 +157,9 @@ public class Inventory {
      * @return gold
      */
     public long getGold() {
-        return gold.longValue();
+        synchronized (goldMutex) {
+            return gold;
+        }
     }
     
     /**
@@ -145,7 +169,9 @@ public class Inventory {
      * @param gold The new amount of gold.
      */
     public void setGold(long gold) {
-        this.gold.set(gold);
+        synchronized (goldMutex) {
+            this.gold = gold;
+        }
     }
     
     /**
@@ -163,12 +189,12 @@ public class Inventory {
         
         long result = 0;
         
-        synchronized (this.gold) {
-            if (this.gold.longValue() + gold < 0) {
-                result = this.gold.longValue() + gold - Long.MAX_VALUE;
-                this.gold.set(Long.MAX_VALUE);
+        synchronized (goldMutex) {
+            if (this.gold + gold < 0) {
+                result = this.gold + gold - Long.MAX_VALUE;
+                this.gold = Long.MAX_VALUE;
             } else {
-                this.gold.addAndGet(gold);
+                this.gold += gold;
             }
         }
         
@@ -191,12 +217,12 @@ public class Inventory {
         
         long result = 0;
         
-        synchronized (this.gold) {
-            if (this.gold.longValue() - gold < 0) {
-                result = gold - this.gold.longValue();
-                this.gold.set(0);
+        synchronized (goldMutex) {
+            if (this.gold - gold < 0) {
+                result = gold - this.gold;
+                this.gold = 0L;
             } else {
-                this.gold.addAndGet(-gold);
+                this.gold -= gold;
             }
         }
         
@@ -211,8 +237,10 @@ public class Inventory {
      *                  quantity of the item on hand.
      */
     public long getQuantity(int itemId) {
-        Item item = items.get(itemId);
-        return item == null ? 0 : item.getQuantity();
+        synchronized (items) {
+            Item item = items.get(itemId);
+            return item == null ? 0 : item.getQuantity();
+        }
     }
 
     /**

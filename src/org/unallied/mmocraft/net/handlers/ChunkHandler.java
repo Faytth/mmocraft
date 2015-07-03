@@ -1,7 +1,9 @@
 package org.unallied.mmocraft.net.handlers;
 
+import org.iq80.snappy.Snappy;
 import org.unallied.mmocraft.BlockType;
-import org.unallied.mmocraft.blocks.*;
+import org.unallied.mmocraft.blocks.AirBlock;
+import org.unallied.mmocraft.blocks.Block;
 import org.unallied.mmocraft.client.Game;
 import org.unallied.mmocraft.client.MMOClient;
 import org.unallied.mmocraft.constants.WorldConstants;
@@ -24,7 +26,9 @@ public class ChunkHandler extends AbstractPacketHandler {
         
         int x = WorldConstants.WORLD_CHUNK_WIDTH;
         int y = WorldConstants.WORLD_CHUNK_HEIGHT;
-        byte[] blocks = slea.read(x*y*1);
+        byte[] blocks = slea.read((int)slea.available());
+        blocks = Snappy.uncompress(blocks, 0, blocks.length);
+        
         Block[][] chunkBlocks = new Block[x][y];
         
         for (int i=0; i < x; ++i) {

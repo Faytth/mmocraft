@@ -27,6 +27,9 @@ public class LoginFrame extends Frame {
     /** Displays error messages when the user fails to log in. */
     private StaticText successStaticText;
     
+    /** Color to display the static text in. (Gold) */
+    private final static Color TEXT_COLOR = new Color(246, 246, 246);
+    
     /**
      * Initializes a LoginFrame with its elements (e.g. Username, Password fields)
      * @param x The x offset for this frame (from the parent GUI element)
@@ -35,7 +38,11 @@ public class LoginFrame extends Frame {
     public LoginFrame(final Frame parent, EventIntf intf, GameContainer container
             , float x, float y, int width, int height) {
         super(parent, intf, container, x, y, width, height);
-
+        
+        init();
+    }
+    
+    public void init() {
         passTextCtrl = new TextCtrl(this, new EventIntf() {
             @Override
             public void callback(Event event) {
@@ -94,9 +101,11 @@ public class LoginFrame extends Frame {
                 registerButton.getY() + registerButton.getHeight(), -1, -1, 
                 FontID.STATIC_TEXT_MEDIUM, new Color(200, 0, 0));
         
-        elements.add(new StaticText(this, null, container, "Username:", 0, 0, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
+        elements.add(new StaticText(this, null, container, "Username:", 0, 0, 
+                -1, -1, FontID.STATIC_TEXT_LARGE_BOLD, TEXT_COLOR));
         elements.add(userTextCtrl);
-        elements.add(new StaticText(this, null, container, "Password:", 0, 30, -1, -1, FontID.STATIC_TEXT_LARGE_BOLD));
+        elements.add(new StaticText(this, null, container, "Password:", 0, 30, 
+                -1, -1, FontID.STATIC_TEXT_LARGE_BOLD, TEXT_COLOR));
         elements.add(passTextCtrl);
         elements.add(loginButton);
         elements.add(registerButton);
@@ -111,20 +120,22 @@ public class LoginFrame extends Frame {
     @Override
     public void update(GameContainer container) {
 
-        if (PacketSocket.getConnectionStatus() == ConnectionStatus.CONTACTING_SERVER) {
-            successStaticText.setLabel(StringConstants.CONTACTING_SERVER);
-        } else if (LoginErrorHandler.getLastError() != 0) {
-            successStaticText.setLabel(StringConstants.LOGIN_ERROR);
-        } else if (PacketSocket.getConnectionStatus() == ConnectionStatus.FAILED_TO_CONNECT) {
-            successStaticText.setLabel(StringConstants.CONNECTION_ERROR);
-        } else {
-            successStaticText.setLabel("");
-        }
-        
-        // Iterate over all GUI controls and inform them of input
-        for( GUIElement element : elements ) {
-            element.update(container);
-        }
+        try {
+            if (PacketSocket.getConnectionStatus() == ConnectionStatus.CONTACTING_SERVER) {
+                successStaticText.setLabel(StringConstants.CONTACTING_SERVER);
+            } else if (LoginErrorHandler.getLastError() != 0) {
+                successStaticText.setLabel(StringConstants.LOGIN_ERROR);
+            } else if (PacketSocket.getConnectionStatus() == ConnectionStatus.FAILED_TO_CONNECT) {
+                successStaticText.setLabel(StringConstants.CONNECTION_ERROR);
+            } else {
+                successStaticText.setLabel("");
+            }
+            
+            // Iterate over all GUI controls and inform them of input
+            for( GUIElement element : elements ) {
+                element.update(container);
+            }
+        } catch (Throwable t) {}
     }
 
     @Override

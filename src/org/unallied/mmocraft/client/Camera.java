@@ -49,7 +49,8 @@ public class Camera {
     
     /**
      * Retrieves the current location.  This method updates the current location
-     * using the current system time.
+     * using the current system time.  The current location is the top-left
+     * corner of the view area.
      * @return location
      */
     public BoundLocation getLocation() {
